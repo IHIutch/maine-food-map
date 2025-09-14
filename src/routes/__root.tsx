@@ -12,6 +12,8 @@ import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
 
+
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -55,6 +57,11 @@ export const Route = createRootRoute({
         src: '/customScript.js',
         type: 'text/javascript',
       },
+      process.env.NODE_ENV === 'production' ? {
+        src: "https://cdn.usefathom.com/script.js",
+        'data-site': "KKNJFATJ",
+        defer: true
+      } : {}
     ],
   }),
   errorComponent: DefaultCatchBoundary,
