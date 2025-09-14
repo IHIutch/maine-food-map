@@ -4,4 +4,5 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - better-sqlite3
   - esbuild
+  - oxc-resolver
   - prisma
