@@ -22,7 +22,10 @@ export const Route = createFileRoute('/')({
       orderBy: [
         { rating: 'desc' },
         { title: 'asc' }
-      ]
+      ],
+      cacheStrategy: {
+        ttl: 3600 // one hour
+      },
     })
 
     // Parse JSON fields
@@ -41,17 +44,17 @@ function PlacesIndex() {
   // Helper to check if a restaurant is currently open
   const isOpenNow = (openingHours: any) => {
     if (!openingHours) return false
-    
+
     const now = new Date()
     const currentDay = now.getDay()
     const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-    
+
     const todaySchedule = openingHours[currentDay]
-    
+
     if (todaySchedule.open === "00:00" && todaySchedule.close === "00:00") {
       return false
     }
-    
+
     return currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
   }
 
@@ -59,7 +62,7 @@ function PlacesIndex() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-4xl font-bold mb-8">Maine Food Map</h1>
-        
+
         <div className="mb-6">
           <p className="text-gray-600">
             Discover {restaurants.length} amazing restaurants in Maine
@@ -69,7 +72,7 @@ function PlacesIndex() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {restaurants.map((restaurant) => {
             const open = isOpenNow(restaurant.opening_hours)
-            
+
             return (
               <Link
                 key={restaurant.id}
@@ -116,10 +119,9 @@ function PlacesIndex() {
                       </span>
                     )}
                   </div>
-                  
-                  <span className={`text-xs font-medium ${
-                    open ? 'text-green-600' : 'text-red-600'
-                  }`}>
+
+                  <span className={`text-xs font-medium ${open ? 'text-green-600' : 'text-red-600'
+                    }`}>
                     {open ? 'Open' : 'Closed'}
                   </span>
                 </div>

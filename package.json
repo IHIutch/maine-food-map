@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@prisma/adapter-pg": "^6.16.1",
-    "@prisma/client": "^6.16.1",
+    "@prisma/client": "^6.16.2",
     "@prisma/extension-accelerate": "^2.0.2",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-router": "^1.131.41",
