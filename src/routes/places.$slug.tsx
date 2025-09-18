@@ -161,7 +161,12 @@ function RestaurantPage() {
                   <div>
                     <p className="text-sm text-gray-500">Website</p>
                     <a
-                      href={restaurant.website}
+                      href={`${restaurant.website}?ref=mainefoodmap.com`}
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && (window as any).fathom) {
+                          (window as any).fathom.trackEvent(`website_click: ${restaurant.slug}`);
+                        }
+                      }}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
