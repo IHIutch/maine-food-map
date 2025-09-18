@@ -29,15 +29,15 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
 
     // Parse JSON fields and check if open
     const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
-    
+
     // Calculate current status
     const now = new Date()
     const currentDay = now.getDay()
     const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-    
+
     let isOpen = false
     let todayHours = null
-    
+
     if (opening_hours) {
       const todaySchedule = opening_hours[currentDay]
       if (todaySchedule) {
@@ -165,12 +165,10 @@ function RestaurantPage() {
                   <div>
                     <p className="text-sm text-gray-500">Website</p>
                     <a
-                      // href={`${restaurant.website}?ref=mainefoodmap.com`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        console.log("rest")
+                      href={`${restaurant.website}?ref=mainefoodmap.com`}
+                      onClick={() => {
                         // @ts-expect-error
-                        window?.fathom.trackEvent(`website_click: ${restaurant.slug}`);
+                        fathom.trackEvent(`website_click: ${restaurant.slug}`);
                       }}
                       target="_blank"
                       rel="noopener noreferrer"

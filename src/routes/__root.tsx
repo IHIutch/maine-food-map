@@ -52,7 +52,7 @@ export const Route = createRootRoute({
       { rel: 'icon', href: '/favicon.ico' },
     ],
     scripts: [
-      process.env.NODE_ENV === 'production' ? {
+      true ? {
         src: "https://cdn.usefathom.com/script.js",
         'data-site': "KKNJFATJ",
         defer: true
