@@ -3,7 +3,7 @@ import { prisma } from '../utils/prisma'
 
 export const ServerRoute = createServerFileRoute('/sitemap.xml_').methods({
     GET: async ({ request }) => {
-        const baseUrl = 'https://mainefoodmap.org' // Update with your actual domain
+        const baseUrl = 'https://www.mainefoodmap.org' // Update with your actual domain
         const now = new Date().toISOString()
 
         const restaurants = await prisma.restaurants.findMany({

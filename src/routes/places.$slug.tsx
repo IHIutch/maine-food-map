@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '../utils/prisma'
 import { NotFound } from '../components/NotFound'
+import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/places/$slug')({
   loader: async ({ params }) => {
@@ -38,7 +39,19 @@ export const Route = createFileRoute('/places/$slug')({
       return <NotFound />
     }
     return <div>Error loading restaurant: {error?.message}</div>
-  }
+  },
+  head: ({ loaderData }) => ({
+    meta: [
+      ...seo({
+        title: `${loaderData?.title} | MaineFoodMap`,
+        description: loaderData?.description || "",
+      }),
+    ],
+    links: [{
+      rel: 'canonical',
+      href: `https://www.mainefoodmap.com/places/${loaderData?.slug}`,
+    }],
+  }),
 })
 
 function RestaurantPage() {
