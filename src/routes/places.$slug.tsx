@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '../utils/prisma'
 import { NotFound } from '../components/NotFound'
-import { seo } from '~/utils/seo'
+import { seo } from '../utils/seo'
 
 export const Route = createFileRoute('/places/$slug')({
   loader: async ({ params }) => {
