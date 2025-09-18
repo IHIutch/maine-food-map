@@ -1,12 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
 import { NotFound } from '../components/NotFound'
 import { seo } from '../utils/seo'
 
-export const Route = createFileRoute('/places/$slug')({
-  loader: async ({ params }) => {
+// Server function to fetch restaurant by slug
+const getRestaurantBySlug = createServerFn({ method: 'GET' })
+  .validator((d: { slug: string }) => d)
+  .handler(async ({ data }) => {
+    const { slug } = data
     const restaurant = await prisma.restaurants.findUnique({
-      where: { slug: params.slug },
+      where: { slug },
       include: {
         restaurant_categories: {
           include: {
@@ -23,15 +27,44 @@ export const Route = createFileRoute('/places/$slug')({
       throw new Error('Restaurant not found')
     }
 
-    // Parse JSON fields
+    // Parse JSON fields and check if open
+    const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
+    
+    // Calculate current status
+    const now = new Date()
+    const currentDay = now.getDay()
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    
+    let isOpen = false
+    let todayHours = null
+    
+    if (opening_hours) {
+      const todaySchedule = opening_hours[currentDay]
+      if (todaySchedule) {
+        if (todaySchedule.open === "00:00" && todaySchedule.close === "00:00") {
+          todayHours = "Closed"
+        } else {
+          todayHours = `${todaySchedule.open} - ${todaySchedule.close}`
+          isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
+        }
+      }
+    }
+
     const parsedRestaurant = {
       ...restaurant,
       tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
       photos: restaurant.photos ? JSON.parse(restaurant.photos) : [],
-      opening_hours: restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
+      opening_hours,
+      isOpen,
+      todayHours
     }
 
     return parsedRestaurant
+  })
+
+export const Route = createFileRoute('/places/$slug')({
+  loader: async ({ params }) => {
+    return await getRestaurantBySlug({ data: { slug: params.slug } })
   },
   component: RestaurantPage,
   errorComponent: ({ error }) => {
@@ -57,35 +90,6 @@ export const Route = createFileRoute('/places/$slug')({
 function RestaurantPage() {
   const restaurant = Route.useLoaderData()
 
-  // Helper to get today's hours
-  const getTodayHours = () => {
-    if (!restaurant.opening_hours) return null
-    const today = new Date().getDay()
-    const todaySchedule = restaurant.opening_hours[today]
-
-    if (todaySchedule.open === "00:00" && todaySchedule.close === "00:00") {
-      return "Closed"
-    }
-    return `${todaySchedule.open} - ${todaySchedule.close}`
-  }
-
-  // Helper to check if currently open
-  const isOpenNow = () => {
-    if (!restaurant.opening_hours) return false
-
-    const now = new Date()
-    const currentDay = now.getDay()
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-
-    const todaySchedule = restaurant.opening_hours[currentDay]
-
-    if (todaySchedule.open === "00:00" && todaySchedule.close === "00:00") {
-      return false
-    }
-
-    return currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
-  }
-
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   return (
@@ -101,9 +105,9 @@ function RestaurantPage() {
 
           {/* Status and Rating */}
           <div className="flex items-center gap-4 mb-4">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${isOpenNow() ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${restaurant.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
               }`}>
-              {isOpenNow() ? '🟢 Open Now' : '🔴 Closed'}
+              {restaurant.isOpen ? '🟢 Open Now' : '🔴 Closed'}
             </span>
 
             {restaurant.rating && (
@@ -161,11 +165,12 @@ function RestaurantPage() {
                   <div>
                     <p className="text-sm text-gray-500">Website</p>
                     <a
-                      href={`${restaurant.website}?ref=mainefoodmap.com`}
-                      onClick={() => {
-                        if (typeof window !== 'undefined' && (window as any).fathom) {
-                          (window as any).fathom.trackEvent(`website_click: ${restaurant.slug}`);
-                        }
+                      // href={`${restaurant.website}?ref=mainefoodmap.com`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        console.log("rest")
+                        // @ts-expect-error
+                        window?.fathom.trackEvent(`website_click: ${restaurant.slug}`);
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -209,7 +214,7 @@ function RestaurantPage() {
                 <div className="space-y-2">
                   <div className="mb-4 p-3 bg-gray-50 rounded">
                     <p className="text-sm text-gray-500">Today</p>
-                    <p className="font-medium">{getTodayHours()}</p>
+                    <p className="font-medium">{restaurant.todayHours || 'Hours not available'}</p>
                   </div>
 
                   {restaurant.opening_hours.map((schedule: any) => {

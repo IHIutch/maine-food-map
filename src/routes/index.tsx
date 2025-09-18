@@ -1,62 +1,69 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
+
+// Server function to fetch restaurants
+const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
+  const restaurants = await prisma.restaurants.findMany({
+    where: {
+      // Only show restaurants with external data
+      rating: { not: null }
+    },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      description: true,
+      rating: true,
+      review_count: true,
+      city: true,
+      tags: true,
+      opening_hours: true
+    },
+    orderBy: [
+      { rating: 'desc' },
+      { title: 'asc' }
+    ],
+    cacheStrategy: {
+      ttl: 3600 // one hour
+    },
+  })
+
+  // Parse JSON fields and check if open
+  const now = new Date()
+  const currentDay = now.getDay()
+  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+
+  return restaurants.map(restaurant => {
+    const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
+    
+    // Check if currently open
+    let isOpen = false
+    if (opening_hours) {
+      const todaySchedule = opening_hours[currentDay]
+      if (todaySchedule && !(todaySchedule.open === "00:00" && todaySchedule.close === "00:00")) {
+        isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
+      }
+    }
+
+    return {
+      ...restaurant,
+      tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
+      opening_hours,
+      isOpen
+    }
+  })
+})
 
 export const Route = createFileRoute('/')({
   loader: async () => {
-    const restaurants = await prisma.restaurants.findMany({
-      where: {
-        // Only show restaurants with external data
-        rating: { not: null }
-      },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        description: true,
-        rating: true,
-        review_count: true,
-        city: true,
-        tags: true,
-        opening_hours: true
-      },
-      orderBy: [
-        { rating: 'desc' },
-        { title: 'asc' }
-      ],
-      cacheStrategy: {
-        ttl: 3600 // one hour
-      },
-    })
-
-    // Parse JSON fields
-    return restaurants.map(restaurant => ({
-      ...restaurant,
-      tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
-      opening_hours: restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
-    }))
+    return await getRestaurants()
   },
   component: PlacesIndex
 })
 
 function PlacesIndex() {
   const restaurants = Route.useLoaderData()
-
-  // Helper to check if a restaurant is currently open
-  const isOpenNow = (openingHours: any) => {
-    if (!openingHours) return false
-
-    const now = new Date()
-    const currentDay = now.getDay()
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-
-    const todaySchedule = openingHours[currentDay]
-
-    if (todaySchedule.open === "00:00" && todaySchedule.close === "00:00") {
-      return false
-    }
-
-    return currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,8 +78,6 @@ function PlacesIndex() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {restaurants.map((restaurant) => {
-            const open = isOpenNow(restaurant.opening_hours)
-
             return (
               <Link
                 key={restaurant.id}
@@ -120,9 +125,9 @@ function PlacesIndex() {
                     )}
                   </div>
 
-                  <span className={`text-xs font-medium ${open ? 'text-green-600' : 'text-red-600'
+                  <span className={`text-xs font-medium ${restaurant.isOpen ? 'text-green-600' : 'text-red-600'
                     }`}>
-                    {open ? 'Open' : 'Closed'}
+                    {restaurant.isOpen ? 'Open' : 'Closed'}
                   </span>
                 </div>
               </Link>
