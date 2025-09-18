@@ -11,7 +11,7 @@ import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
-import { inject } from '@vercel/analytics';
+import { Analytics } from '@vercel/analytics/react'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -65,8 +65,6 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  inject()
-
   return (
     <html>
       <head>
@@ -88,6 +86,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {children}
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
+        <Analytics />
       </body>
     </html>
   )
