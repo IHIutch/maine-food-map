@@ -3,6 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
 import { NotFound } from '../components/NotFound'
 import { seo } from '../utils/seo'
+import { trackEvent } from 'fathom-client'
+import { baseUrl } from '../utils/base-url'
 
 // Server function to fetch restaurant by slug
 const getRestaurantBySlug = createServerFn({ method: 'GET' })
@@ -82,7 +84,7 @@ export const Route = createFileRoute('/places/$slug')({
     ],
     links: [{
       rel: 'canonical',
-      href: `https://www.mainefoodmap.com/places/${loaderData?.slug}`,
+      href: `${baseUrl}/places/${loaderData?.slug}`,
     }],
   }),
 })
@@ -165,10 +167,9 @@ function RestaurantPage() {
                   <div>
                     <p className="text-sm text-gray-500">Website</p>
                     <a
-                      href={`${restaurant.website}?ref=mainefoodmap.com`}
+                      href={`${restaurant.website}?ref=${baseUrl}`}
                       onClick={() => {
-                        // @ts-expect-error
-                        fathom.trackEvent(`website_click: ${restaurant.slug}`);
+                        trackEvent(`website_click: ${restaurant.slug}`);
                       }}
                       target="_blank"
                       rel="noopener noreferrer"

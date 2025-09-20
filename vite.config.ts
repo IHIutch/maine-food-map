@@ -7,7 +7,7 @@ import viteReact from '@vitejs/plugin-react'
 
 export default defineConfig({
     server: {
-        port: 3000,
+        port: Number.parseInt(process.env.VITE_PORT || '3000', 10),
     },
     plugins: [
         // This seems to break prisma for some reason https://github.com/prisma/prisma/issues/26880#issuecomment-3049293050

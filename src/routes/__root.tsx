@@ -4,6 +4,7 @@ import {
   Link,
   Scripts,
   createRootRoute,
+  useLocation,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
@@ -11,7 +12,29 @@ import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
-import { Analytics } from '@vercel/analytics/react'
+import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
+import { load, trackPageview } from 'fathom-client';
+
+function FathomAnalytics() {
+  const { pathname, searchStr } = useLocation();
+
+  React.useEffect(() => {
+    load("KKNJFATJ", {
+      auto: false
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!pathname) return;
+
+    trackPageview({
+      url: pathname + searchStr,
+      referrer: document.referrer
+    });
+  }, [pathname, searchStr]);
+
+  return null;
+}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -51,13 +74,6 @@ export const Route = createRootRoute({
       { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
       { rel: 'icon', href: '/favicon.ico' },
     ],
-    scripts: [
-      true ? {
-        src: "https://cdn.usefathom.com/script.js",
-        'data-site': "KKNJFATJ",
-        defer: true
-      } : {}
-    ],
   }),
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
@@ -86,7 +102,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {children}
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
-        <Analytics />
+        {process.env.NODE_ENV === "production"
+          ? <FathomAnalytics />
+          : null
+        }
+        <VercelAnalytics />
       </body>
     </html>
   )
