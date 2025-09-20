@@ -25,6 +25,13 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
 }) {
     const mapRef = React.useRef<MapRef>(null);
     const [popupInfo, setPopupInfo] = React.useState<Restaurant | null>(null);
+    
+    // Performance tracking
+    React.useEffect(() => {
+        if (isShowing) {
+            console.log('[MapboxEmbed] Map is now visible');
+        }
+    }, [isShowing]);
 
     let minLng = places.length > 0 ? places[0].longitude || 0 : 0;
     let maxLng = minLng;
