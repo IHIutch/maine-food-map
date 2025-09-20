@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Map, { GeolocateControl, Marker, NavigationControl, Popup } from 'react-map-gl/mapbox';
+import Map, { GeolocateControl, MapRef, Marker, NavigationControl, Popup } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Link } from '@tanstack/react-router';
 
@@ -17,12 +17,13 @@ type Restaurant = {
     latitude: number | null;
 }
 
-export default function MapboxEmbed({ places, selectedId, onMarkerClick }: {
+export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowing }: {
     places: Restaurant[],
     selectedId: number | null,
     onMarkerClick?: (id: number) => void
+    isShowing: boolean
 }) {
-    const mapRef = React.useRef<any>(null);
+    const mapRef = React.useRef<MapRef>(null);
     const [popupInfo, setPopupInfo] = React.useState<Restaurant | null>(null);
 
     let minLng = places.length > 0 ? places[0].longitude || 0 : 0;
@@ -47,6 +48,12 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick }: {
         // Return bounds in the format: [minLng, minLat, maxLng, maxLat]
         return [minLng, minLat, maxLng, maxLat] as [number, number, number, number];
     }, [places]);
+
+    React.useEffect(() => {
+        if (isShowing) {
+            mapRef.current?.resize();
+        }
+    }, [isShowing])
 
 
     return (
@@ -75,8 +82,7 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick }: {
                     style={{ zIndex: selectedId === parcel.id ? 20 : 10 }}
                 >
                     <div
-                        className={`shadow-sm border-2 relative border-white rounded-full transition-all cursor-pointer ${selectedId === parcel.id ? 'bg-green-500 scale-125 size-4.5' : 'bg-blue-500 hover:scale-110 size-3.5'
-                            }`}
+                        className={`shadow-sm border-2 relative border-white rounded-full transition-all cursor-pointer ${selectedId === parcel.id ? 'bg-green-500 scale-125 size-4.5' : 'bg-blue-500 hover:scale-110 size-3.5'}`}
                         onClick={() => {
                             setPopupInfo(parcel);
                             onMarkerClick?.(parcel.id);

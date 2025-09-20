@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
 import { useState } from 'react'
 import MapboxEmbed from '../components/mapbox-embed'
+import * as z from 'zod'
 
 // Server function to fetch restaurants
 const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
@@ -32,7 +33,6 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
     cacheStrategy: {
       ttl: 3600 // one hour
     },
-    // take: 10
   })
 
   // Parse JSON fields and check if open
@@ -62,26 +62,76 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 export const Route = createFileRoute('/')({
+  validateSearch: z.object({
+    view: z.enum(['list', 'map']).default('list'),
+  }),
+  search: {
+    middlewares: [
+      stripSearchParams({ view: 'list' })
+    ],
+  },
   loader: async () => {
     return await getRestaurants()
   },
-  component: PlacesIndex
+  component: PlacesIndex,
+  shouldReload: (match) => match.cause !== 'stay'
 })
 
 function PlacesIndex() {
   const restaurants = Route.useLoaderData()
   const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(null)
+  const { view } = Route.useSearch()
+  const navigate = useNavigate({ from: '/' })
 
   const restaurantsWithCoords = restaurants.filter(r => r.latitude && r.longitude)
 
   return (
     <div className="fixed pt-16 inset-0 bg-gray-50 flex flex-col z-0">
+      {/* Mobile Toggle */}
+      <div className="lg:hidden sticky top-0 z-10 bg-white border-b border-gray-300 px-4 py-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Discover {restaurants.length} restaurants</span>
+          <div className="flex gap-1">
+            <button
+              onClick={() => {
+                navigate({
+                  to: "/",
+                  search: (old) => ({ ...old, view: 'list' }),
+                  replace: false,
+                });
+              }}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === 'list'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              List View
+            </button>
+            <button
+              onClick={() => {
+                navigate({
+                  to: "/",
+                  search: (old) => ({ ...old, view: 'map' }),
+                });
+              }}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === 'map'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              Map View
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-1 h-full">
-        <div className="w-1/2 overflow-y-auto h-full">
-          <div className='sticky top-0 bg-gray-50 py-2 px-4 border-b border-gray-300'>
+        {/* List View - Hidden on mobile when map is showing */}
+        <div className={`${view === 'map' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full overflow-y-auto h-full`}>
+          <div className='hidden lg:block sticky top-0 bg-gray-50 py-2 px-4 border-b border-gray-300'>
             <span>Discover {restaurants.length} amazing restaurants in Maine</span>
           </div>
-          <div className="grid grid-cols-2 gap-4 p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
             {restaurants.map((restaurant) => {
               const isSelected = selectedRestaurant === restaurant.id
               return (
@@ -143,11 +193,13 @@ function PlacesIndex() {
           </div>
         </div>
 
-        <div className="w-1/2 h-full sticky top-0">
+        {/* Map View - Hidden on mobile when list is showing */}
+        <div className={`${view === 'list' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full h-full sticky top-0`}>
           <MapboxEmbed
             places={restaurantsWithCoords}
             selectedId={selectedRestaurant}
             onMarkerClick={(id: number) => setSelectedRestaurant(id)}
+            isShowing={view === 'map'}
           />
         </div>
       </div>
