@@ -82,23 +82,18 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html>
+    <html className="h-full" lang="en">
       <head>
         <HeadContent />
       </head>
-      <body>
-        <div>
-          <nav className="bg-white shadow-sm border-b">
-            <div className="max-w-6xl mx-auto px-6 py-4">
-              <div className="flex items-center justify-between">
-                <Link to="/" className="text-xl font-semibold">
-                  Maine Food Map
-                </Link>
-              </div>
-            </div>
-          </nav>
-        </div>
-        <hr />
+      <body className="h-full">
+        <nav className="bg-white shadow-sm h-16 z-10 relative flex items-center px-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="text-xl font-semibold">
+              Maine Food Map
+            </Link>
+          </div>
+        </nav>
         {children}
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
