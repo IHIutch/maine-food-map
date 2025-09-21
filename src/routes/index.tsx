@@ -1,7 +1,7 @@
 import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
-import { useState, memo, useRef, useMemo, useCallback, lazy, Suspense } from 'react'
+import { useState, memo, useRef, useMemo, useCallback, lazy, Suspense, useEffect } from 'react'
 import * as z from 'zod'
 import { useVirtualizer } from '@tanstack/react-virtual'
 
@@ -150,21 +150,37 @@ function PlacesIndex() {
   const { view } = Route.useSearch()
   const navigate = useNavigate({ from: '/' })
   const parentRef = useRef<HTMLDivElement>(null)
+  
+  // Responsive columns based on viewport width
+  const [columns, setColumns] = useState(2)
+
+  useEffect(() => {
+    const updateColumns = () => {
+      if (window.innerWidth < 640) { // sm breakpoint
+        setColumns(1)
+      } else {
+        setColumns(2)
+      }
+    }
+
+    updateColumns()
+    window.addEventListener('resize', updateColumns)
+    return () => window.removeEventListener('resize', updateColumns)
+  }, [])
 
   const restaurantsWithCoords = restaurants.filter(r => r.latitude && r.longitude)
 
-  // Grid virtualization - rows with equal heights  
-  const COLUMNS = 2
-  const rowCount = Math.ceil(restaurants.length / COLUMNS)
+  // Grid virtualization - rows with responsive columns
+  const rowCount = Math.ceil(restaurants.length / columns)
 
   // Memoize row data to prevent recalculation on each render
   const restaurantRows = useMemo(() => {
     const rows: Array<typeof restaurants> = []
-    for (let i = 0; i < restaurants.length; i += COLUMNS) {
-      rows.push(restaurants.slice(i, i + COLUMNS))
+    for (let i = 0; i < restaurants.length; i += columns) {
+      rows.push(restaurants.slice(i, i + columns))
     }
     return rows
-  }, [restaurants])
+  }, [restaurants, columns])
 
   // Debounced measurement for better performance
   const measureElement = useCallback((element: Element | null) => {
@@ -253,7 +269,7 @@ function PlacesIndex() {
                       contain: 'layout style', // CSS containment for better performance
                     }}
                   >
-                    <div className="grid grid-cols-2 gap-4 px-4 min-h-full">
+                    <div className={`grid gap-4 px-4 min-h-full ${columns === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                       {rowRestaurants.map((restaurant) => (
                         <div key={restaurant.id} className="h-full">
                           <RestaurantCard
@@ -262,10 +278,10 @@ function PlacesIndex() {
                           />
                         </div>
                       ))}
-                      {/* Fill empty slots if odd number of restaurants */}
-                      {rowRestaurants.length === 1 && (
-                        <div className="h-full" />
-                      )}
+                      {/* Fill empty slots for incomplete rows */}
+                      {Array.from({ length: columns - rowRestaurants.length }).map((_, index) => (
+                        <div key={`empty-${index}`} className="h-full" />
+                      ))}
                     </div>
                   </div>
                 )
