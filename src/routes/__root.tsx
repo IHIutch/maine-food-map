@@ -16,7 +16,7 @@ import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
 import { load, trackPageview } from 'fathom-client';
 
 function FathomAnalytics() {
-  const { pathname, searchStr } = useLocation();
+  const { pathname } = useLocation();
 
   React.useEffect(() => {
     load("KKNJFATJ", {
@@ -26,12 +26,11 @@ function FathomAnalytics() {
 
   React.useEffect(() => {
     if (!pathname) return;
-
     trackPageview({
-      url: pathname + searchStr,
+      url: pathname,
       referrer: document.referrer
     });
-  }, [pathname, searchStr]);
+  }, [pathname]);
 
   return null;
 }
@@ -97,7 +96,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {children}
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
-        {process.env.NODE_ENV === "production"
+        {process.env.NODE_ENV === 'production'
           ? <FathomAnalytics />
           : null
         }
