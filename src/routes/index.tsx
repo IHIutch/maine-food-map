@@ -1,9 +1,10 @@
 import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
-import { useState } from 'react'
-import MapboxEmbed from '../components/mapbox-embed'
+import { useState, lazy, Suspense } from 'react'
 import * as z from 'zod'
+
+const MapboxEmbed = lazy(() => import('../components/mapbox-embed'))
 
 // Server function to fetch restaurants
 const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
@@ -195,12 +196,21 @@ function PlacesIndex() {
 
         {/* Map View - Hidden on mobile when list is showing */}
         <div className={`${view === 'list' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full h-full sticky top-0`}>
-          <MapboxEmbed
-            places={restaurantsWithCoords}
-            selectedId={selectedRestaurant}
-            onMarkerClick={(id: number) => setSelectedRestaurant(id)}
-            isShowing={view === 'map'}
-          />
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-full bg-gray-100">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading map...</p>
+              </div>
+            </div>
+          }>
+            <MapboxEmbed
+              places={restaurantsWithCoords}
+              selectedId={selectedRestaurant}
+              onMarkerClick={(id: number) => setSelectedRestaurant(id)}
+              isShowing={view === 'map'}
+            />
+          </Suspense>
         </div>
       </div>
     </div>
