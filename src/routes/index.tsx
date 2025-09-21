@@ -1,7 +1,7 @@
 import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
-import { useState, memo, useRef, lazy, Suspense } from 'react'
+import { useState, memo, useRef, useMemo, useCallback, lazy, Suspense } from 'react'
 import * as z from 'zod'
 import { useVirtualizer } from '@tanstack/react-virtual'
 
@@ -80,7 +80,7 @@ export const Route = createFileRoute('/')({
   shouldReload: (match) => match.cause !== 'stay'
 })
 
-// Memoized restaurant card component for better performance
+// Optimized restaurant card with better memo comparison
 const RestaurantCard = memo(({ restaurant, isSelected }: {
   restaurant: any,
   isSelected: boolean
@@ -138,7 +138,11 @@ const RestaurantCard = memo(({ restaurant, isSelected }: {
       </span>
     </div>
   </Link>
-))
+), (prevProps, nextProps) => {
+  // Custom comparison for better performance
+  return prevProps.restaurant.id === nextProps.restaurant.id &&
+    prevProps.isSelected === nextProps.isSelected
+})
 
 function PlacesIndex() {
   const restaurants = Route.useLoaderData()
@@ -153,16 +157,31 @@ function PlacesIndex() {
   const COLUMNS = 2
   const rowCount = Math.ceil(restaurants.length / COLUMNS)
 
+  // Memoize row data to prevent recalculation on each render
+  const restaurantRows = useMemo(() => {
+    const rows: Array<typeof restaurants> = []
+    for (let i = 0; i < restaurants.length; i += COLUMNS) {
+      rows.push(restaurants.slice(i, i + COLUMNS))
+    }
+    return rows
+  }, [restaurants])
+
+  // Debounced measurement for better performance
+  const measureElement = useCallback((element: Element | null) => {
+    if (!element) return 250
+    return element.getBoundingClientRect().height
+  }, [])
+
   const virtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 250,
     overscan: 3,
     gap: 16,
-    measureElement: (element) => {
-      if (!element) return 250
-      return element.getBoundingClientRect().height
-    },
+    // Better React reconciliation with stable keys
+    getItemKey: useCallback((index: number) => `row-${index}`, []),
+    // Enable dynamic measurement for variable heights
+    measureElement,
   })
 
   return (
@@ -221,8 +240,7 @@ function PlacesIndex() {
               }}
             >
               {virtualizer.getVirtualItems().map((virtualRow) => {
-                const startIndex = virtualRow.index * COLUMNS
-                const rowRestaurants = restaurants.slice(startIndex, startIndex + COLUMNS)
+                const rowRestaurants = restaurantRows[virtualRow.index] || []
 
                 return (
                   <div
@@ -232,6 +250,7 @@ function PlacesIndex() {
                     className="absolute top-0 w-full"
                     style={{
                       transform: `translateY(${virtualRow.start}px)`,
+                      contain: 'layout style', // CSS containment for better performance
                     }}
                   >
                     <div className="grid grid-cols-2 gap-4 px-4 min-h-full">
