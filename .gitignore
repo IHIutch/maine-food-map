@@ -20,3 +20,4 @@ yarn.lock
 .tanstack
 /generated/prisma
 misc
+dist/
