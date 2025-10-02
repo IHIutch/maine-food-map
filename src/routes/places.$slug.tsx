@@ -8,7 +8,7 @@ import { baseUrl } from '../utils/base-url'
 
 // Server function to fetch restaurant by slug
 const getRestaurantBySlug = createServerFn({ method: 'GET' })
-  .validator((d: { slug: string }) => d)
+  .inputValidator((d: { slug: string }) => d)
   .handler(async ({ data }) => {
     const { slug } = data
     const restaurant = await prisma.restaurants.findUnique({
