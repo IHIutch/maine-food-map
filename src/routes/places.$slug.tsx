@@ -75,18 +75,72 @@ export const Route = createFileRoute('/places/$slug')({
     }
     return <div>Error loading restaurant: {error?.message}</div>
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      ...seo({
-        title: `${loaderData?.title} | MaineFoodMap`,
-        description: loaderData?.description || "",
-      }),
-    ],
-    links: [{
-      rel: 'canonical',
-      href: `${baseUrl}/places/${loaderData?.slug}`,
-    }],
-  }),
+  head: ({ loaderData }) => {
+    // Create structured data for the restaurant
+    const structuredData = loaderData ? {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": loaderData.title,
+      "description": loaderData.description || "",
+      "url": `${baseUrl}/places/${loaderData.slug}`,
+      "address": loaderData.street_address ? {
+        "@type": "PostalAddress",
+        "streetAddress": loaderData.street_address,
+        "addressLocality": loaderData.city,
+        "addressRegion": loaderData.state,
+        "postalCode": loaderData.postal_code,
+        "addressCountry": "US"
+      } : undefined,
+      "telephone": loaderData.phone || undefined,
+      "sameAs": loaderData.website || undefined,
+      "aggregateRating": loaderData.rating ? {
+        "@type": "AggregateRating",
+        "ratingValue": loaderData.rating,
+        "reviewCount": loaderData.review_count || 1,
+        "bestRating": 5,
+        "worstRating": 1
+      } : undefined,
+      "geo": (loaderData.latitude && loaderData.longitude) ? {
+        "@type": "GeoCoordinates",
+        "latitude": loaderData.latitude,
+        "longitude": loaderData.longitude
+      } : undefined,
+      "openingHoursSpecification": loaderData.opening_hours ? loaderData.opening_hours.map((schedule: any) => {
+        if (schedule.open === "00:00" && schedule.close === "00:00") {
+          return null; // Skip closed days
+        }
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": `https://schema.org/${dayNames[schedule.day]}`,
+          "opens": schedule.open,
+          "closes": schedule.close
+        };
+      }).filter(Boolean) : undefined,
+      "servesCuisine": loaderData.restaurant_categories?.map((rc: any) => rc.categories.display_name) || undefined,
+      "priceRange": loaderData.price_level ? "$".repeat(parseInt(loaderData.price_level)) : undefined,
+      "image": loaderData.photos?.length > 0 ? loaderData.photos.map((photo: any) =>
+        photo.url?.replace('YOUR_API_KEY', process.env.GOOGLE_PLACES_API_KEY || '')
+      ) : undefined
+    } : null;
+
+    return {
+      meta: [
+        ...seo({
+          title: `${loaderData?.title} | MaineFoodMap`,
+          description: loaderData?.description || "",
+        }),
+      ],
+      links: [{
+        rel: 'canonical',
+        href: `${baseUrl}/places/${loaderData?.slug}`,
+      }],
+      scripts: structuredData ? [{
+        type: 'application/ld+json',
+        children: JSON.stringify(structuredData)
+      }] : []
+    };
+  },
 })
 
 function RestaurantPage() {
