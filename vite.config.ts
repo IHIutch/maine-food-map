@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
 import { nitro } from 'nitro/vite'
+import { nitroV2Plugin } from '@tanstack/nitro-v2-vite-plugin'
+
 
 
 export default defineConfig({
@@ -16,11 +18,12 @@ export default defineConfig({
         //   projects: ['./tsconfig.json'],
         // }),
         tanstackStart(),
-        nitro({
-            config: {
-                preset: 'vercel'
-            }
-        }),
+        nitroV2Plugin(),
+        // nitro({
+        //     config: {
+        //         preset: 'vercel'
+        //     }
+        // }),
         viteReact(),
         tailwindcss(),
     ],
