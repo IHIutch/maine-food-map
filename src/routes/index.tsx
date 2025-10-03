@@ -41,25 +41,34 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
   const currentDay = now.getDay()
   const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
 
-  return restaurants.map(restaurant => {
-    const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
-
-    // Check if currently open
-    let isOpen = false
-    if (opening_hours) {
-      const todaySchedule = opening_hours[currentDay]
-      if (todaySchedule && !(todaySchedule.open === "00:00" && todaySchedule.close === "00:00")) {
-        isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
+  return {
+    all: restaurants.map(restaurant => {
+      return {
+        id: restaurant.id,
+        latitude: restaurant.latitude,
+        longitude: restaurant.longitude
       }
-    }
+    }),
+    visible: restaurants.splice(0, 50).map(restaurant => {
+      const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
 
-    return {
-      ...restaurant,
-      tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
-      opening_hours,
-      isOpen
-    }
-  })
+      // Check if currently open
+      let isOpen = false
+      if (opening_hours) {
+        const todaySchedule = opening_hours[currentDay]
+        if (todaySchedule && !(todaySchedule.open === "00:00" && todaySchedule.close === "00:00")) {
+          isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
+        }
+      }
+
+      return {
+        ...restaurant,
+        tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
+        opening_hours,
+        isOpen
+      }
+    })
+  }
 })
 
 export const Route = createFileRoute('/')({
@@ -79,19 +88,19 @@ export const Route = createFileRoute('/')({
 })
 
 function PlacesIndex() {
-  const restaurants = Route.useLoaderData()
+  const { visible, all } = Route.useLoaderData()
   const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(null)
   const { view } = Route.useSearch()
   const navigate = useNavigate({ from: '/' })
 
-  const restaurantsWithCoords = restaurants.filter(r => r.latitude && r.longitude)
+  const restaurantsWithCoords = all.filter(r => r.latitude && r.longitude)
 
   return (
     <div className="fixed pt-16 inset-0 bg-gray-50 flex flex-col z-0">
       {/* Mobile Toggle */}
       <div className="lg:hidden sticky top-0 z-10 bg-white border-b border-gray-300 px-4 py-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm">Discover {restaurants.length} restaurants</span>
+          <span className="text-sm">Discover {all.length} restaurants</span>
           <div className="flex gap-1">
             <button
               onClick={() => {
@@ -130,10 +139,10 @@ function PlacesIndex() {
         {/* List View - Hidden on mobile when map is showing */}
         <div className={`${view === 'map' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full overflow-y-auto h-full`}>
           <div className='hidden lg:block sticky top-0 bg-gray-50 py-2 px-4 border-b border-gray-300'>
-            <span>Discover {restaurants.length} amazing restaurants in Maine</span>
+            <span>Discover {all.length} amazing restaurants in Maine</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-            {restaurants.map((restaurant) => {
+            {visible.map((restaurant) => {
               const isSelected = selectedRestaurant === restaurant.id
               return (
                 <Link

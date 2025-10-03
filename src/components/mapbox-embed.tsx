@@ -5,14 +5,14 @@ import { Link } from '@tanstack/react-router';
 
 type Restaurant = {
     id: number;
-    slug: string;
-    title: string;
-    description?: string | null;
-    rating?: number | null;
-    review_count?: number | null;
-    city?: string | null;
-    tags: string[];
-    isOpen: boolean;
+    // slug: string;
+    // title: string;
+    // description?: string | null;
+    // rating?: number | null;
+    // review_count?: number | null;
+    // city?: string | null;
+    // tags: string[];
+    // isOpen: boolean;
     longitude: number | null;
     latitude: number | null;
 }
@@ -90,7 +90,7 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                     />
                 </Marker>
             )) : null}
-            {popupInfo && (
+            {/* {popupInfo && (
                 <Popup
                     longitude={Number(popupInfo.longitude)}
                     latitude={Number(popupInfo.latitude)}
@@ -148,7 +148,7 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                     </div>
 
                 </Popup>
-            )}
+            )} */}
             <GeolocateControl />
             <NavigationControl />
         </Map>
