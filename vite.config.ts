@@ -3,10 +3,13 @@ import { defineConfig } from 'vite'
 // import tsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
-import { nitro } from 'nitro/vite'
-import { nitroV2Plugin } from '@tanstack/nitro-v2-vite-plugin'
+import { cloudflare } from '@cloudflare/vite-plugin'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export default defineConfig({
     server: {
@@ -17,14 +20,31 @@ export default defineConfig({
         // tsConfigPaths({
         //   projects: ['./tsconfig.json'],
         // }),
+        cloudflare({ viteEnvironment: { name: 'ssr' } }),
         tanstackStart(),
-        nitroV2Plugin(),
-        // nitro({
-        //     config: {
-        //         preset: 'vercel'
-        //     }
-        // }),
         viteReact(),
         tailwindcss(),
     ],
+    ssr: {
+        // noExternal: ['@prisma/client'],
+        optimizeDeps: {
+            include: ["src/generated/prisma/client"],
+        },
+    },
+    build: {
+        rollupOptions: {
+            external: ['src/generated/prisma/client'],
+        }
+    },
+    define: {
+        'import.meta.url': '"file:///"',
+        global: 'globalThis',
+    },
+    resolve: {
+        alias: {
+            '.prisma/client/edge': path.resolve(__dirname, 'node_modules/.pnpm/@prisma+client@6.16.3_prisma@6.16.3_magicast@0.3.5_typescript@5.9.3__typescript@5.9.3/node_modules/.prisma/client/edge'),
+            '.prisma/client/default': path.resolve(__dirname, 'node_modules/.pnpm/@prisma+client@6.16.3_prisma@6.16.3_magicast@0.3.5_typescript@5.9.3__typescript@5.9.3/node_modules/.prisma/client/default'),
+        }
+    }
 })
+

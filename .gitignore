@@ -18,6 +18,7 @@ yarn.lock
 /blob-report/
 /playwright/.cache/
 .tanstack
-/generated/prisma
+generated
 misc
 dist/
+.wrangler

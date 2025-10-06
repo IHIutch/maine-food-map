@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
+import { PrismaClient } from '@prisma/client/edge'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined
@@ -8,6 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient() {
   return new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['error'] : [],
+    datasourceUrl: process.env.DATABASE_URL,
   }).$extends(withAccelerate())
 }
 
