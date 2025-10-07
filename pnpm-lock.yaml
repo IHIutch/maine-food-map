@@ -38,9 +38,6 @@ importers:
       '@types/react-map-gl':
         specifier: ^6.1.7
         version: 6.1.7
-      '@vercel/analytics':
-        specifier: ^1.5.0
-        version: 1.5.0(react@19.2.0)
       fathom-client:
         specifier: ^3.7.2
         version: 3.7.2
@@ -1246,32 +1243,6 @@ packages:
 
   '@types/viewport-mercator-project@6.1.6':
     resolution: {integrity: sha512-uWrbqhRXFeiT6CAvRjf0BkQKRkKED+ofrPhglKpUktQML3463dEPiA4iwe7cZQs6m49Zo/g03rL7ChMLiE5Z8w==}
-
-  '@vercel/analytics@1.5.0':
-    resolution: {integrity: sha512-MYsBzfPki4gthY5HnYN7jgInhAZ7Ac1cYDoRWFomwGHWEX7odTEzbtg9kf/QSo7XEsEAqlQugA6gJ2WS2DEa3g==}
-    peerDependencies:
-      '@remix-run/react': ^2
-      '@sveltejs/kit': ^1 || ^2
-      next: '>= 13'
-      react: ^18 || ^19 || ^19.0.0-rc
-      svelte: '>= 4'
-      vue: ^3
-      vue-router: ^4
-    peerDependenciesMeta:
-      '@remix-run/react':
-        optional: true
-      '@sveltejs/kit':
-        optional: true
-      next:
-        optional: true
-      react:
-        optional: true
-      svelte:
-        optional: true
-      vue:
-        optional: true
-      vue-router:
-        optional: true
 
   '@vis.gl/react-mapbox@8.1.0':
     resolution: {integrity: sha512-FwvH822oxEjWYOr+pP2L8hpv+7cZB2UsQbHHHT0ryrkvvqzmTgt7qHDhamv0EobKw86e1I+B4ojENdJ5G5BkyQ==}
@@ -3547,10 +3518,6 @@ snapshots:
   '@types/viewport-mercator-project@6.1.6':
     dependencies:
       gl-matrix: 3.4.4
-
-  '@vercel/analytics@1.5.0(react@19.2.0)':
-    optionalDependencies:
-      react: 19.2.0
 
   '@vis.gl/react-mapbox@8.1.0(mapbox-gl@3.15.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:

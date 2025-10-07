@@ -12,7 +12,6 @@ import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
-import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
 import { load, trackPageview } from 'fathom-client';
 
 function FathomAnalytics() {
@@ -100,7 +99,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           ? <FathomAnalytics />
           : null
         }
-        <VercelAnalytics />
       </body>
     </html>
   )
