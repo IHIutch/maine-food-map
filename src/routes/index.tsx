@@ -12,7 +12,9 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
     where: {
       // Only show restaurants with external data
       rating: { not: null },
-      state: { equals: 'ME' }
+      state: { equals: 'ME' },
+      longitude: { not: null },
+      latitude: { not: null },
     },
     select: {
       id: true,
@@ -42,14 +44,7 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
   const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
 
   return {
-    all: restaurants.map(restaurant => {
-      return {
-        id: restaurant.id,
-        latitude: restaurant.latitude,
-        longitude: restaurant.longitude
-      }
-    }),
-    visible: restaurants.splice(0, 50).map(restaurant => {
+    restaurants: restaurants.map(restaurant => {
       const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
 
       // Check if currently open
@@ -88,19 +83,17 @@ export const Route = createFileRoute('/')({
 })
 
 function PlacesIndex() {
-  const { visible, all } = Route.useLoaderData()
+  const { restaurants } = Route.useLoaderData()
   const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(null)
   const { view } = Route.useSearch()
   const navigate = useNavigate({ from: '/' })
-
-  const restaurantsWithCoords = all.filter(r => r.latitude && r.longitude)
 
   return (
     <div className="fixed pt-16 inset-0 bg-gray-50 flex flex-col z-0">
       {/* Mobile Toggle */}
       <div className="lg:hidden sticky top-0 z-10 bg-white border-b border-gray-300 px-4 py-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm">Discover {all.length} restaurants</span>
+          <span className="text-sm">Discover {restaurants.length} restaurants</span>
           <div className="flex gap-1">
             <button
               onClick={() => {
@@ -139,10 +132,10 @@ function PlacesIndex() {
         {/* List View - Hidden on mobile when map is showing */}
         <div className={`${view === 'map' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full overflow-y-auto h-full`}>
           <div className='hidden lg:block sticky top-0 bg-gray-50 py-2 px-4 border-b border-gray-300'>
-            <span>Discover {all.length} amazing restaurants in Maine</span>
+            <span>Discover {restaurants.length} amazing restaurants in Maine</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-            {visible.map((restaurant) => {
+            {restaurants.map((restaurant) => {
               const isSelected = selectedRestaurant === restaurant.id
               return (
                 <Link
@@ -214,7 +207,7 @@ function PlacesIndex() {
             </div>
           }>
             <MapboxEmbed
-              places={restaurantsWithCoords}
+              places={restaurants}
               selectedId={selectedRestaurant}
               onMarkerClick={(id: number) => setSelectedRestaurant(id)}
               isShowing={view === 'map'}
