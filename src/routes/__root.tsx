@@ -6,6 +6,7 @@ import {
   createRootRoute,
   useLocation,
 } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
 import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
@@ -13,6 +14,11 @@ import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client';
+import { getCurrentUser } from '../server/session'
+
+const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(async () => {
+  return await getCurrentUser()
+})
 
 function FathomAnalytics() {
   const { pathname } = useLocation();
@@ -35,6 +41,10 @@ function FathomAnalytics() {
 }
 
 export const Route = createRootRoute({
+  beforeLoad: async () => {
+    const user = await fetchCurrentUser()
+    return { user }
+  },
   head: () => ({
     meta: [
       {
@@ -79,17 +89,30 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { user } = Route.useRouteContext()
   return (
     <html className="h-full" lang="en">
       <head>
         <HeadContent />
       </head>
       <body className="h-full">
-        <nav className="bg-white shadow-sm h-16 z-10 relative flex items-center px-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="text-xl font-semibold">
-              Maine Food Map
-            </Link>
+        <nav className="bg-white shadow-sm h-16 z-10 relative flex items-center justify-between px-4">
+          <Link to="/" className="text-xl font-semibold">
+            Maine Food Map
+          </Link>
+          <div className="text-sm">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-gray-600">@{user.handle}</span>
+                <a href="/logout" className="text-blue-600 hover:underline">
+                  Log out
+                </a>
+              </div>
+            ) : (
+              <Link to="/login" className="text-blue-600 hover:underline">
+                Sign in with Bluesky
+              </Link>
+            )}
           </div>
         </nav>
         {children}

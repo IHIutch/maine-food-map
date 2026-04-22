@@ -10,9 +10,26 @@
     "observability": {
         "logs": {
             "enabled": true
-        },
+        }
     },
     "assets": {
-        "directory": "./dist",
+        "directory": "./dist"
     },
+    "vars": {
+        "PUBLIC_URL": "https://www.mainefoodmap.org"
+    },
+    "kv_namespaces": [
+        {
+            "binding": "OAUTH_SESSION",
+            "id": "REPLACE_WITH_wrangler_kv_namespace_create_OAUTH_SESSION"
+        },
+        {
+            "binding": "OAUTH_STATE",
+            "id": "REPLACE_WITH_wrangler_kv_namespace_create_OAUTH_STATE"
+        },
+        {
+            "binding": "LIKES_CACHE",
+            "id": "REPLACE_WITH_wrangler_kv_namespace_create_LIKES_CACHE"
+        }
+    ]
 }

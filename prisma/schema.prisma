@@ -42,6 +42,7 @@ model restaurant_external_data {
 model restaurants {
   id                       Int                       @id @default(autoincrement())
   slug                     String                    @unique(map: "sqlite_autoindex_restaurants_1")
+  public_id                String?                   @unique
   title                    String
   website                  String?
   description              String?
@@ -66,4 +67,5 @@ model restaurants {
   restaurant_external_data restaurant_external_data?
 
   @@index([slug], map: "idx_restaurant_slug")
+  @@index([public_id], map: "idx_restaurant_public_id")
 }

@@ -5,6 +5,8 @@ import { NotFound } from '../components/NotFound'
 import { seo } from '../utils/seo'
 import { trackEvent } from 'fathom-client'
 import { baseUrl } from '../utils/base-url'
+import { LikeButton } from '../components/LikeButton'
+import { getLikesForRestaurant } from '../server/likes'
 
 // Server function to fetch restaurant by slug
 const getRestaurantBySlug = createServerFn({ method: 'GET' })
@@ -65,8 +67,18 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
   })
 
 export const Route = createFileRoute('/places/$slug')({
-  loader: async ({ params }) => {
-    return await getRestaurantBySlug({ data: { slug: params.slug } })
+  loader: async ({ params, context }) => {
+    const restaurant = await getRestaurantBySlug({ data: { slug: params.slug } })
+    const likes = restaurant.public_id
+      ? await getLikesForRestaurant({
+          data: { publicId: restaurant.public_id },
+        })
+      : { totalLikes: 0, userHasLiked: false }
+    return {
+      restaurant,
+      likes,
+      isAuthenticated: !!(context as any)?.user,
+    }
   },
   component: RestaurantPage,
   errorComponent: ({ error }) => {
@@ -76,36 +88,37 @@ export const Route = createFileRoute('/places/$slug')({
     return <div>Error loading restaurant: {error?.message}</div>
   },
   head: ({ loaderData }) => {
+    const restaurant = loaderData?.restaurant
     // Create structured data for the restaurant
-    const structuredData = loaderData ? {
+    const structuredData = restaurant ? {
       "@context": "https://schema.org",
       "@type": "Restaurant",
-      "name": loaderData.title,
-      "description": loaderData.description || "",
-      "url": `${baseUrl}/places/${loaderData.slug}`,
-      "address": loaderData.street_address ? {
+      "name": restaurant.title,
+      "description": restaurant.description || "",
+      "url": `${baseUrl}/places/${restaurant.slug}`,
+      "address": restaurant.street_address ? {
         "@type": "PostalAddress",
-        "streetAddress": loaderData.street_address,
-        "addressLocality": loaderData.city,
-        "addressRegion": loaderData.state,
-        "postalCode": loaderData.postal_code,
+        "streetAddress": restaurant.street_address,
+        "addressLocality": restaurant.city,
+        "addressRegion": restaurant.state,
+        "postalCode": restaurant.postal_code,
         "addressCountry": "US"
       } : undefined,
-      "telephone": loaderData.phone || undefined,
-      "sameAs": loaderData.website || undefined,
-      "aggregateRating": loaderData.rating ? {
+      "telephone": restaurant.phone || undefined,
+      "sameAs": restaurant.website || undefined,
+      "aggregateRating": restaurant.rating ? {
         "@type": "AggregateRating",
-        "ratingValue": loaderData.rating,
-        "reviewCount": loaderData.review_count || 1,
+        "ratingValue": restaurant.rating,
+        "reviewCount": restaurant.review_count || 1,
         "bestRating": 5,
         "worstRating": 1
       } : undefined,
-      "geo": (loaderData.latitude && loaderData.longitude) ? {
+      "geo": (restaurant.latitude && restaurant.longitude) ? {
         "@type": "GeoCoordinates",
-        "latitude": loaderData.latitude,
-        "longitude": loaderData.longitude
+        "latitude": restaurant.latitude,
+        "longitude": restaurant.longitude
       } : undefined,
-      "openingHoursSpecification": loaderData.opening_hours ? loaderData.opening_hours.map((schedule: any) => {
+      "openingHoursSpecification": restaurant.opening_hours ? restaurant.opening_hours.map((schedule: any) => {
         if (schedule.open === "00:00" && schedule.close === "00:00") {
           return null; // Skip closed days
         }
@@ -117,9 +130,9 @@ export const Route = createFileRoute('/places/$slug')({
           "closes": schedule.close
         };
       }).filter(Boolean) : undefined,
-      "servesCuisine": loaderData.restaurant_categories?.map((rc: any) => rc.categories.display_name) || undefined,
-      "priceRange": loaderData.price_level ? "$".repeat(parseInt(loaderData.price_level)) : undefined,
-      "image": loaderData.photos?.length > 0 ? loaderData.photos.map((photo: any) =>
+      "servesCuisine": restaurant.restaurant_categories?.map((rc: any) => rc.categories.display_name) || undefined,
+      "priceRange": restaurant.price_level ? "$".repeat(parseInt(restaurant.price_level)) : undefined,
+      "image": restaurant.photos?.length > 0 ? restaurant.photos.map((photo: any) =>
         photo.url?.replace('YOUR_API_KEY', process.env.GOOGLE_PLACES_API_KEY || '')
       ) : undefined
     } : null;
@@ -127,13 +140,13 @@ export const Route = createFileRoute('/places/$slug')({
     return {
       meta: [
         ...seo({
-          title: `${loaderData?.title} | MaineFoodMap`,
-          description: loaderData?.description || "",
+          title: `${restaurant?.title} | MaineFoodMap`,
+          description: restaurant?.description || "",
         }),
       ],
       links: [{
         rel: 'canonical',
-        href: `${baseUrl}/places/${loaderData?.slug}`,
+        href: `${baseUrl}/places/${restaurant?.slug}`,
       }],
       scripts: structuredData ? [{
         type: 'application/ld+json',
@@ -144,7 +157,7 @@ export const Route = createFileRoute('/places/$slug')({
 })
 
 function RestaurantPage() {
-  const restaurant = Route.useLoaderData()
+  const { restaurant, likes, isAuthenticated } = Route.useLoaderData()
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -174,6 +187,16 @@ function RestaurantPage() {
                   ({restaurant.review_count} reviews)
                 </span>
               </div>
+            )}
+
+            {restaurant.public_id && (
+              <LikeButton
+                publicId={restaurant.public_id}
+                slug={restaurant.slug}
+                initialTotal={likes.totalLikes}
+                initialLiked={likes.userHasLiked}
+                isAuthenticated={isAuthenticated}
+              />
             )}
           </div>
 
