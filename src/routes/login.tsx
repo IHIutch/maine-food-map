@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHost, setCookie } from '@tanstack/react-start/server'
 import { useState } from 'react'
-import { getOAuthClient } from '../server/oauth/client'
+import { getOAuthClient, getRedirectUri } from '../server/oauth/client'
 import { seo } from '../utils/seo'
 
 const startLogin = createServerFn({ method: 'POST' })
@@ -18,7 +18,8 @@ const startLogin = createServerFn({ method: 'POST' })
       ? new URL(data.origin).host
       : getRequestHost({ xForwardedHost: true })
     // Persist the origin across the OAuth hop so the callback rebuilds the
-    // client with the same host and client_id checks pass.
+    // client with the same host and the redirect_uri matches what the
+    // authorization server recorded during PAR.
     setCookie('mfm_oauth_origin', host, {
       path: '/',
       maxAge: 10 * 60,
@@ -26,8 +27,11 @@ const startLogin = createServerFn({ method: 'POST' })
       sameSite: 'lax',
     })
     const client = getOAuthClient(host)
-    const url = await client.authorize(trimmed, {
-      state: data.next ? JSON.stringify({ next: data.next }) : undefined,
+    const redirectUri = getRedirectUri(host)
+    const { url } = await client.authorize({
+      target: { type: 'account', identifier: trimmed as any },
+      state: data.next ? { next: data.next } : undefined,
+      redirectUri,
     })
     // Return the URL rather than `throw redirect(...)`: a redirect response
     // from a server-fn RPC is consumed by the client fetch, not the browser.

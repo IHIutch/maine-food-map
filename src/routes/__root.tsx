@@ -90,6 +90,9 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { user } = Route.useRouteContext()
+  const { pathname } = useLocation()
+  const logoutHref = `/logout?next=${encodeURIComponent(pathname)}`
+  const loginHref = `/login?next=${encodeURIComponent(pathname)}`
   return (
     <html className="h-full" lang="en">
       <head>
@@ -104,14 +107,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             {user ? (
               <div className="flex items-center gap-3">
                 <span className="text-gray-600">@{user.handle}</span>
-                <a href="/logout" className="text-blue-600 hover:underline">
+                <a href={logoutHref} className="text-blue-600 hover:underline">
                   Log out
                 </a>
               </div>
             ) : (
-              <Link to="/login" className="text-blue-600 hover:underline">
+              <a href={loginHref} className="text-blue-600 hover:underline">
                 Sign in with Bluesky
-              </Link>
+              </a>
             )}
           </div>
         </nav>

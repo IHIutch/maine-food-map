@@ -1,40 +1,41 @@
 import type {
-  NodeSavedSession,
-  NodeSavedSessionStore,
-  NodeSavedState,
-  NodeSavedStateStore,
-} from '@atproto/oauth-client-node'
+  Store,
+  StoredSession,
+  StoredState,
+} from '@atcute/oauth-node-client'
 
 const STATE_TTL_SECONDS = 10 * 60
 
-export function makeStateStore(kv: KVNamespace): NodeSavedStateStore {
+function kvStore<V>(
+  kv: KVNamespace,
+  prefix: string,
+  opts?: { ttlSeconds?: number },
+): Store<string, V> {
+  const fullKey = (key: string) => `${prefix}:${key}`
   return {
     async get(key: string) {
-      const raw = await kv.get(`state:${key}`, 'json')
-      return (raw as NodeSavedState | null) ?? undefined
+      const raw = await kv.get(fullKey(key), 'json')
+      return (raw as V | null) ?? undefined
     },
-    async set(key: string, value: NodeSavedState) {
-      await kv.put(`state:${key}`, JSON.stringify(value), {
-        expirationTtl: STATE_TTL_SECONDS,
+    async set(key: string, value: V) {
+      await kv.put(fullKey(key), JSON.stringify(value), {
+        expirationTtl: opts?.ttlSeconds,
       })
     },
-    async del(key: string) {
-      await kv.delete(`state:${key}`)
+    async delete(key: string) {
+      await kv.delete(fullKey(key))
+    },
+    async clear() {
+      // KV lacks a bulk-delete; list-and-delete is expensive and unnecessary
+      // for OAuth stores (entries either TTL-expire or are deleted by key).
     },
   }
 }
 
-export function makeSessionStore(kv: KVNamespace): NodeSavedSessionStore {
-  return {
-    async get(did: string) {
-      const raw = await kv.get(`session:${did}`, 'json')
-      return (raw as NodeSavedSession | null) ?? undefined
-    },
-    async set(did: string, value: NodeSavedSession) {
-      await kv.put(`session:${did}`, JSON.stringify(value))
-    },
-    async del(did: string) {
-      await kv.delete(`session:${did}`)
-    },
-  }
+export function makeStateStore(kv: KVNamespace): Store<string, StoredState> {
+  return kvStore<StoredState>(kv, 'state', { ttlSeconds: STATE_TTL_SECONDS })
+}
+
+export function makeSessionStore(kv: KVNamespace): Store<string, StoredSession> {
+  return kvStore<StoredSession>(kv, 'session')
 }

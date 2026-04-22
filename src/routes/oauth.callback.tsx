@@ -5,33 +5,31 @@ import {
   getCookie,
   getRequestHost,
 } from '@tanstack/react-start/server'
-import { getOAuthClient } from '../server/oauth/client'
+import { getOAuthClient, getRedirectUri } from '../server/oauth/client'
 import { resolveHandleForDid, setCurrentUser } from '../server/session'
 
 const handleCallback = createServerFn({ method: 'GET' })
   .inputValidator((d: { searchString: string }) => d)
   .handler(async ({ data }) => {
     const params = new URLSearchParams(data.searchString)
-    // Use the origin saved at login start so client_id matches the value
-    // the authorization server recorded during the PAR dance.
+    // Use the origin saved at login start so redirect_uri matches the value
+    // the authorization server recorded during PAR.
     const host =
       getCookie('mfm_oauth_origin') ??
       getRequestHost({ xForwardedHost: true })
     deleteCookie('mfm_oauth_origin', { path: '/' })
     const client = getOAuthClient(host)
-    const { session, state } = await client.callback(params)
+    const { session, state } = await client.callback(params, {
+      redirectUri: getRedirectUri(host),
+    })
     const did = session.did
     const handle = (await resolveHandleForDid(did)) ?? did
     await setCurrentUser({ did, handle })
 
     let next = '/'
-    if (state) {
-      try {
-        const parsed = JSON.parse(state)
-        if (parsed && typeof parsed.next === 'string') next = parsed.next
-      } catch {
-        // ignore
-      }
+    if (state && typeof state === 'object' && 'next' in state) {
+      const nextVal = (state as { next?: unknown }).next
+      if (typeof nextVal === 'string') next = nextVal
     }
     return { next }
   })

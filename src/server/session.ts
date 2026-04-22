@@ -1,5 +1,7 @@
+import { Client } from '@atcute/client'
+import type { Did } from '@atcute/lexicons'
+import type { OAuthSession } from '@atcute/oauth-node-client'
 import { useSession } from '@tanstack/react-start/server'
-import { Agent } from '@atproto/api'
 import { getOAuthClient } from './oauth/client'
 
 const SESSION_COOKIE = 'mfm_session'
@@ -54,16 +56,21 @@ export async function clearCurrentSession(): Promise<void> {
   await session.clear()
 }
 
-export type AuthenticatedAgent = CurrentUser & { agent: Agent }
+export type AuthenticatedSession = CurrentUser & {
+  oauthSession: OAuthSession
+  rpc: Client
+}
 
-export async function getAuthenticatedAgent(): Promise<AuthenticatedAgent | null> {
+export async function getAuthenticatedSession(
+  requestHost?: string,
+): Promise<AuthenticatedSession | null> {
   const user = await getCurrentUser()
   if (!user) return null
   try {
-    const client = getOAuthClient()
-    const oauthSession = await client.restore(user.did)
-    const agent = new Agent(oauthSession)
-    return { ...user, agent }
+    const client = getOAuthClient(requestHost)
+    const oauthSession = await client.restore(user.did as Did)
+    const rpc = new Client({ handler: oauthSession })
+    return { ...user, oauthSession, rpc }
   } catch {
     await clearCurrentSession()
     return null

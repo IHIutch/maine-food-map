@@ -1,8 +1,16 @@
+import { ok } from '@atcute/client'
+import {
+  ComAtprotoRepoCreateRecord,
+  ComAtprotoRepoDeleteRecord,
+  ComAtprotoRepoListRecords,
+} from '@atcute/atproto'
+import type { Did, Nsid } from '@atcute/lexicons'
 import { createServerFn } from '@tanstack/react-start'
+import { getRequestHost } from '@tanstack/react-start/server'
 import { env } from 'cloudflare:workers'
 import { prisma } from '../utils/prisma'
 import { getPublicUrl } from '../utils/oauth-config'
-import { getAuthenticatedAgent, getCurrentUser } from './session'
+import { getAuthenticatedSession, getCurrentUser } from './session'
 
 const COLLECTION = 'app.mainefoodmap.like'
 const CONSTELLATION_BASE = 'https://constellation.microcosm.blue'
@@ -65,25 +73,31 @@ async function listViewerLikes(did: string): Promise<Map<string, ViewerLike>> {
     }
     return map
   }
-  const session = await getAuthenticatedAgent()
+  const session = await getAuthenticatedSession(
+    getRequestHost({ xForwardedHost: true }),
+  )
   if (!session) return new Map()
   const map = new Map<string, ViewerLike>()
   let cursor: string | undefined
   for (let page = 0; page < 5; page++) {
-    const res: any = await session.agent.com.atproto.repo.listRecords({
-      repo: did,
-      collection: COLLECTION,
-      limit: 100,
-      cursor,
-    })
-    for (const rec of res.data.records ?? []) {
-      const subject = rec.value?.subject?.uri
+    const res = await ok(
+      session.rpc.call(ComAtprotoRepoListRecords.mainSchema, {
+        params: {
+          repo: did as Did,
+          collection: COLLECTION as Nsid,
+          limit: 100,
+          cursor,
+        },
+      }),
+    )
+    for (const rec of res.records ?? []) {
+      const subject = (rec.value as any)?.subject?.uri
       if (typeof subject === 'string') {
         const rkey = String(rec.uri).split('/').pop() ?? ''
         map.set(subject, { uri: rec.uri, rkey })
       }
     }
-    cursor = res.data.cursor
+    cursor = res.cursor
     if (!cursor) break
   }
   const entries = [...map.entries()].map(([subject, v]) => ({ subject, ...v }))
@@ -115,7 +129,9 @@ export const getLikesForRestaurant = createServerFn({ method: 'GET' })
 export const likeRestaurant = createServerFn({ method: 'POST' })
   .inputValidator((d: { publicId: string }) => d)
   .handler(async ({ data }) => {
-    const session = await getAuthenticatedAgent()
+    const session = await getAuthenticatedSession(
+      getRequestHost({ xForwardedHost: true }),
+    )
     if (!session) throw new Error('Not signed in')
 
     const restaurant = await prisma.restaurants.findUnique({
@@ -128,15 +144,19 @@ export const likeRestaurant = createServerFn({ method: 'POST' })
 
     const existing = await listViewerLikes(session.did)
     if (!existing.has(subject)) {
-      await session.agent.com.atproto.repo.createRecord({
-        repo: session.did,
-        collection: COLLECTION,
-        record: {
-          $type: COLLECTION,
-          subject: { uri: subject },
-          createdAt: new Date().toISOString(),
-        },
-      })
+      await ok(
+        session.rpc.call(ComAtprotoRepoCreateRecord.mainSchema, {
+          input: {
+            repo: session.did as Did,
+            collection: COLLECTION as Nsid,
+            record: {
+              $type: COLLECTION,
+              subject: { uri: subject },
+              createdAt: new Date().toISOString(),
+            },
+          },
+        }),
+      )
       await invalidateViewerLikes(session.did)
       const current = await getCachedTotal(data.publicId)
       await writeCachedTotal(data.publicId, current + 1)
@@ -151,18 +171,24 @@ export const likeRestaurant = createServerFn({ method: 'POST' })
 export const unlikeRestaurant = createServerFn({ method: 'POST' })
   .inputValidator((d: { publicId: string }) => d)
   .handler(async ({ data }) => {
-    const session = await getAuthenticatedAgent()
+    const session = await getAuthenticatedSession(
+      getRequestHost({ xForwardedHost: true }),
+    )
     if (!session) throw new Error('Not signed in')
 
     const subject = subjectUriFor(data.publicId)
     const existing = await listViewerLikes(session.did)
     const record = existing.get(subject)
     if (record) {
-      await session.agent.com.atproto.repo.deleteRecord({
-        repo: session.did,
-        collection: COLLECTION,
-        rkey: record.rkey,
-      })
+      await ok(
+        session.rpc.call(ComAtprotoRepoDeleteRecord.mainSchema, {
+          input: {
+            repo: session.did as Did,
+            collection: COLLECTION as Nsid,
+            rkey: record.rkey,
+          },
+        }),
+      )
       await invalidateViewerLikes(session.did)
       const current = await getCachedTotal(data.publicId)
       await writeCachedTotal(data.publicId, Math.max(current - 1, 0))
