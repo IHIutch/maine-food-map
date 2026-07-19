@@ -11,6 +11,17 @@ import { computeIsOpen, formatTodayHours, getMaineNow } from '../utils/opening-h
 import { jsonForScript } from '../utils/escape'
 import * as z from 'zod'
 
+function safeWebsiteHref(website: string, ref: string): string | null {
+  try {
+    const u = new URL(website)
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null
+    u.searchParams.set('ref', ref)
+    return u.toString()
+  } catch {
+    return null
+  }
+}
+
 // Server function to fetch restaurant by slug
 const getRestaurantBySlug = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ slug: z.string().min(1).max(200) }).parse)
@@ -145,6 +156,9 @@ export const Route = createFileRoute('/places/$slug')({
 
 function RestaurantPage() {
   const { restaurant, likes, isAuthenticated } = Route.useLoaderData()
+  const websiteHref = restaurant.website
+    ? safeWebsiteHref(restaurant.website, baseUrl)
+    : null
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -227,11 +241,11 @@ function RestaurantPage() {
                   </div>
                 )}
 
-                {restaurant.website && (
+                {websiteHref && (
                   <div>
                     <p className="text-sm text-gray-500">Website</p>
                     <a
-                      href={`${restaurant.website}?ref=${baseUrl}`}
+                      href={websiteHref}
                       onClick={() => {
                         trackEvent(`website_click: ${restaurant.slug}`);
                       }}
