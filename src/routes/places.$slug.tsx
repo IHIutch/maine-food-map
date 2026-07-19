@@ -7,6 +7,7 @@ import { trackEvent } from 'fathom-client'
 import { baseUrl } from '../utils/base-url'
 import { LikeButton } from '../components/LikeButton'
 import { getLikesForRestaurant } from '../server/likes'
+import { computeIsOpen, formatTodayHours, getMaineNow } from '../utils/opening-hours'
 
 // Server function to fetch restaurant by slug
 const getRestaurantBySlug = createServerFn({ method: 'GET' })
@@ -34,33 +35,14 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
     // Parse JSON fields and check if open
     const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
 
-    // Calculate current status
-    const now = new Date()
-    const currentDay = now.getDay()
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-
-    let isOpen = false
-    let todayHours = null
-
-    if (opening_hours) {
-      const todaySchedule = opening_hours[currentDay]
-      if (todaySchedule) {
-        if (todaySchedule.open === "00:00" && todaySchedule.close === "00:00") {
-          todayHours = "Closed"
-        } else {
-          todayHours = `${todaySchedule.open} - ${todaySchedule.close}`
-          isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
-        }
-      }
-    }
-
     const parsedRestaurant = {
       ...restaurant,
       tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
       photos: restaurant.photos ? JSON.parse(restaurant.photos) : [],
       opening_hours,
-      isOpen,
-      todayHours
+      isOpen: computeIsOpen(opening_hours),
+      todayHours: formatTodayHours(opening_hours),
+      todayDay: getMaineNow().day
     }
 
     return parsedRestaurant
@@ -294,7 +276,7 @@ function RestaurantPage() {
                   </div>
 
                   {restaurant.opening_hours.map((schedule: any) => {
-                    const isToday = schedule.day === new Date().getDay()
+                    const isToday = schedule.day === restaurant.todayDay
                     const isClosed = schedule.open === "00:00" && schedule.close === "00:00"
 
                     return (
