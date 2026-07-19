@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
 import { NotFound } from '../components/NotFound'
@@ -31,7 +31,7 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
     })
 
     if (!restaurant) {
-      throw new Error('Restaurant not found')
+      throw notFound()
     }
 
     // Parse JSON fields and check if open
@@ -74,12 +74,8 @@ export const Route = createFileRoute('/places/$slug')({
     }
   },
   component: RestaurantPage,
-  errorComponent: ({ error }) => {
-    if (error?.message === 'Restaurant not found') {
-      return <NotFound />
-    }
-    return <div>Error loading restaurant: {error?.message}</div>
-  },
+  notFoundComponent: () => <NotFound />,
+  errorComponent: () => <div>Something went wrong loading this restaurant.</div>,
   head: ({ loaderData }) => {
     const restaurant = loaderData?.restaurant
     // Create structured data for the restaurant

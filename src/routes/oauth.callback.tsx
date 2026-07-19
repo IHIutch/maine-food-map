@@ -49,11 +49,11 @@ export const Route = createFileRoute('/oauth/callback')({
   component: () => (
     <div className="p-6 text-gray-600">Completing sign-in…</div>
   ),
-  errorComponent: ({ error }) => (
+  errorComponent: () => (
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-semibold mb-2">Sign-in failed</h1>
       <p className="text-sm text-gray-700 mb-4">
-        {error instanceof Error ? error.message : 'Unknown error'}
+        Sign-in could not be completed. Please try again.
       </p>
       <a href="/login" className="text-blue-600 hover:underline">
         Try again

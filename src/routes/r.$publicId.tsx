@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
 import * as z from 'zod'
@@ -12,7 +12,7 @@ const resolveSlug = createServerFn({ method: 'GET' })
       cacheStrategy: { ttl: 3600 },
     })
     if (!restaurant) {
-      throw new Error('Restaurant not found')
+      throw notFound()
     }
     return restaurant.slug
   })
