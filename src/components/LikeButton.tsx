@@ -2,7 +2,21 @@ import { useRouter } from '@tanstack/react-router'
 import { useState, useTransition } from 'react'
 import { trackEvent } from 'fathom-client'
 import { useServerFn } from '@tanstack/react-start'
+import { tv } from 'tailwind-variants'
 import { likeRestaurant, unlikeRestaurant } from '../server/likes'
+
+const likePill = tv({
+  base: 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition',
+  variants: {
+    liked: {
+      true: 'border-tomato/30 bg-tomato-tint text-tomato hover:bg-tomato-tint/70',
+      false: 'border-ink/15 bg-white text-ink hover:bg-cream',
+    },
+    pending: {
+      true: 'opacity-70',
+    },
+  },
+})
 
 type Props = {
   publicId: string
@@ -33,7 +47,7 @@ export function LikeButton({
       <a
         href={`/login?next=${encodeURIComponent(`/places/${slug}`)}`}
         title="Sign in with Bluesky to like"
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+        className={likePill({ liked: false })}
       >
         <HeartIcon filled={false} />
         <span>{compactNumber.format(total)}</span>
@@ -69,13 +83,7 @@ export function LikeButton({
       onClick={onClick}
       disabled={isPending}
       aria-pressed={liked}
-      className={
-        'inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition ' +
-        (liked
-          ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
-          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50') +
-        (isPending ? ' opacity-70' : '')
-      }
+      className={likePill({ liked, pending: isPending })}
     >
       <HeartIcon filled={liked} />
       <span>{compactNumber.format(total)}</span>
