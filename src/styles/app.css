@@ -1,1 +1,28 @@
 @import "tailwindcss";
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/inter";
+
+@theme {
+  --font-display: "Fraunces Variable", Georgia, serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* paper & ink */
+  --color-paper: #FAF5EC;      /* warm cream page background */
+  --color-cream: #F1E9D7;      /* deeper cream for tinted panels */
+  --color-ink: #26291E;        /* near-black warm olive — primary text */
+  --color-ink-soft: #5C5F52;   /* secondary text */
+
+  /* garden palette (from inspo color blocks) */
+  --color-pine: #2F4A33;       /* primary brand green */
+  --color-pine-deep: #223828;  /* hover/active green */
+  --color-sage: #A9BC8F;       /* mid sage */
+  --color-sage-tint: #E7EBDA;  /* sage wash */
+  --color-butter: #F2C94C;     /* warm yellow */
+  --color-butter-tint: #FAEFC9;
+  --color-tomato: #D2593B;     /* burnt salmon/tomato */
+  --color-tomato-tint: #F8E3DA;
+  --color-sky: #A9C3E8;        /* periwinkle */
+  --color-sky-tint: #E3EAF7;
+  --color-plum: #6E4260;       /* playful plum */
+  --color-plum-tint: #ECDEE8;
+}
