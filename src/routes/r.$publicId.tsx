@@ -1,9 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
+import * as z from 'zod'
 
 const resolveSlug = createServerFn({ method: 'GET' })
-  .inputValidator((d: { publicId: string }) => d)
+  .inputValidator(z.object({ publicId: z.string().min(1).max(40) }).parse)
   .handler(async ({ data }) => {
     const restaurant = await prisma.restaurants.findUnique({
       where: { public_id: data.publicId },

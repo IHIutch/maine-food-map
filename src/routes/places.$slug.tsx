@@ -8,10 +8,11 @@ import { baseUrl } from '../utils/base-url'
 import { LikeButton } from '../components/LikeButton'
 import { getLikesForRestaurant } from '../server/likes'
 import { computeIsOpen, formatTodayHours, getMaineNow } from '../utils/opening-hours'
+import * as z from 'zod'
 
 // Server function to fetch restaurant by slug
 const getRestaurantBySlug = createServerFn({ method: 'GET' })
-  .inputValidator((d: { slug: string }) => d)
+  .inputValidator(z.object({ slug: z.string().min(1).max(200) }).parse)
   .handler(async ({ data }) => {
     const { slug } = data
     const restaurant = await prisma.restaurants.findUnique({

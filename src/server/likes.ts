@@ -8,6 +8,7 @@ import type { Did, Nsid } from '@atcute/lexicons'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHost } from '@tanstack/react-start/server'
 import { env } from 'cloudflare:workers'
+import * as z from 'zod'
 import { prisma } from '../utils/prisma'
 import { getPublicUrl } from '../utils/oauth-config'
 import { getAuthenticatedSession, getCurrentUser } from './session'
@@ -112,7 +113,9 @@ async function invalidateViewerLikes(did: string): Promise<void> {
 }
 
 export const getLikesForRestaurant = createServerFn({ method: 'GET' })
-  .inputValidator((d: { publicId: string }) => d)
+  .inputValidator(
+    z.object({ publicId: z.string().min(1).max(40) }).parse,
+  )
   .handler(async ({ data }) => {
     const [user, total] = await Promise.all([
       getCurrentUser(),
@@ -127,7 +130,9 @@ export const getLikesForRestaurant = createServerFn({ method: 'GET' })
   })
 
 export const likeRestaurant = createServerFn({ method: 'POST' })
-  .inputValidator((d: { publicId: string }) => d)
+  .inputValidator(
+    z.object({ publicId: z.string().min(1).max(40) }).parse,
+  )
   .handler(async ({ data }) => {
     const session = await getAuthenticatedSession(
       getRequestHost({ xForwardedHost: true }),
@@ -169,7 +174,9 @@ export const likeRestaurant = createServerFn({ method: 'POST' })
   })
 
 export const unlikeRestaurant = createServerFn({ method: 'POST' })
-  .inputValidator((d: { publicId: string }) => d)
+  .inputValidator(
+    z.object({ publicId: z.string().min(1).max(40) }).parse,
+  )
   .handler(async ({ data }) => {
     const session = await getAuthenticatedSession(
       getRequestHost({ xForwardedHost: true }),

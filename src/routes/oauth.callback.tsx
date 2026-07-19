@@ -7,9 +7,10 @@ import {
 } from '@tanstack/react-start/server'
 import { getOAuthClient, getRedirectUri } from '../server/oauth/client'
 import { resolveHandleForDid, setCurrentUser } from '../server/session'
+import * as z from 'zod'
 
 const handleCallback = createServerFn({ method: 'GET' })
-  .inputValidator((d: { searchString: string }) => d)
+  .inputValidator(z.object({ searchString: z.string().max(4000) }).parse)
   .handler(async ({ data }) => {
     const params = new URLSearchParams(data.searchString)
     // Use the origin saved at login start so redirect_uri matches the value

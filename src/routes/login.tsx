@@ -4,9 +4,18 @@ import { getRequestHost, setCookie } from '@tanstack/react-start/server'
 import { useState } from 'react'
 import { getOAuthClient, getRedirectUri } from '../server/oauth/client'
 import { seo } from '../utils/seo'
+import * as z from 'zod'
 
 const startLogin = createServerFn({ method: 'POST' })
-  .inputValidator((d: { handle: string; next?: string; origin?: string }) => d)
+  .inputValidator(
+    z
+      .object({
+        handle: z.string().trim().min(1).max(253),
+        next: z.string().max(2000).optional(),
+        origin: z.string().url().max(200).optional(),
+      })
+      .parse,
+  )
   .handler(async ({ data }) => {
     const trimmed = data.handle.trim().replace(/^@/, '')
     if (!trimmed) {
