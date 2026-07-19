@@ -46,6 +46,17 @@ export function isOpenAt(schedule: DaySchedule | undefined, time: string): boole
   return time >= open && time <= close
 }
 
+// Pre-midnight leg only: for an overnight schedule (close < open), today's
+// window only covers time >= open. The post-midnight leg belongs to the
+// PREVIOUS day's schedule and is handled by computeIsOpen's spillover check.
+function isOpenTodayLeg(schedule: DaySchedule | undefined, time: string): boolean {
+  if (!schedule) return false
+  const { open, close } = schedule
+  if (open === '00:00' && close === '00:00') return false
+  if (close < open) return time >= open
+  return time >= open && time <= close
+}
+
 // Overall status: open now if today's schedule says open at `time`, OR
 // yesterday's schedule is overnight and still spilling past midnight
 // (e.g. Fri 17:00–01:00 means open Sat 00:30).
@@ -54,7 +65,7 @@ export function computeIsOpen(hours: DaySchedule[] | null, now: Date = new Date(
   const { day, time } = getMaineNow(now)
 
   const today = hours.find((s) => s.day === day)
-  if (isOpenAt(today, time)) return true
+  if (isOpenTodayLeg(today, time)) return true
 
   const yesterdayIndex = (day + 6) % 7
   const yesterday = hours.find((s) => s.day === yesterdayIndex)

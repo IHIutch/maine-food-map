@@ -52,6 +52,22 @@ describe('computeIsOpen', () => {
     expect(computeIsOpen(hours, new Date('2026-07-18T04:30:00Z'))).toBe(true)
   })
 
+  it('does not use the post-midnight leg of an overnight schedule for its own day', () => {
+    const hours = [
+      { day: 0, open: '00:00', close: '00:00' },
+      { day: 1, open: '00:00', close: '00:00' },
+      { day: 2, open: '00:00', close: '00:00' },
+      { day: 3, open: '00:00', close: '00:00' },
+      { day: 4, open: '00:00', close: '00:00' },
+      { day: 5, open: '17:00', close: '01:00' },
+      { day: 6, open: '00:00', close: '00:00' },
+    ]
+    // Fri 00:30 EDT: Friday's own overnight window is 17:00 onward, and
+    // Thursday (yesterday) is closed, so this must be false — not governed
+    // by Friday's close:'01:00' leg, which belongs to the following night.
+    expect(computeIsOpen(hours, new Date('2026-07-17T04:30:00Z'))).toBe(false)
+  })
+
   it('is closed when hours are null', () => {
     expect(computeIsOpen(null)).toBe(false)
   })
