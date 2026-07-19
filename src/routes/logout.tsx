@@ -4,6 +4,7 @@ import { getRequestHost } from '@tanstack/react-start/server'
 import type { Did } from '@atcute/lexicons'
 import { getOAuthClient } from '../server/oauth/client'
 import { clearCurrentSession, getCurrentUser } from '../server/session'
+import { sanitizeNext } from '../utils/redirects'
 
 const doLogout = createServerFn({ method: 'POST' }).handler(async () => {
   const user = await getCurrentUser()
@@ -17,13 +18,6 @@ const doLogout = createServerFn({ method: 'POST' }).handler(async () => {
   }
   await clearCurrentSession()
 })
-
-// Only accept same-origin paths for `next` so `?next=https://evil.com`
-// can't redirect victims elsewhere post-logout.
-function sanitizeNext(next: string | undefined): string {
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/'
-  return next
-}
 
 export const Route = createFileRoute('/logout')({
   validateSearch: (search) =>

@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-start/server'
 import { getOAuthClient, getRedirectUri } from '../server/oauth/client'
 import { resolveHandleForDid, setCurrentUser } from '../server/session'
+import { sanitizeNext } from '../utils/redirects'
 import * as z from 'zod'
 
 const handleCallback = createServerFn({ method: 'GET' })
@@ -43,7 +44,7 @@ export const Route = createFileRoute('/oauth/callback')({
       deps.search as Record<string, string>,
     ).toString()
     const { next } = await handleCallback({ data: { searchString: qs } })
-    throw redirect({ to: next as any })
+    throw redirect({ href: sanitizeNext(next) })
   },
   component: () => (
     <div className="p-6 text-gray-600">Completing sign-in…</div>
