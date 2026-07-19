@@ -10,26 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml_'
-import { Route as PostsRouteImport } from './routes/posts'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ClientMetadataDotjsonRouteImport } from './routes/client-metadata[.]json_'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PostsIndexRouteImport } from './routes/posts.index'
 import { Route as RPublicIdRouteImport } from './routes/r.$publicId'
-import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as PlacesSlugRouteImport } from './routes/places.$slug'
 import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
-import { Route as PostsPostIdDeepRouteImport } from './routes/posts_.$postId.deep'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml_',
   path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsRoute = PostsRouteImport.update({
-  id: '/posts',
-  path: '/posts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogoutRoute = LogoutRouteImport.update({
@@ -52,20 +43,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PostsRoute,
-} as any)
 const RPublicIdRoute = RPublicIdRouteImport.update({
   id: '/r/$publicId',
   path: '/r/$publicId',
   getParentRoute: () => rootRouteImport,
-} as any)
-const PostsPostIdRoute = PostsPostIdRouteImport.update({
-  id: '/$postId',
-  path: '/$postId',
-  getParentRoute: () => PostsRoute,
 } as any)
 const PlacesSlugRoute = PlacesSlugRouteImport.update({
   id: '/places/$slug',
@@ -77,25 +58,16 @@ const OauthCallbackRoute = OauthCallbackRouteImport.update({
   path: '/oauth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsPostIdDeepRoute = PostsPostIdDeepRouteImport.update({
-  id: '/posts_/$postId/deep',
-  path: '/posts/$postId/deep',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/client-metadata.json': typeof ClientMetadataDotjsonRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/posts': typeof PostsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
-  '/posts/$postId': typeof PostsPostIdRoute
   '/r/$publicId': typeof RPublicIdRoute
-  '/posts/': typeof PostsIndexRoute
-  '/posts/$postId/deep': typeof PostsPostIdDeepRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -105,10 +77,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
-  '/posts/$postId': typeof PostsPostIdRoute
   '/r/$publicId': typeof RPublicIdRoute
-  '/posts': typeof PostsIndexRoute
-  '/posts/$postId/deep': typeof PostsPostIdDeepRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,14 +85,10 @@ export interface FileRoutesById {
   '/client-metadata.json_': typeof ClientMetadataDotjsonRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/posts': typeof PostsRouteWithChildren
   '/sitemap.xml_': typeof SitemapDotxmlRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
-  '/posts/$postId': typeof PostsPostIdRoute
   '/r/$publicId': typeof RPublicIdRoute
-  '/posts/': typeof PostsIndexRoute
-  '/posts_/$postId/deep': typeof PostsPostIdDeepRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -132,14 +97,10 @@ export interface FileRouteTypes {
     | '/client-metadata.json'
     | '/login'
     | '/logout'
-    | '/posts'
     | '/sitemap.xml'
     | '/oauth/callback'
     | '/places/$slug'
-    | '/posts/$postId'
     | '/r/$publicId'
-    | '/posts/'
-    | '/posts/$postId/deep'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -149,24 +110,17 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/oauth/callback'
     | '/places/$slug'
-    | '/posts/$postId'
     | '/r/$publicId'
-    | '/posts'
-    | '/posts/$postId/deep'
   id:
     | '__root__'
     | '/'
     | '/client-metadata.json_'
     | '/login'
     | '/logout'
-    | '/posts'
     | '/sitemap.xml_'
     | '/oauth/callback'
     | '/places/$slug'
-    | '/posts/$postId'
     | '/r/$publicId'
-    | '/posts/'
-    | '/posts_/$postId/deep'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -174,12 +128,10 @@ export interface RootRouteChildren {
   ClientMetadataDotjsonRoute: typeof ClientMetadataDotjsonRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
-  PostsRoute: typeof PostsRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
   PlacesSlugRoute: typeof PlacesSlugRoute
   RPublicIdRoute: typeof RPublicIdRoute
-  PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -189,13 +141,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/posts': {
-      id: '/posts'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/logout': {
@@ -226,26 +171,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/': {
-      id: '/posts/'
-      path: '/'
-      fullPath: '/posts/'
-      preLoaderRoute: typeof PostsIndexRouteImport
-      parentRoute: typeof PostsRoute
-    }
     '/r/$publicId': {
       id: '/r/$publicId'
       path: '/r/$publicId'
       fullPath: '/r/$publicId'
       preLoaderRoute: typeof RPublicIdRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/posts/$postId': {
-      id: '/posts/$postId'
-      path: '/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdRouteImport
-      parentRoute: typeof PostsRoute
     }
     '/places/$slug': {
       id: '/places/$slug'
@@ -261,39 +192,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts_/$postId/deep': {
-      id: '/posts_/$postId/deep'
-      path: '/posts/$postId/deep'
-      fullPath: '/posts/$postId/deep'
-      preLoaderRoute: typeof PostsPostIdDeepRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
-
-interface PostsRouteChildren {
-  PostsPostIdRoute: typeof PostsPostIdRoute
-  PostsIndexRoute: typeof PostsIndexRoute
-}
-
-const PostsRouteChildren: PostsRouteChildren = {
-  PostsPostIdRoute: PostsPostIdRoute,
-  PostsIndexRoute: PostsIndexRoute,
-}
-
-const PostsRouteWithChildren = PostsRoute._addFileChildren(PostsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientMetadataDotjsonRoute: ClientMetadataDotjsonRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
-  PostsRoute: PostsRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   PlacesSlugRoute: PlacesSlugRoute,
   RPublicIdRoute: RPublicIdRoute,
-  PostsPostIdDeepRoute: PostsPostIdDeepRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
