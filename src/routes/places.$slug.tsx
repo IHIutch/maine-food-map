@@ -33,6 +33,15 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
 
     // Parse JSON fields and check if open
     const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
+    const key = process.env.GOOGLE_PLACES_API_KEY
+    const photos: Array<{ url: string; attribution?: string }> = !key || !restaurant.photos
+      ? []
+      : (JSON.parse(restaurant.photos) as Array<{ url?: string; attribution?: string }>)
+          .filter((photo): photo is { url: string; attribution?: string } => Boolean(photo.url))
+          .map((photo) => ({
+            url: photo.url.includes('YOUR_API_KEY') ? photo.url.replace('YOUR_API_KEY', key) : photo.url,
+            attribution: photo.attribution,
+          }))
 
     // Calculate current status
     const now = new Date()
@@ -57,7 +66,7 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
     const parsedRestaurant = {
       ...restaurant,
       tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
-      photos: restaurant.photos ? JSON.parse(restaurant.photos) : [],
+      photos,
       opening_hours,
       isOpen,
       todayHours
@@ -132,9 +141,7 @@ export const Route = createFileRoute('/places/$slug')({
       }).filter(Boolean) : undefined,
       "servesCuisine": restaurant.restaurant_categories?.map((rc: any) => rc.categories.display_name) || undefined,
       "priceRange": restaurant.price_level ? "$".repeat(parseInt(restaurant.price_level)) : undefined,
-      "image": restaurant.photos?.length > 0 ? restaurant.photos.map((photo: any) =>
-        photo.url?.replace('YOUR_API_KEY', process.env.GOOGLE_PLACES_API_KEY || '')
-      ) : undefined
+      "image": restaurant.photos?.length > 0 ? restaurant.photos.map((photo) => photo.url) : undefined
     } : null;
 
     return {
@@ -267,7 +274,7 @@ function RestaurantPage() {
                   {restaurant.photos.slice(0, 4).map((photo: any, index: number) => (
                     <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                       <img
-                        src={photo.url.replace('YOUR_API_KEY', process.env.GOOGLE_PLACES_API_KEY || '')}
+                        src={photo.url}
                         alt={`${restaurant.title} photo ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
