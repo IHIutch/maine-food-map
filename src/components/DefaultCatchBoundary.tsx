@@ -6,7 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
-import { button } from './ui'
+import { brandCaps, button } from './ui'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
@@ -18,9 +18,10 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   console.error('DefaultCatchBoundary Error:', error)
 
   return (
-    <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
+    <div className="min-w-0 flex-1 px-6 py-16 flex flex-col items-center justify-center gap-6">
+      <p className={brandCaps({ className: 'text-sm text-ink-soft' })}>Something went wrong</p>
       <ErrorComponent error={error} />
-      <div className="flex gap-2 items-center flex-wrap">
+      <div className="flex gap-3 items-center flex-wrap">
         <button
           onClick={() => {
             router.invalidate()

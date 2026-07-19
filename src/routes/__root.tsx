@@ -16,7 +16,7 @@ import { baseUrl } from '../utils/base-url'
 import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client';
 import { getCurrentUser } from '../server/session'
-import { displayHeading, metaLabel } from '../components/ui'
+import { brandCaps, metaLabel } from '../components/ui'
 
 const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(async () => {
   return await getCurrentUser()
@@ -103,15 +103,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="h-full bg-paper text-ink font-sans antialiased">
-        <nav className="bg-paper/90 backdrop-blur border-b border-ink/10 h-16 z-10 relative flex items-center justify-between px-4 sm:px-6">
+        <nav className="bg-paper border-b border-ink/15 h-16 z-10 relative flex items-center justify-between px-4 sm:px-6">
           <Link
             to="/"
-            className={displayHeading({
+            className={brandCaps({
               className:
-                'text-2xl text-pine hover:text-pine-deep transition-colors',
+                'text-lg sm:text-xl hover:text-blueberry transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry',
             })}
           >
-            Maine Food Map
+            Maine&thinsp;·&thinsp;Food&thinsp;·&thinsp;Map
           </Link>
           <div className="text-sm">
             {user ? (
@@ -120,7 +120,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <a
                   href={logoutHref}
                   className={metaLabel({
-                    className: 'text-pine hover:text-pine-deep',
+                    className: 'text-blueberry hover:text-blueberry-deep',
                   })}
                 >
                   Log out
@@ -130,7 +130,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               <a
                 href={loginHref}
                 className={metaLabel({
-                  className: 'text-pine hover:text-pine-deep',
+                  className: 'text-blueberry hover:text-blueberry-deep',
                 })}
               >
                 Sign in with Bluesky

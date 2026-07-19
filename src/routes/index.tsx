@@ -5,7 +5,7 @@ import { computeIsOpen } from '../utils/opening-hours'
 import { baseUrl } from '../utils/base-url'
 import { useState, lazy, Suspense } from 'react'
 import * as z from 'zod'
-import { chip, displayHeading, metaLabel, statusPill, togglePill } from '../components/ui'
+import { brandCaps, displayHeading, metaLabel, metaRow, statusMark, toggleSegment } from '../components/ui'
 
 const MapboxEmbed = lazy(() => import('../components/mapbox-embed'))
 
@@ -88,9 +88,9 @@ function PlacesIndex() {
       <div className="lg:hidden sticky top-0 z-10 bg-paper/95 backdrop-blur border-b border-ink/10 px-4 py-2">
         <div className="flex items-center justify-between">
           <span className={metaLabel({ className: 'text-ink-soft' })}>
-            {restaurants.length} restaurants
+            {restaurants.length} places
           </span>
-          <div className="flex gap-1.5">
+          <div className="flex">
             <button
               onClick={() => {
                 navigate({
@@ -99,9 +99,9 @@ function PlacesIndex() {
                   replace: false,
                 });
               }}
-              className={togglePill({ active: view === 'list' })}
+              className={toggleSegment({ active: view === 'list' })}
             >
-              List View
+              List
             </button>
             <button
               onClick={() => {
@@ -110,9 +110,9 @@ function PlacesIndex() {
                   search: (old) => ({ ...old, view: 'map' }),
                 });
               }}
-              className={togglePill({ active: view === 'map' })}
+              className={toggleSegment({ active: view === 'map' })}
             >
-              Map View
+              Map
             </button>
           </div>
         </div>
@@ -121,13 +121,17 @@ function PlacesIndex() {
       <div className="flex flex-1 h-full">
         {/* List View - Hidden on mobile when map is showing */}
         <div className={`${view === 'map' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full overflow-y-auto h-full`}>
-          <div className='hidden lg:block py-10 px-6 border-b border-ink/10'>
-            <p className={metaLabel({ className: 'text-ink-soft mb-2' })}>
-              Maine Food Map
-            </p>
-            <h1 className={displayHeading({ className: 'text-4xl' })}>
-              Discover {restaurants.length} great restaurants in Maine
-            </h1>
+          <div className="hidden lg:block p-5 pb-0">
+            <div className="rounded-2xl bg-blueberry px-8 py-12">
+              <h1 className={brandCaps({ className: 'text-paper text-4xl xl:text-5xl leading-[1.1]' })}>
+                Maine
+                <br />
+                Food Map
+              </h1>
+              <p className={metaLabel({ className: 'text-paper/80 mt-5' })}>
+                {restaurants.length} places · hand-picked across Maine
+              </p>
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-5">
             {restaurants.map((restaurant, index) => {
@@ -138,25 +142,23 @@ function PlacesIndex() {
                   key={restaurant.id}
                   to="/places/$slug"
                   params={{ slug: restaurant.slug }}
-                  className={`${tint} rounded-2xl p-6 block hover:shadow-lg hover:-translate-y-0.5 transition ${isSelected ? 'ring-2 ring-pine' : ''
-                    }`}
+                  className={`${tint} rounded-2xl p-6 flex flex-col transition-[filter] hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry ${
+                    isSelected ? 'outline-2 outline-offset-2 outline-blueberry' : ''
+                  }`}
                 >
                   {restaurant.city && (
-                    <p className={metaLabel({ className: 'text-ink-soft mb-2' })}>
+                    <p className={metaLabel({ className: 'text-ink-soft mb-3' })}>
                       {restaurant.city}
                     </p>
                   )}
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h2 className={displayHeading({ className: 'text-2xl' })}>
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h2 className={displayHeading({ className: 'text-2xl leading-[1.05]' })}>
                       {restaurant.title}
                     </h2>
                     {restaurant.rating && (
-                      <div className="flex items-baseline gap-1 flex-shrink-0">
-                        <span className="font-display text-2xl font-semibold text-ink">
-                          {restaurant.rating}
-                        </span>
-                        <span className="text-sm">⭐</span>
-                      </div>
+                      <span className={displayHeading({ className: 'text-4xl flex-shrink-0' })}>
+                        {restaurant.rating}
+                      </span>
                     )}
                   </div>
 
@@ -166,28 +168,19 @@ function PlacesIndex() {
                     </p>
                   )}
 
-                  <div className="flex items-end justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {restaurant.tags.slice(0, 2).map((tag: string) => (
-                        <span key={tag} className={chip({ tone: 'paper' })}>
-                          {tag}
-                        </span>
-                      ))}
-                      {restaurant.tags.length > 2 && (
-                        <span className="text-ink-soft text-xs">
-                          +{restaurant.tags.length - 2}
-                        </span>
-                      )}
-                      {restaurant.review_count && (
-                        <span className={metaLabel({ className: 'text-ink-soft ml-1' })}>
-                          {restaurant.review_count} reviews
-                        </span>
-                      )}
-                    </div>
-
-                    <span className={statusPill({ open: restaurant.isOpen, solid: true })}>
+                  <div className={metaRow({ className: 'text-ink-soft mt-auto pt-3 border-t border-ink/15' })}>
+                    <span className={statusMark({ open: restaurant.isOpen })}>
                       {restaurant.isOpen ? 'Open' : 'Closed'}
                     </span>
+                    {restaurant.tags
+                      .filter((tag: string) => !/^open now$/i.test(tag))
+                      .slice(0, 2)
+                      .map((tag: string) => (
+                        <span key={tag}>· {tag}</span>
+                      ))}
+                    {restaurant.review_count && (
+                      <span className="ml-auto">{restaurant.review_count} reviews</span>
+                    )}
                   </div>
                 </Link>
               )

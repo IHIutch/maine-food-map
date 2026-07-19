@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { getOAuthClient, getRedirectUri } from '../server/oauth/client'
 import { seo } from '../utils/seo'
 import * as z from 'zod'
-import { button, card, displayHeading, metaLabel } from '../components/ui'
+import { button, displayHeading, input, metaLabel } from '../components/ui'
 
 const startLogin = createServerFn({ method: 'POST' })
   .inputValidator(
@@ -67,12 +67,12 @@ function LoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6">
-      <div className={card({ className: 'max-w-sm w-full p-8' })}>
-        <p className={metaLabel({ className: 'text-pine mb-2' })}>Maine Food Map</p>
-        <h1 className={displayHeading({ className: 'text-3xl mb-3' })}>
+      <div className="max-w-md w-full rounded-2xl bg-pine-deep text-paper p-8 sm:p-10">
+        <p className={metaLabel({ className: 'text-paper/70 mb-3' })}>Maine Food Map</p>
+        <h1 className={displayHeading({ className: 'text-4xl text-paper mb-4' })}>
           Sign in with Bluesky
         </h1>
-        <p className="text-sm text-ink-soft mb-6">
+        <p className="text-sm text-paper/70 mb-8">
           Enter your Bluesky handle to sign in. Your likes are stored on your
           Bluesky account.
         </p>
@@ -94,7 +94,7 @@ function LoginPage() {
             }
           }}
         >
-          <label className={metaLabel({ className: 'block mb-2 text-ink-soft' })}>
+          <label className={metaLabel({ className: 'block mb-2 text-paper/70' })}>
             Handle
           </label>
           <input
@@ -106,26 +106,26 @@ function LoginPage() {
             autoCorrect="off"
             spellCheck={false}
             required
-            className="w-full rounded-xl border border-ink/15 bg-paper px-3 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-pine"
+            className={input({ onDark: true, className: 'mb-5' })}
           />
           {error && (
-            <div className="mb-4 text-sm text-tomato">{error}</div>
+            <div className="mb-5 text-sm text-tomato-tint">{error}</div>
           )}
           <button
             type="submit"
             disabled={submitting}
-            className={button({ className: 'w-full disabled:opacity-50' })}
+            className={button({ intent: 'paper', className: 'w-full disabled:opacity-50 focus-visible:outline-paper' })}
           >
             {submitting ? 'Redirecting…' : 'Continue'}
           </button>
         </form>
-        <p className="mt-4 text-xs text-ink-soft">
+        <p className="mt-6 text-xs text-paper/60">
           Don't have a Bluesky account? Create one at{' '}
           <a
             href="https://bsky.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-pine underline underline-offset-4 decoration-pine/40 hover:decoration-pine"
+            className="text-paper underline underline-offset-4 decoration-paper/40 hover:decoration-paper"
           >
             bsky.app
           </a>

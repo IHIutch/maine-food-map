@@ -5,12 +5,12 @@ import { useServerFn } from '@tanstack/react-start'
 import { tv } from 'tailwind-variants'
 import { likeRestaurant, unlikeRestaurant } from '../server/likes'
 
-const likePill = tv({
-  base: 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition',
+const likeControl = tv({
+  base: 'inline-flex items-center gap-2 px-3.5 py-2 rounded-none border text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry',
   variants: {
     liked: {
-      true: 'border-tomato/30 bg-tomato-tint text-tomato hover:bg-tomato-tint/70',
-      false: 'border-ink/15 bg-white text-ink hover:bg-cream',
+      true: 'border-tomato bg-tomato text-paper hover:bg-tomato/90',
+      false: 'border-ink/25 bg-transparent text-ink hover:bg-cream',
     },
     pending: {
       true: 'opacity-70',
@@ -47,7 +47,7 @@ export function LikeButton({
       <a
         href={`/login?next=${encodeURIComponent(`/places/${slug}`)}`}
         title="Sign in with Bluesky to like"
-        className={likePill({ liked: false })}
+        className={likeControl({ liked: false })}
       >
         <HeartIcon filled={false} />
         <span>{compactNumber.format(total)}</span>
@@ -83,7 +83,7 @@ export function LikeButton({
       onClick={onClick}
       disabled={isPending}
       aria-pressed={liked}
-      className={likePill({ liked, pending: isPending })}
+      className={likeControl({ liked, pending: isPending })}
     >
       <HeartIcon filled={liked} />
       <span>{compactNumber.format(total)}</span>

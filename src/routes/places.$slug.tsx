@@ -10,7 +10,7 @@ import { getLikesForRestaurant } from '../server/likes'
 import { computeIsOpen, formatTodayHours, getMaineNow } from '../utils/opening-hours'
 import { jsonForScript } from '../utils/escape'
 import * as z from 'zod'
-import { card, chip, displayHeading, metaLabel, statusPill } from '../components/ui'
+import { brandCaps, displayHeading, metaLabel, metaRow, statusMark } from '../components/ui'
 
 function safeWebsiteHref(website: string, ref: string): string | null {
   try {
@@ -165,39 +165,45 @@ function RestaurantPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      {/* Hero — full-bleed tone-on-tone band */}
+      {/* Hero — full-bleed tone-on-tone color field */}
       <div className="bg-sage-tint">
-        <div className="max-w-4xl mx-auto px-6 py-12 sm:py-16">
+        <div className="max-w-4xl mx-auto px-6 py-16 sm:py-24">
           {(restaurant.city || restaurant.state) && (
-            <p className={metaLabel({ className: 'text-pine mb-3' })}>
+            <p className={metaLabel({ className: 'text-pine mb-4' })}>
               {[restaurant.city, restaurant.state].filter(Boolean).join(', ')}
             </p>
           )}
-          <h1 className={displayHeading({ className: 'text-4xl sm:text-6xl text-pine mb-4' })}>
-            {restaurant.title}
-          </h1>
-
-          {restaurant.description && (
-            <p className="text-ink-soft text-lg max-w-2xl mb-6">{restaurant.description}</p>
-          )}
-
-          {/* Status and Rating */}
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <span className={statusPill({ open: restaurant.isOpen, solid: true, className: 'px-3' })}>
-              {restaurant.isOpen ? 'Open Now' : 'Closed'}
-            </span>
-
+          <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 mb-6">
+            <h1 className={displayHeading({ className: 'text-5xl sm:text-7xl text-pine max-w-2xl' })}>
+              {restaurant.title}
+            </h1>
             {restaurant.rating && (
-              <div className="flex items-baseline gap-1.5">
-                <span className="font-display text-3xl font-semibold text-ink">
+              <div className="text-right">
+                <span className={displayHeading({ className: 'text-6xl sm:text-7xl text-pine' })}>
                   {restaurant.rating}
                 </span>
-                <span className="text-yellow-500">⭐</span>
-                <span className={metaLabel({ className: 'text-ink-soft' })}>
+                <p className={metaLabel({ className: 'text-ink-soft mt-2' })}>
                   {restaurant.review_count} reviews
-                </span>
+                </p>
               </div>
             )}
+          </div>
+
+          {restaurant.description && (
+            <p className="text-ink-soft text-lg max-w-2xl mb-8">{restaurant.description}</p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className={metaRow({ className: 'text-ink-soft' })}>
+              <span className={statusMark({ open: restaurant.isOpen })}>
+                {restaurant.isOpen ? 'Open now' : 'Closed'}
+              </span>
+              {restaurant.tags
+                .filter((tag: string) => !/^open now$/i.test(tag))
+                .map((tag: string) => (
+                  <span key={tag}>· {tag}</span>
+                ))}
+            </div>
 
             {restaurant.public_id && (
               <LikeButton
@@ -209,30 +215,18 @@ function RestaurantPage() {
               />
             )}
           </div>
-
-          {/* Tags */}
-          {restaurant.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {restaurant.tags.map((tag: string) => (
-                <span key={tag} className={chip({ tone: 'paper' })}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left Column - Info */}
-          <div className="md:col-span-2 space-y-6">
-            {/* Contact Info */}
-            <div className={card({ className: 'p-6' })}>
-              <h2 className={displayHeading({ className: 'text-2xl mb-4' })}>Contact Information</h2>
+      <div className="max-w-4xl mx-auto px-6 py-12 sm:py-16">
+        {/* Editorial sections split by hairline rules */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12">
+          {/* Left column — contact + photos */}
+          <div className="md:col-span-2">
+            <section className="pb-10">
+              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Contact</h2>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {restaurant.address && (
                   <div>
                     <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>Address</p>
@@ -248,7 +242,7 @@ function RestaurantPage() {
                     <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>Phone</p>
                     <a
                       href={`tel:${restaurant.phone}`}
-                      className="text-pine underline underline-offset-4 decoration-pine/40 hover:decoration-pine"
+                      className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
                     >
                       {restaurant.phone}
                     </a>
@@ -265,23 +259,22 @@ function RestaurantPage() {
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-pine underline underline-offset-4 decoration-pine/40 hover:decoration-pine"
+                      className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
                     >
                       Visit Website →
                     </a>
                   </div>
                 )}
               </div>
-            </div>
+            </section>
 
-            {/* Photos */}
             {restaurant.photos.length > 0 && (
-              <div className={card({ className: 'p-6' })}>
-                <h2 className={displayHeading({ className: 'text-2xl mb-4' })}>Photos</h2>
+              <section className="pt-10 pb-10 border-t border-ink/15">
+                <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Photos</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {restaurant.photos.slice(0, 4).map((photo: any, index: number) => (
                     <figure key={index}>
-                      <div className="aspect-square bg-cream rounded-xl overflow-hidden">
+                      <div className="aspect-[4/5] bg-cream rounded-t-full rounded-b-2xl overflow-hidden">
                         <img
                           src={photo.url}
                           alt={`${restaurant.title} photo ${index + 1}`}
@@ -289,25 +282,25 @@ function RestaurantPage() {
                         />
                       </div>
                       {photo.attribution && (
-                        <figcaption className="text-xs text-ink-soft mt-1.5 text-center">
+                        <figcaption className={metaLabel({ className: 'text-ink-soft mt-2 text-center normal-case tracking-normal text-xs font-normal' })}>
                           Photo by {photo.attribution}
                         </figcaption>
                       )}
                     </figure>
                   ))}
                 </div>
-              </div>
+              </section>
             )}
           </div>
 
-          {/* Right Column - Hours */}
-          <div>
-            <div className={card({ className: 'p-6' })}>
-              <h2 className={displayHeading({ className: 'text-2xl mb-4' })}>Hours</h2>
+          {/* Right column — hours + categories */}
+          <div className="border-t md:border-t-0 md:border-l border-ink/15 pt-10 md:pt-0 md:pl-12">
+            <section className="pb-10">
+              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Hours</h2>
 
               {restaurant.opening_hours ? (
-                <div className="space-y-2">
-                  <div className="mb-4 p-3 bg-butter-tint rounded-xl">
+                <div>
+                  <div className="mb-5 px-4 py-3 bg-butter-tint rounded-xl">
                     <p className={metaLabel({ className: 'text-ink-soft mb-0.5' })}>Today</p>
                     <p className="font-medium">{restaurant.todayHours || 'Hours not available'}</p>
                   </div>
@@ -319,7 +312,7 @@ function RestaurantPage() {
                     return (
                       <div
                         key={schedule.day}
-                        className={`flex justify-between py-2 text-sm ${isToday ? 'font-semibold text-pine' : ''}`}
+                        className={`flex justify-between py-2 text-sm border-b border-ink/10 last:border-b-0 ${isToday ? 'font-semibold text-pine' : ''}`}
                       >
                         <span>{dayNames[schedule.day]}</span>
                         <span className={isClosed ? 'text-ink-soft' : ''}>
@@ -332,19 +325,21 @@ function RestaurantPage() {
               ) : (
                 <p className="text-ink-soft">Hours not available</p>
               )}
-            </div>
+            </section>
 
-            {/* Categories */}
-            <div className={card({ className: 'p-6 mt-6' })}>
-              <h2 className={displayHeading({ className: 'text-2xl mb-4' })}>Categories</h2>
-              <div className="flex flex-wrap gap-2">
-                {restaurant.restaurant_categories.map((rc: any) => (
-                  <span key={rc.category_id} className={chip({ tone: 'plum' })}>
-                    {rc.categories.display_name}
-                  </span>
-                ))}
-              </div>
-            </div>
+            {restaurant.restaurant_categories.length > 0 && (
+              <section className="pt-10 border-t border-ink/15">
+                <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Categories</h2>
+                <div className={metaRow({ className: 'text-plum' })}>
+                  {restaurant.restaurant_categories.map((rc: any, i: number) => (
+                    <span key={rc.category_id}>
+                      {i > 0 && '· '}
+                      {rc.categories.display_name}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </div>
