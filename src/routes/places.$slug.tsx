@@ -8,6 +8,7 @@ import { baseUrl } from '../utils/base-url'
 import { LikeButton } from '../components/LikeButton'
 import { getLikesForRestaurant } from '../server/likes'
 import { computeIsOpen, formatTodayHours, getMaineNow } from '../utils/opening-hours'
+import { jsonForScript } from '../utils/escape'
 import * as z from 'zod'
 
 // Server function to fetch restaurant by slug
@@ -140,7 +141,7 @@ export const Route = createFileRoute('/places/$slug')({
       }],
       scripts: structuredData ? [{
         type: 'application/ld+json',
-        children: JSON.stringify(structuredData)
+        children: jsonForScript(structuredData)
       }] : []
     };
   },

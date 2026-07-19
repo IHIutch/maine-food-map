@@ -1,6 +1,7 @@
 import { prisma } from '../utils/prisma'
 import { baseUrl } from '../utils/base-url'
 import { createFileRoute } from '@tanstack/react-router'
+import { escapeXml } from '../utils/escape'
 
 export const Route = createFileRoute('/sitemap.xml_')({
     server: {
@@ -32,10 +33,10 @@ export const Route = createFileRoute('/sitemap.xml_')({
                 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-    <loc>${baseUrl}</loc>
+    <loc>${escapeXml(baseUrl)}</loc>
 </url>
 ${allRoutes.map((route) => `<url>
-    <loc>${route.url}</loc>
+    <loc>${escapeXml(route.url)}</loc>
   </url>`).join('\n')}
 </urlset>`
 
