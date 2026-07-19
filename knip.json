@@ -1,0 +1,8 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": ["src/router.tsx", "src/routes/**/*.tsx", "src/server.ts", "scripts/*.mjs", "vitest.config.ts"],
+  "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"],
+  "ignore": ["src/routeTree.gen.ts", "src/generated/**", "worker-configuration.d.ts", "misc/**"],
+  "ignoreDependencies": ["tailwindcss", "cloudflare"],
+  "ignoreUnresolved": ["cloudflare:workers"]
+}
