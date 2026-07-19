@@ -2,6 +2,7 @@ import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
 import { computeIsOpen } from '../utils/opening-hours'
+import { baseUrl } from '../utils/base-url'
 import { useState, lazy, Suspense } from 'react'
 import * as z from 'zod'
 
@@ -55,6 +56,9 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
 export const Route = createFileRoute('/')({
   validateSearch: z.object({
     view: z.enum(['list', 'map']).default('list'),
+  }),
+  head: () => ({
+    links: [{ rel: 'canonical', href: baseUrl + '/' }],
   }),
   search: {
     middlewares: [

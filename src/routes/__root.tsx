@@ -12,6 +12,7 @@ import * as React from 'react'
 import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
+import { baseUrl } from '../utils/base-url'
 import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client';
 import { getCurrentUser } from '../server/session'
@@ -57,7 +58,9 @@ export const Route = createRootRoute({
       ...seo({
         title:
           'MaineFoodMap',
-        description: ``,
+        description: 'Discover great restaurants across Maine — hours, photos, and community likes.',
+        image: `${baseUrl}/android-chrome-512x512.png`,
+        url: baseUrl,
       }),
     ],
     links: [
