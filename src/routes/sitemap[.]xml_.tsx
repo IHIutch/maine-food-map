@@ -1,11 +1,11 @@
 import { prisma } from '../utils/prisma'
+import { baseUrl } from '../utils/base-url'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/sitemap.xml_')({
     server: {
         handlers: {
             GET: async () => {
-                const baseUrl = 'https://www.mainefoodmap.org' // Update with your actual domain
                 const now = new Date().toISOString()
 
                 const restaurants = await prisma.restaurants.findMany({
