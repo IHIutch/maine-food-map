@@ -1,5 +1,5 @@
 {
-  "name": "tanstack-start-example-basic",
+  "name": "maine-food-map",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -9,6 +9,7 @@
     "knip": "knip",
     "preview": "vite preview",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "deploy": "pnpx wrangler deploy",
     "cf-typegen": "pnpx wrangler types",
     "prisma:generate": "prisma generate --no-engine",
