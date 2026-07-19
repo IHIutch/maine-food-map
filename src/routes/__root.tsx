@@ -101,21 +101,30 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="h-full">
-        <nav className="bg-white shadow-sm h-16 z-10 relative flex items-center justify-between px-4">
-          <Link to="/" className="text-xl font-semibold">
+      <body className="h-full bg-paper text-ink font-sans antialiased">
+        <nav className="bg-paper/90 backdrop-blur border-b border-ink/10 h-16 z-10 relative flex items-center justify-between px-4 sm:px-6">
+          <Link
+            to="/"
+            className="font-display text-2xl font-semibold tracking-tight text-pine hover:text-pine-deep transition-colors"
+          >
             Maine Food Map
           </Link>
           <div className="text-sm">
             {user ? (
               <div className="flex items-center gap-3">
-                <span className="text-gray-600">@{user.handle}</span>
-                <a href={logoutHref} className="text-blue-600 hover:underline">
+                <span className="text-ink-soft">@{user.handle}</span>
+                <a
+                  href={logoutHref}
+                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-pine hover:text-pine-deep"
+                >
                   Log out
                 </a>
               </div>
             ) : (
-              <a href={loginHref} className="text-blue-600 hover:underline">
+              <a
+                href={loginHref}
+                className="text-[11px] font-medium uppercase tracking-[0.14em] text-pine hover:text-pine-deep"
+              >
                 Sign in with Bluesky
               </a>
             )}
