@@ -1,6 +1,7 @@
 import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
+import { computeIsOpen } from '../utils/opening-hours'
 import { useState, lazy, Suspense } from 'react'
 import * as z from 'zod'
 
@@ -38,29 +39,14 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
     },
   })
 
-  // Parse JSON fields and check if open
-  const now = new Date()
-  const currentDay = now.getDay()
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-
   return {
-    restaurants: restaurants.map(restaurant => {
-      const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
-
-      // Check if currently open
-      let isOpen = false
-      if (opening_hours) {
-        const todaySchedule = opening_hours[currentDay]
-        if (todaySchedule && !(todaySchedule.open === "00:00" && todaySchedule.close === "00:00")) {
-          isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
-        }
-      }
+    restaurants: restaurants.map(({ opening_hours: rawHours, tags, ...rest }) => {
+      const opening_hours = rawHours ? JSON.parse(rawHours) : null
 
       return {
-        ...restaurant,
-        tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
-        opening_hours,
-        isOpen
+        ...rest,
+        tags: tags ? JSON.parse(tags) : [],
+        isOpen: computeIsOpen(opening_hours)
       }
     })
   }
