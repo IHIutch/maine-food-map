@@ -6,6 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
+import { button } from './ui'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
@@ -24,21 +25,21 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
           onClick={() => {
             router.invalidate()
           }}
-          className="rounded-full bg-pine px-5 py-2.5 text-sm font-medium text-paper hover:bg-pine-deep transition-colors"
+          className={button({ intent: 'primary' })}
         >
           Try Again
         </button>
         {isRoot ? (
           <Link
             to="/"
-            className="rounded-full border border-ink/15 bg-white px-5 py-2.5 text-sm font-medium text-ink hover:bg-cream transition-colors"
+            className={button({ intent: 'secondary' })}
           >
             Home
           </Link>
         ) : (
           <Link
             to="/"
-            className="rounded-full border border-ink/15 bg-white px-5 py-2.5 text-sm font-medium text-ink hover:bg-cream transition-colors"
+            className={button({ intent: 'secondary' })}
             onClick={(e) => {
               e.preventDefault()
               window.history.back()

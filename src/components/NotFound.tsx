@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { button } from './ui'
 
 export function NotFound({ children }: { children?: any }) {
   return (
@@ -9,13 +10,13 @@ export function NotFound({ children }: { children?: any }) {
       <p className="flex items-center gap-2 flex-wrap">
         <button
           onClick={() => window.history.back()}
-          className="rounded-full bg-pine px-5 py-2.5 text-sm font-medium text-paper hover:bg-pine-deep transition-colors"
+          className={button({ intent: 'primary' })}
         >
           Go back
         </button>
         <Link
           to="/"
-          className="rounded-full border border-ink/15 bg-white px-5 py-2.5 text-sm font-medium text-ink hover:bg-cream transition-colors"
+          className={button({ intent: 'secondary' })}
         >
           Start Over
         </Link>

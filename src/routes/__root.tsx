@@ -16,6 +16,7 @@ import { baseUrl } from '../utils/base-url'
 import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client';
 import { getCurrentUser } from '../server/session'
+import { displayHeading, metaLabel } from '../components/ui'
 
 const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(async () => {
   return await getCurrentUser()
@@ -105,7 +106,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <nav className="bg-paper/90 backdrop-blur border-b border-ink/10 h-16 z-10 relative flex items-center justify-between px-4 sm:px-6">
           <Link
             to="/"
-            className="font-display text-2xl font-semibold tracking-tight text-pine hover:text-pine-deep transition-colors"
+            className={displayHeading({
+              className:
+                'text-2xl text-pine hover:text-pine-deep transition-colors',
+            })}
           >
             Maine Food Map
           </Link>
@@ -115,7 +119,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <span className="text-ink-soft">@{user.handle}</span>
                 <a
                   href={logoutHref}
-                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-pine hover:text-pine-deep"
+                  className={metaLabel({
+                    className: 'text-pine hover:text-pine-deep',
+                  })}
                 >
                   Log out
                 </a>
@@ -123,7 +129,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             ) : (
               <a
                 href={loginHref}
-                className="text-[11px] font-medium uppercase tracking-[0.14em] text-pine hover:text-pine-deep"
+                className={metaLabel({
+                  className: 'text-pine hover:text-pine-deep',
+                })}
               >
                 Sign in with Bluesky
               </a>
