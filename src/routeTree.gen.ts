@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RPublicIdRouteImport } from './routes/r.$publicId'
 import { Route as PlacesSlugRouteImport } from './routes/places.$slug'
 import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
+import { Route as ImgSplatRouteImport } from './routes/img.$'
 import { Route as ApiPhotosUploadRouteImport } from './routes/api.photos.upload'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -71,6 +72,11 @@ const OauthCallbackRoute = OauthCallbackRouteImport.update({
   path: '/oauth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImgSplatRoute = ImgSplatRouteImport.update({
+  id: '/img/$',
+  path: '/img/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPhotosUploadRoute = ApiPhotosUploadRouteImport.update({
   id: '/api/photos/upload',
   path: '/api/photos/upload',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/logout': typeof LogoutRoute
   '/report': typeof ReportRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/img/$': typeof ImgSplatRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
   '/r/$publicId': typeof RPublicIdRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/logout': typeof LogoutRoute
   '/report': typeof ReportRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/img/$': typeof ImgSplatRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
   '/r/$publicId': typeof RPublicIdRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/logout': typeof LogoutRoute
   '/report': typeof ReportRoute
   '/sitemap.xml_': typeof SitemapDotxmlRoute
+  '/img/$': typeof ImgSplatRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
   '/r/$publicId': typeof RPublicIdRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/report'
     | '/sitemap.xml'
+    | '/img/$'
     | '/oauth/callback'
     | '/places/$slug'
     | '/r/$publicId'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/report'
     | '/sitemap.xml'
+    | '/img/$'
     | '/oauth/callback'
     | '/places/$slug'
     | '/r/$publicId'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/report'
     | '/sitemap.xml_'
+    | '/img/$'
     | '/oauth/callback'
     | '/places/$slug'
     | '/r/$publicId'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   LogoutRoute: typeof LogoutRoute
   ReportRoute: typeof ReportRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ImgSplatRoute: typeof ImgSplatRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
   PlacesSlugRoute: typeof PlacesSlugRoute
   RPublicIdRoute: typeof RPublicIdRoute
@@ -245,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/img/$': {
+      id: '/img/$'
+      path: '/img/$'
+      fullPath: '/img/$'
+      preLoaderRoute: typeof ImgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/photos/upload': {
       id: '/api/photos/upload'
       path: '/api/photos/upload'
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   LogoutRoute: LogoutRoute,
   ReportRoute: ReportRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ImgSplatRoute: ImgSplatRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   PlacesSlugRoute: PlacesSlugRoute,
   RPublicIdRoute: RPublicIdRoute,
