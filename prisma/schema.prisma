@@ -39,6 +39,23 @@ model restaurant_external_data {
   restaurants     restaurants @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model reports {
+  id              Int       @id @default(autoincrement())
+  kind            String // photo | place_error
+  status          String    @default("open") // open | resolved | dismissed
+  photo_id        Int?
+  restaurant_id   Int?
+  reason          String
+  details         String?
+  reporter_email  String?
+  reporter_did    String?
+  created_at      DateTime  @default(now())
+  resolved_at     DateTime?
+  resolution_note String?
+
+  @@index([status, kind])
+}
+
 model restaurants {
   id                       Int                       @id @default(autoincrement())
   slug                     String                    @unique(map: "sqlite_autoindex_restaurants_1")
