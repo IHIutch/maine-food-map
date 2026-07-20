@@ -1,12 +1,12 @@
 import { Link } from '@tanstack/react-router'
-import { brandCaps, button, displayHeading } from './ui'
+import { button, displayHeading, eyebrow } from './ui'
 
 export function NotFound({ children }: { children?: any }) {
   return (
     <div className="max-w-xl mx-auto px-6 py-20">
-      <p className={brandCaps({ className: 'text-sm text-ink-soft mb-4' })}>404 — Not found</p>
+      <p className={eyebrow({ bar: true, className: 'mb-4' })}>404 — Not found</p>
       <h1 className={displayHeading({ className: 'text-4xl mb-4' })}>
-        This page is off the map.
+        This page is <em className="italic text-accent-deep">off the map</em>.
       </h1>
       <div className="text-ink-soft mb-8">
         {children || <p>The page you are looking for does not exist.</p>}

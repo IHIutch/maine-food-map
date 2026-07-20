@@ -6,11 +6,11 @@ import { tv } from 'tailwind-variants'
 import { likeRestaurant, unlikeRestaurant } from '../server/likes'
 
 const likeControl = tv({
-  base: 'inline-flex items-center gap-2 px-3.5 py-2 rounded-none border text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry',
+  base: 'inline-flex items-center gap-2 rounded-full border px-3.5 py-2 font-sans text-[13px] font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
   variants: {
     liked: {
       true: 'border-tomato bg-tomato text-paper hover:bg-tomato/90',
-      false: 'border-ink/25 bg-transparent text-ink hover:bg-cream',
+      false: 'border-ink/20 bg-paper text-ink hover:border-ink hover:bg-cream',
     },
     pending: {
       true: 'opacity-70',

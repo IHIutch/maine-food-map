@@ -11,7 +11,7 @@ import { getLikesForRestaurant } from '../server/likes'
 import { computeIsOpen, formatTodayHours, getMaineNow } from '../utils/opening-hours'
 import { jsonForScript } from '../utils/escape'
 import * as z from 'zod'
-import { brandCaps, displayHeading, metaLabel, metaRow, statusMark } from '../components/ui'
+import { button, displayHeading, eyebrow, lede, metaLabel, sectionTitle, tag } from '../components/ui'
 
 function safeWebsiteHref(website: string, ref: string): string | null {
   try {
@@ -166,49 +166,74 @@ function RestaurantPage() {
     : null
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const categories = restaurant.restaurant_categories.map(
+    (rc: any) => rc.categories.display_name,
+  )
+  const websiteLabel = restaurant.website
+    ? restaurant.website.replace(/^https?:\/\//, '').replace(/\/$/, '')
+    : null
 
   return (
     <div className="min-h-screen bg-paper">
-      {/* Hero — full-bleed tone-on-tone color field */}
-      <div className="bg-sage-tint">
-        <div className="max-w-4xl mx-auto px-6 py-16 sm:py-24">
-          {(restaurant.city || restaurant.state) && (
-            <p className={metaLabel({ className: 'text-pine mb-4' })}>
-              {[restaurant.city, restaurant.state].filter(Boolean).join(', ')}
-            </p>
+      <div className="mx-auto max-w-[1320px] px-6 sm:px-11 pt-10 pb-20">
+        {/* Breadcrumb */}
+        <nav className={metaLabel({ className: 'mb-7 text-ink-soft' })}>
+          <Link to="/" className="border-b border-ink/20 pb-px hover:border-ink">
+            All places
+          </Link>
+          {restaurant.city && (
+            <>
+              <span className="mx-2 opacity-50">/</span>
+              <span>{restaurant.city}</span>
+            </>
           )}
-          <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 mb-6">
-            <h1 className={displayHeading({ className: 'text-5xl sm:text-7xl text-pine max-w-2xl' })}>
+          <span className="mx-2 opacity-50">/</span>
+          <span>{restaurant.title}</span>
+        </nav>
+
+        {/* Header */}
+        <section className="md:grid md:grid-cols-[1.1fr_1fr] md:items-end gap-12 mb-7">
+          <div>
+            <p className={eyebrow({ bar: true, className: 'mb-3.5' })}>
+              {[categories.join(' · '), [restaurant.city, restaurant.state].filter(Boolean).join(', ')]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+            <h1 className={displayHeading({ className: 'text-5xl sm:text-7xl xl:text-8xl leading-[0.9] tracking-[-0.025em] mb-6' })}>
               {restaurant.title}
             </h1>
-            {restaurant.rating && (
-              <div className="text-right">
-                <span className={displayHeading({ className: 'text-6xl sm:text-7xl text-pine' })}>
-                  {restaurant.rating}
-                </span>
-                <p className={metaLabel({ className: 'text-ink-soft mt-2' })}>
-                  {restaurant.review_count} reviews
-                </p>
-              </div>
+            {restaurant.description && (
+              <p className={lede({ className: 'mb-6 max-w-xl text-[22px]' })}>
+                {restaurant.description}
+              </p>
             )}
-          </div>
-
-          {restaurant.description && (
-            <p className="text-ink-soft text-lg max-w-2xl mb-8">{restaurant.description}</p>
-          )}
-
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <div className={metaRow({ className: 'text-ink-soft' })}>
-              <span className={statusMark({ open: restaurant.isOpen })}>
+            <div className="flex flex-wrap gap-2.5">
+              <span className={tag({ intent: 'status', open: restaurant.isOpen })}>
                 {restaurant.isOpen ? 'Open now' : 'Closed'}
+                {restaurant.todayHours && restaurant.todayHours !== 'Closed'
+                  ? ` · Today ${restaurant.todayHours}`
+                  : ''}
               </span>
+              {restaurant.price_level && (
+                <span className={tag({ intent: 'price' })}>
+                  {'$'.repeat(parseInt(restaurant.price_level))}
+                </span>
+              )}
+              {restaurant.rating && (
+                <span className={tag({ intent: 'price' })}>
+                  ★ {restaurant.rating}
+                  {restaurant.review_count ? ` · ${restaurant.review_count} reviews` : ''}
+                </span>
+              )}
               {restaurant.tags
-                .filter((tag: string) => !/^open now$/i.test(tag))
-                .map((tag: string) => (
-                  <span key={tag}>· {tag}</span>
+                .filter((t: string) => !/^open now$/i.test(t))
+                .slice(0, 2)
+                .map((t: string) => (
+                  <span key={t} className={tag()}>{t}</span>
                 ))}
             </div>
-
+          </div>
+          <div className="mt-6 md:mt-0 flex flex-wrap items-center gap-2.5 md:justify-end md:pb-2.5">
             {restaurant.public_id && (
               <LikeButton
                 publicId={restaurant.public_id}
@@ -218,35 +243,109 @@ function RestaurantPage() {
                 isAuthenticated={isAuthenticated}
               />
             )}
+            {websiteHref && (
+              <a
+                href={websiteHref}
+                onClick={() => {
+                  trackEvent(`website_click: ${restaurant.slug}`);
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={button({ intent: 'accent' })}
+              >
+                Visit website →
+              </a>
+            )}
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div className="max-w-4xl mx-auto px-6 py-12 sm:py-16">
-        {/* Editorial sections split by hairline rules */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12">
-          {/* Left column — contact + photos */}
-          <div className="md:col-span-2">
-            <section className="pb-10">
-              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Contact</h2>
+        {/* Gallery */}
+        {restaurant.photos.length > 0 && (
+          <section className="mb-13">
+            <div className="grid gap-2.5 mb-4 grid-cols-2 md:grid-cols-[2fr_1fr_1fr] md:grid-rows-[280px_280px]">
+              {restaurant.photos.slice(0, 5).map((photo, index: number) => (
+                <div
+                  key={photo.id}
+                  className={`overflow-hidden rounded-[10px] bg-cream ${
+                    index === 0 ? 'col-span-2 md:col-span-1 md:row-span-2' : ''
+                  }`}
+                >
+                  <img
+                    src={`/img/${photo.r2_key}`}
+                    alt={photo.alt_text ?? `${restaurant.title} photo ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-soft">
+              {restaurant.photos.slice(0, 5).map((photo, index: number) => (
+                <span key={photo.id}>
+                  Photo {index + 1} —{' '}
+                  {photo.uploader_handle ? (
+                    <a
+                      href={`https://bsky.app/profile/${photo.uploader_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 decoration-ink/30 hover:decoration-ink"
+                    >
+                      @{photo.uploader_handle}
+                    </a>
+                  ) : (
+                    'contributed'
+                  )}
+                  {' · '}
+                  <Link
+                    to="/report"
+                    search={{ kind: 'photo', photo: photo.id }}
+                    className="underline underline-offset-2 decoration-ink/30 hover:decoration-ink"
+                  >
+                    Report
+                  </Link>
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
 
-              <div className="space-y-5">
-                {restaurant.address && (
-                  <div>
-                    <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>Address</p>
-                    <p className="font-medium">{restaurant.street_address}</p>
-                    <p className="text-ink-soft">
+        {/* Body */}
+        <section className="mt-10 md:grid md:grid-cols-[1.4fr_1fr] gap-16">
+          <div>
+            <h2 className={sectionTitle()}>Photos & contributions</h2>
+            {restaurant.photos.length === 0 && (
+              <p className={lede({ className: 'text-lg text-ink-soft mb-6' })}>
+                Been here? Add the first photo and help other people find it.
+              </p>
+            )}
+            {restaurant.public_id && (
+              <PhotoUpload
+                restaurantPublicId={restaurant.public_id}
+                restaurantTitle={restaurant.title}
+                isAuthenticated={isAuthenticated}
+              />
+            )}
+          </div>
+
+          <aside className="mt-12 md:mt-0">
+            <div className="sticky top-24 rounded-xl border border-ink/15 bg-cream p-1">
+              <div className="rounded-[9px] bg-paper px-6 py-5">
+                {restaurant.street_address && (
+                  <div className="border-b border-ink/10 py-4 first:pt-0">
+                    <p className={metaLabel({ className: 'text-[10.5px] text-ink-soft mb-2' })}>Address</p>
+                    <p className="font-display text-[19px] leading-[1.4]">
+                      {restaurant.street_address}
+                      <br />
                       {restaurant.city}, {restaurant.state} {restaurant.postal_code}
                     </p>
                   </div>
                 )}
 
                 {restaurant.phone && (
-                  <div>
-                    <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>Phone</p>
+                  <div className="border-b border-ink/10 py-4 first:pt-0">
+                    <p className={metaLabel({ className: 'text-[10.5px] text-ink-soft mb-2' })}>Phone</p>
                     <a
                       href={`tel:${restaurant.phone}`}
-                      className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                      className="font-display text-[19px] leading-[1.4] border-b border-ink/20 hover:border-ink"
                     >
                       {restaurant.phone}
                     </a>
@@ -254,8 +353,8 @@ function RestaurantPage() {
                 )}
 
                 {websiteHref && (
-                  <div>
-                    <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>Website</p>
+                  <div className="border-b border-ink/10 py-4 first:pt-0">
+                    <p className={metaLabel({ className: 'text-[10.5px] text-ink-soft mb-2' })}>Website</p>
                     <a
                       href={websiteHref}
                       onClick={() => {
@@ -263,133 +362,59 @@ function RestaurantPage() {
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                      className="font-display text-[19px] leading-[1.4] border-b border-ink/20 hover:border-ink break-all"
                     >
-                      Visit Website →
+                      {websiteLabel}
                     </a>
                   </div>
                 )}
 
+                <div className="border-b border-ink/10 py-4 first:pt-0">
+                  <p className={metaLabel({ className: 'text-[10.5px] text-ink-soft mb-2' })}>Hours</p>
+                  {restaurant.opening_hours ? (
+                    <div className="mt-2.5">
+                      {restaurant.opening_hours.map((schedule: any) => {
+                        const isToday = schedule.day === restaurant.todayDay
+                        const isClosed = schedule.open === "00:00" && schedule.close === "00:00"
+
+                        return (
+                          <div
+                            key={schedule.day}
+                            className={`flex justify-between py-1.5 text-[14.5px] ${
+                              isToday ? '-mx-2.5 rounded-md bg-accent-tint px-2.5 font-semibold' : ''
+                            }`}
+                          >
+                            <span className={`font-mono text-[11px] uppercase tracking-[0.08em] self-center ${isToday ? 'text-ink' : 'text-ink-soft'}`}>
+                              {dayNames[schedule.day]}
+                              {isToday ? ' · Today' : ''}
+                            </span>
+                            <span className={isClosed && !isToday ? 'text-ink-soft' : ''}>
+                              {isClosed ? 'Closed' : `${schedule.open} – ${schedule.close}`}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-ink-soft text-sm">Hours not available</p>
+                  )}
+                </div>
+
                 {restaurant.public_id && (
-                  <div>
-                    <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>Something wrong?</p>
+                  <div className="py-4 last:pb-0">
                     <Link
                       to="/report"
                       search={{ kind: 'place_error', place: restaurant.public_id }}
-                      className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                      className={button({ intent: 'secondary', className: 'w-full justify-start gap-2' })}
                     >
-                      Report an error →
+                      ⓘ Report an issue with this listing
                     </Link>
                   </div>
                 )}
               </div>
-            </section>
-
-            <section className="pt-10 pb-10 border-t border-ink/15">
-              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Photos</h2>
-              {restaurant.photos.length > 0 ? (
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  {restaurant.photos.map((photo, index: number) => (
-                    <figure key={photo.id}>
-                      <div className="aspect-[4/5] bg-cream rounded-t-full rounded-b-2xl overflow-hidden">
-                        <img
-                          src={`/img/${photo.r2_key}`}
-                          alt={photo.alt_text ?? `${restaurant.title} photo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <figcaption className={metaLabel({ className: 'text-ink-soft mt-2 text-center normal-case tracking-normal text-xs font-normal' })}>
-                        {photo.uploader_handle ? (
-                          <>
-                            Photo by{' '}
-                            <a
-                              href={`https://bsky.app/profile/${photo.uploader_handle}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="underline underline-offset-2 decoration-ink/30 hover:decoration-ink"
-                            >
-                              @{photo.uploader_handle}
-                            </a>
-                          </>
-                        ) : (
-                          'Contributed'
-                        )}
-                        {' · '}
-                        <Link
-                          to="/report"
-                          search={{ kind: 'photo', photo: photo.id }}
-                          className={metaLabel({ className: 'underline underline-offset-2 decoration-ink/30 hover:decoration-ink' })}
-                        >
-                          Report
-                        </Link>
-                      </figcaption>
-                    </figure>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-ink-soft mb-6">
-                  Been here? Add the first photo and help other people find it.
-                </p>
-              )}
-              {restaurant.public_id && (
-                <PhotoUpload
-                  restaurantPublicId={restaurant.public_id}
-                  restaurantTitle={restaurant.title}
-                  isAuthenticated={isAuthenticated}
-                />
-              )}
-            </section>
-          </div>
-
-          {/* Right column — hours + categories */}
-          <div className="border-t md:border-t-0 md:border-l border-ink/15 pt-10 md:pt-0 md:pl-12">
-            <section className="pb-10">
-              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Hours</h2>
-
-              {restaurant.opening_hours ? (
-                <div>
-                  <div className="mb-5 px-4 py-3 bg-butter-tint rounded-xl">
-                    <p className={metaLabel({ className: 'text-ink-soft mb-0.5' })}>Today</p>
-                    <p className="font-medium">{restaurant.todayHours || 'Hours not available'}</p>
-                  </div>
-
-                  {restaurant.opening_hours.map((schedule: any) => {
-                    const isToday = schedule.day === restaurant.todayDay
-                    const isClosed = schedule.open === "00:00" && schedule.close === "00:00"
-
-                    return (
-                      <div
-                        key={schedule.day}
-                        className={`flex justify-between py-2 text-sm border-b border-ink/10 last:border-b-0 ${isToday ? 'font-semibold text-pine' : ''}`}
-                      >
-                        <span>{dayNames[schedule.day]}</span>
-                        <span className={isClosed ? 'text-ink-soft' : ''}>
-                          {isClosed ? 'Closed' : `${schedule.open} - ${schedule.close}`}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <p className="text-ink-soft">Hours not available</p>
-              )}
-            </section>
-
-            {restaurant.restaurant_categories.length > 0 && (
-              <section className="pt-10 border-t border-ink/15">
-                <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Categories</h2>
-                <div className={metaRow({ className: 'text-plum' })}>
-                  {restaurant.restaurant_categories.map((rc: any, i: number) => (
-                    <span key={rc.category_id}>
-                      {i > 0 && '· '}
-                      {rc.categories.display_name}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        </div>
+            </div>
+          </aside>
+        </section>
       </div>
     </div>
   )

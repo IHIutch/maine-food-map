@@ -5,12 +5,13 @@ import * as z from 'zod'
 import { submitReport } from '../server/reports'
 import { seo } from '../utils/seo'
 import {
-  brandCaps,
   button,
   displayHeading,
+  eyebrow,
   input,
   metaLabel,
-  toggleSegment,
+  pillFilter,
+  sectionTitle,
 } from '../components/ui'
 
 const reasonLabels: Record<string, string> = {
@@ -58,7 +59,7 @@ function ReportPage() {
   return (
     <div className="min-h-screen bg-paper">
       <div className="max-w-4xl mx-auto px-6 py-12 sm:py-16">
-        <p className={metaLabel({ className: 'text-ink-soft mb-4' })}>
+        <p className={eyebrow({ bar: true, className: 'mb-4' })}>
           Maine Food Map
         </p>
         <h1 className={displayHeading({ className: 'text-5xl sm:text-6xl mb-10' })}>
@@ -104,16 +105,16 @@ function ReportPage() {
             }}
           >
             <section className="mb-8">
-              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-4' })}>
+              <h2 className={sectionTitle({ className: 'mb-4' })}>
                 Reason
               </h2>
-              <div className="flex flex-col items-start gap-2">
+              <div className="flex flex-wrap gap-2">
                 {reasons.map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => setReason(r)}
-                    className={toggleSegment({ active: reason === r })}
+                    className={pillFilter({ active: reason === r })}
                   >
                     {reasonLabels[r]}
                   </button>
@@ -122,7 +123,7 @@ function ReportPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-4' })}>
+              <h2 className={sectionTitle({ className: 'mb-4' })}>
                 Details
               </h2>
               <label className={metaLabel({ className: 'block mb-2 text-ink-soft' })}>
@@ -138,7 +139,7 @@ function ReportPage() {
             </section>
 
             <section className="mb-10">
-              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-4' })}>
+              <h2 className={sectionTitle({ className: 'mb-4' })}>
                 Contact
               </h2>
               <label className={metaLabel({ className: 'block mb-2 text-ink-soft' })}>
@@ -168,7 +169,7 @@ function ReportPage() {
             <button
               type="submit"
               disabled={submitting}
-              className={button({ intent: 'primary', className: 'disabled:opacity-50' })}
+              className={button({ intent: 'accent', className: 'disabled:opacity-50' })}
             >
               {submitting ? 'Sending…' : 'Send report'}
             </button>

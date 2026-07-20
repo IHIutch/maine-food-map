@@ -4,7 +4,7 @@ import { prisma } from '../utils/prisma'
 import { getCurrentUser } from './session'
 import { assertRateLimit } from './rate-limit'
 
-export const reportReasons = [
+const reportReasons = [
   'copyright',
   'inappropriate',
   'wrong_place',

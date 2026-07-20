@@ -6,7 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
-import { brandCaps, button } from './ui'
+import { button, eyebrow } from './ui'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
@@ -19,7 +19,7 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
 
   return (
     <div className="min-w-0 flex-1 px-6 py-16 flex flex-col items-center justify-center gap-6">
-      <p className={brandCaps({ className: 'text-sm text-ink-soft' })}>Something went wrong</p>
+      <p className={eyebrow({ bar: true })}>Something went wrong</p>
       <ErrorComponent error={error} />
       <div className="flex gap-3 items-center flex-wrap">
         <button
