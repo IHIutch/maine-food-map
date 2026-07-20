@@ -1,5 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as z from 'zod'
+import { prisma } from '../utils/prisma'
+import { getCurrentUser } from './session'
 import { assertRateLimit } from './rate-limit'
 
 export const reportReasons = [
@@ -31,13 +33,6 @@ export const submitReport = createServerFn({ method: 'POST' })
     if (data.website) return { ok: true }
 
     await assertRateLimit('report', 10, 3600)
-
-    // Lazy imports keep this module loadable in vitest, where constructing
-    // the Prisma client at import time fails
-    const [{ prisma }, { getCurrentUser }] = await Promise.all([
-      import('../utils/prisma'),
-      import('./session'),
-    ])
 
     let restaurantId: number | null = null
     let photoId: number | null = null

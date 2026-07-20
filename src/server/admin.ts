@@ -1,9 +1,13 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as z from 'zod'
 import { prisma } from '../utils/prisma'
-import { getCurrentUser, type CurrentUser } from './session'
+import type { CurrentUser } from './session'
 
+/* Session is imported lazily: requireAdmin is a plain export, so a static
+ * import would survive the client-bundle transform and drag the
+ * Workers-only session/oauth graph into the browser build. */
 export async function requireAdmin(): Promise<CurrentUser> {
+  const { getCurrentUser } = await import('./session')
   const adminDid = process.env.ADMIN_DID
   const user = await getCurrentUser()
   if (!adminDid || !user || user.did !== adminDid) {

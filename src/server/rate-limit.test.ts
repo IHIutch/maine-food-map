@@ -1,4 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// These modules only exist in the Workers runtime (or need a live DB) —
+// mock them so the pure code under test is importable in vitest
+vi.mock('cloudflare:workers', () => ({ env: {} }))
+vi.mock('../utils/prisma', () => ({ prisma: {} }))
+vi.mock('./session', () => ({ getCurrentUser: async () => null }))
+
 import { countRequest } from './rate-limit'
 import { submitReportInput } from './reports'
 
