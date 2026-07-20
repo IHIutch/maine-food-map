@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
 import { NotFound } from '../components/NotFound'
@@ -263,6 +263,19 @@ function RestaurantPage() {
                     >
                       Visit Website →
                     </a>
+                  </div>
+                )}
+
+                {restaurant.public_id && (
+                  <div>
+                    <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>Something wrong?</p>
+                    <Link
+                      to="/report"
+                      search={{ kind: 'place_error', place: restaurant.public_id }}
+                      className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                    >
+                      Report an error →
+                    </Link>
                   </div>
                 )}
               </div>

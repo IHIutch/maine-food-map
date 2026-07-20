@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml_'
+import { Route as ReportRouteImport } from './routes/report'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ClientMetadataDotjsonRouteImport } from './routes/client-metadata[.]json_'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RPublicIdRouteImport } from './routes/r.$publicId'
 import { Route as PlacesSlugRouteImport } from './routes/places.$slug'
@@ -21,6 +23,11 @@ import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml_',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogoutRoute = LogoutRouteImport.update({
@@ -36,6 +43,11 @@ const LoginRoute = LoginRouteImport.update({
 const ClientMetadataDotjsonRoute = ClientMetadataDotjsonRouteImport.update({
   id: '/client-metadata.json_',
   path: '/client-metadata.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -61,9 +73,11 @@ const OauthCallbackRoute = OauthCallbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/client-metadata.json': typeof ClientMetadataDotjsonRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/report': typeof ReportRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
@@ -71,9 +85,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/client-metadata.json': typeof ClientMetadataDotjsonRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/report': typeof ReportRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
@@ -82,9 +98,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/client-metadata.json_': typeof ClientMetadataDotjsonRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/report': typeof ReportRoute
   '/sitemap.xml_': typeof SitemapDotxmlRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
@@ -94,9 +112,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/client-metadata.json'
     | '/login'
     | '/logout'
+    | '/report'
     | '/sitemap.xml'
     | '/oauth/callback'
     | '/places/$slug'
@@ -104,9 +124,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/client-metadata.json'
     | '/login'
     | '/logout'
+    | '/report'
     | '/sitemap.xml'
     | '/oauth/callback'
     | '/places/$slug'
@@ -114,9 +136,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/client-metadata.json_'
     | '/login'
     | '/logout'
+    | '/report'
     | '/sitemap.xml_'
     | '/oauth/callback'
     | '/places/$slug'
@@ -125,9 +149,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   ClientMetadataDotjsonRoute: typeof ClientMetadataDotjsonRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
+  ReportRoute: typeof ReportRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
   PlacesSlugRoute: typeof PlacesSlugRoute
@@ -141,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/logout': {
@@ -162,6 +195,13 @@ declare module '@tanstack/react-router' {
       path: '/client-metadata.json'
       fullPath: '/client-metadata.json'
       preLoaderRoute: typeof ClientMetadataDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -197,9 +237,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   ClientMetadataDotjsonRoute: ClientMetadataDotjsonRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
+  ReportRoute: ReportRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   PlacesSlugRoute: PlacesSlugRoute,

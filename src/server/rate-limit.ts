@@ -1,5 +1,4 @@
 import { getRequestHeader } from '@tanstack/react-start/server'
-import { env } from 'cloudflare:workers'
 
 // KV is eventually consistent, so this counter is best-effort damping
 // against abuse, not a hard guarantee.
@@ -52,6 +51,8 @@ export async function assertRateLimit(
   limit: number,
   windowSeconds: number,
 ): Promise<void> {
+  // Lazy import keeps this module loadable outside the Workers runtime (vitest)
+  const { env } = await import('cloudflare:workers')
   const ip = getRequestHeader('cf-connecting-ip') ?? 'local'
   const key = `rl:${bucket}:${ip}`
   const raw = await env.LIKES_CACHE.get(key)
