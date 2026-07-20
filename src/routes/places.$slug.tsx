@@ -6,6 +6,7 @@ import { seo } from '../utils/seo'
 import { trackEvent } from 'fathom-client'
 import { baseUrl } from '../utils/base-url'
 import { LikeButton } from '../components/LikeButton'
+import { PhotoUpload } from '../components/PhotoUpload'
 import { getLikesForRestaurant } from '../server/likes'
 import { computeIsOpen, formatTodayHours, getMaineNow } from '../utils/opening-hours'
 import { jsonForScript } from '../utils/escape'
@@ -48,15 +49,18 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
 
     // Parse JSON fields and check if open
     const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
-    const key = process.env.GOOGLE_PLACES_API_KEY
-    const photos: Array<{ url: string; attribution?: string }> = !key || !restaurant.photos
-      ? []
-      : (JSON.parse(restaurant.photos) as Array<{ url?: string; attribution?: string }>)
-          .filter((photo): photo is { url: string; attribution?: string } => Boolean(photo.url))
-          .map((photo) => ({
-            url: photo.url.includes('YOUR_API_KEY') ? photo.url.replace('YOUR_API_KEY', key) : photo.url,
-            attribution: photo.attribution,
-          }))
+
+    // Approved community photos. No cacheStrategy: approvals must appear promptly.
+    const photos = await prisma.photos.findMany({
+      where: { restaurant_id: restaurant.id, status: 'approved' },
+      orderBy: { reviewed_at: 'desc' },
+      select: {
+        id: true,
+        r2_key: true,
+        alt_text: true,
+        uploader_handle: true,
+      },
+    })
 
     const parsedRestaurant = {
       ...restaurant,
@@ -133,7 +137,7 @@ export const Route = createFileRoute('/places/$slug')({
       }).filter(Boolean) : undefined,
       "servesCuisine": restaurant.restaurant_categories?.map((rc: any) => rc.categories.display_name) || undefined,
       "priceRange": restaurant.price_level ? "$".repeat(parseInt(restaurant.price_level)) : undefined,
-      "image": restaurant.photos?.length > 0 ? restaurant.photos.map((photo) => photo.url) : undefined
+      "image": restaurant.photos?.length > 0 ? restaurant.photos.map((photo) => `${baseUrl}/img/${photo.r2_key}`) : undefined
     } : null;
 
     return {
@@ -281,29 +285,60 @@ function RestaurantPage() {
               </div>
             </section>
 
-            {restaurant.photos.length > 0 && (
-              <section className="pt-10 pb-10 border-t border-ink/15">
-                <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Photos</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {restaurant.photos.slice(0, 4).map((photo: any, index: number) => (
-                    <figure key={index}>
+            <section className="pt-10 pb-10 border-t border-ink/15">
+              <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>Photos</h2>
+              {restaurant.photos.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  {restaurant.photos.map((photo, index: number) => (
+                    <figure key={photo.id}>
                       <div className="aspect-[4/5] bg-cream rounded-t-full rounded-b-2xl overflow-hidden">
                         <img
-                          src={photo.url}
-                          alt={`${restaurant.title} photo ${index + 1}`}
+                          src={`/img/${photo.r2_key}`}
+                          alt={photo.alt_text ?? `${restaurant.title} photo ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      {photo.attribution && (
-                        <figcaption className={metaLabel({ className: 'text-ink-soft mt-2 text-center normal-case tracking-normal text-xs font-normal' })}>
-                          Photo by {photo.attribution}
-                        </figcaption>
-                      )}
+                      <figcaption className={metaLabel({ className: 'text-ink-soft mt-2 text-center normal-case tracking-normal text-xs font-normal' })}>
+                        {photo.uploader_handle ? (
+                          <>
+                            Photo by{' '}
+                            <a
+                              href={`https://bsky.app/profile/${photo.uploader_handle}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline underline-offset-2 decoration-ink/30 hover:decoration-ink"
+                            >
+                              @{photo.uploader_handle}
+                            </a>
+                          </>
+                        ) : (
+                          'Contributed'
+                        )}
+                        {' · '}
+                        <Link
+                          to="/report"
+                          search={{ kind: 'photo', photo: photo.id }}
+                          className={metaLabel({ className: 'underline underline-offset-2 decoration-ink/30 hover:decoration-ink' })}
+                        >
+                          Report
+                        </Link>
+                      </figcaption>
                     </figure>
                   ))}
                 </div>
-              </section>
-            )}
+              ) : (
+                <p className="text-ink-soft mb-6">
+                  Been here? Add the first photo and help other people find it.
+                </p>
+              )}
+              {restaurant.public_id && (
+                <PhotoUpload
+                  restaurantPublicId={restaurant.public_id}
+                  restaurantTitle={restaurant.title}
+                  isAuthenticated={isAuthenticated}
+                />
+              )}
+            </section>
           </div>
 
           {/* Right column — hours + categories */}
