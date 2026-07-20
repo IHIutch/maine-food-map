@@ -18,6 +18,12 @@
     "vars": {
         "PUBLIC_URL": "https://www.mainefoodmap.org"
     },
+    "r2_buckets": [
+        {
+            "binding": "PHOTOS",
+            "bucket_name": "mainefoodmap-photos"
+        }
+    ],
     "kv_namespaces": [
         {
             "binding": "OAUTH_SESSION",

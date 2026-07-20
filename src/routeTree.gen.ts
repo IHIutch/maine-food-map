@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RPublicIdRouteImport } from './routes/r.$publicId'
 import { Route as PlacesSlugRouteImport } from './routes/places.$slug'
 import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
+import { Route as ApiPhotosUploadRouteImport } from './routes/api.photos.upload'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml_',
@@ -70,6 +71,11 @@ const OauthCallbackRoute = OauthCallbackRouteImport.update({
   path: '/oauth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPhotosUploadRoute = ApiPhotosUploadRouteImport.update({
+  id: '/api/photos/upload',
+  path: '/api/photos/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
   '/r/$publicId': typeof RPublicIdRoute
+  '/api/photos/upload': typeof ApiPhotosUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
   '/r/$publicId': typeof RPublicIdRoute
+  '/api/photos/upload': typeof ApiPhotosUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
   '/r/$publicId': typeof RPublicIdRoute
+  '/api/photos/upload': typeof ApiPhotosUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/oauth/callback'
     | '/places/$slug'
     | '/r/$publicId'
+    | '/api/photos/upload'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/oauth/callback'
     | '/places/$slug'
     | '/r/$publicId'
+    | '/api/photos/upload'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/oauth/callback'
     | '/places/$slug'
     | '/r/$publicId'
+    | '/api/photos/upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   OauthCallbackRoute: typeof OauthCallbackRoute
   PlacesSlugRoute: typeof PlacesSlugRoute
   RPublicIdRoute: typeof RPublicIdRoute
+  ApiPhotosUploadRoute: typeof ApiPhotosUploadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/photos/upload': {
+      id: '/api/photos/upload'
+      path: '/api/photos/upload'
+      fullPath: '/api/photos/upload'
+      preLoaderRoute: typeof ApiPhotosUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   OauthCallbackRoute: OauthCallbackRoute,
   PlacesSlugRoute: PlacesSlugRoute,
   RPublicIdRoute: RPublicIdRoute,
+  ApiPhotosUploadRoute: ApiPhotosUploadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
