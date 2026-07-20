@@ -2,7 +2,12 @@ import { Link, createFileRoute, notFound, useRouter } from '@tanstack/react-rout
 import { useServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { NotFound } from '../components/NotFound'
-import { getAdminQueues, resolveReport } from '../server/admin'
+import {
+  approvePhoto,
+  getAdminQueues,
+  rejectPhoto,
+  resolveReport,
+} from '../server/admin'
 import { seo } from '../utils/seo'
 import {
   brandCaps,
@@ -38,18 +43,39 @@ function formatAge(createdAt: Date | string): string {
 }
 
 function AdminPage() {
-  const { reports } = Route.useLoaderData()
+  const { reports, pendingPhotos } = Route.useLoaderData()
   const router = useRouter()
   const resolve = useServerFn(resolveReport)
+  const approve = useServerFn(approvePhoto)
+  const reject = useServerFn(rejectPhoto)
   const [pendingId, setPendingId] = useState<number | null>(null)
+  const [pendingPhotoId, setPendingPhotoId] = useState<number | null>(null)
 
-  const act = async (reportId: number, action: 'resolved' | 'dismissed') => {
+  const act = async (
+    reportId: number,
+    action: 'resolved' | 'dismissed',
+    rejectReportedPhoto?: boolean,
+  ) => {
     setPendingId(reportId)
     try {
-      await resolve({ data: { reportId, action } })
+      await resolve({ data: { reportId, action, rejectReportedPhoto } })
       await router.invalidate()
     } finally {
       setPendingId(null)
+    }
+  }
+
+  const actOnPhoto = async (photoId: number, action: 'approve' | 'reject') => {
+    setPendingPhotoId(photoId)
+    try {
+      if (action === 'approve') {
+        await approve({ data: { photoId } })
+      } else {
+        await reject({ data: { photoId } })
+      }
+      await router.invalidate()
+    } finally {
+      setPendingPhotoId(null)
     }
   }
 
@@ -115,6 +141,16 @@ function AdminPage() {
                     >
                       Resolve
                     </button>
+                    {report.kind === 'photo' && report.photo_id !== null && (
+                      <button
+                        type="button"
+                        disabled={pendingId === report.id}
+                        onClick={() => act(report.id, 'resolved', true)}
+                        className={button({ intent: 'primary', className: 'disabled:opacity-50' })}
+                      >
+                        Resolve + reject photo
+                      </button>
+                    )}
                     <button
                       type="button"
                       disabled={pendingId === report.id}
@@ -130,7 +166,87 @@ function AdminPage() {
           )}
         </section>
 
-        {/* Plan 016: pending photos section */}
+        <section className="pt-10 pb-10 border-t border-ink/15">
+          <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>
+            Pending Photos
+          </h2>
+
+          {pendingPhotos.length === 0 ? (
+            <p className="text-ink-soft">No pending photos.</p>
+          ) : (
+            <ul>
+              {pendingPhotos.map((photo) => (
+                <li
+                  key={photo.id}
+                  className="py-5 border-b border-ink/10 last:border-b-0"
+                >
+                  <div className="flex gap-5">
+                    <img
+                      src={`/img/${photo.r2_key}`}
+                      alt={photo.alt_text ?? `Pending photo #${photo.id}`}
+                      className="w-28 h-28 object-cover bg-cream border border-ink/15"
+                    />
+                    <div>
+                      <div className={metaRow({ className: 'text-ink-soft mb-2' })}>
+                        <span>Photo #{photo.id}</span>
+                        <span>· {formatAge(photo.created_at)}</span>
+                      </div>
+                      {photo.restaurant && (
+                        <p className="mb-1">
+                          <Link
+                            to="/places/$slug"
+                            params={{ slug: photo.restaurant.slug }}
+                            className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                          >
+                            {photo.restaurant.title}
+                          </Link>
+                        </p>
+                      )}
+                      <p className={metaLabel({ className: 'text-ink-soft mb-1' })}>
+                        {photo.uploader_handle ? (
+                          <a
+                            href={`https://bsky.app/profile/${photo.uploader_handle}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline underline-offset-2"
+                          >
+                            @{photo.uploader_handle}
+                          </a>
+                        ) : (
+                          (photo.uploader_email ?? 'Unknown uploader')
+                        )}
+                      </p>
+                      {photo.alt_text && (
+                        <p className="text-ink-soft mb-3 max-w-xl">
+                          {photo.alt_text}
+                        </p>
+                      )}
+                      <div className="flex gap-3 mt-3">
+                        <button
+                          type="button"
+                          disabled={pendingPhotoId === photo.id}
+                          onClick={() => actOnPhoto(photo.id, 'approve')}
+                          className={button({ intent: 'primary', className: 'disabled:opacity-50' })}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          disabled={pendingPhotoId === photo.id}
+                          onClick={() => actOnPhoto(photo.id, 'reject')}
+                          className={button({ intent: 'secondary', className: 'disabled:opacity-50' })}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* Plan 017: pending places section */}
       </div>
     </div>
