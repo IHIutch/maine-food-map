@@ -56,6 +56,38 @@ model reports {
   @@index([status, kind])
 }
 
+model contributors {
+  id                  Int      @id @default(autoincrement())
+  did                 String?  @unique
+  email               String?  @unique
+  handle              String?
+  attestation_version String
+  agreed_at           DateTime @default(now())
+}
+
+model photos {
+  id                  Int       @id @default(autoincrement())
+  restaurant_id       Int
+  status              String    @default("pending") // pending | approved | rejected
+  uploader_did        String?
+  uploader_handle     String?
+  uploader_email      String?
+  r2_key              String
+  content_type        String
+  size_bytes          Int
+  alt_text            String?
+  attestation_version String
+  attestation_text    String
+  attested_at         DateTime
+  record_uri          String? // reserved for Phase 5 atproto publishing
+  record_cid          String?
+  created_at          DateTime  @default(now())
+  reviewed_at         DateTime?
+
+  @@index([restaurant_id, status])
+  @@index([status])
+}
+
 model restaurants {
   id                       Int                       @id @default(autoincrement())
   slug                     String                    @unique(map: "sqlite_autoindex_restaurants_1")
