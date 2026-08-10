@@ -104,6 +104,7 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                             <Link
                                 to="/places/$slug"
                                 params={{ slug: popupInfo.slug }}
+                                preload={false}
                                 className="underline"
                             >
                                 {popupInfo.title}

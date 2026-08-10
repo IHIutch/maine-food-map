@@ -10,6 +10,7 @@ import {
 import * as React from 'react'
 import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
+import { button, navLink } from '../components/ui'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client';
@@ -84,12 +85,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="h-full">
-        <nav className="bg-white shadow-sm h-16 z-10 relative flex items-center px-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="text-xl font-semibold">
-              Maine Food Map
-            </Link>
+      <body className="font-instrument h-full">
+        <nav className="bg-white border-b border-stone-200 h-16 z-10 flex items-center justify-between px-4 sm:px-6 sticky top-0">
+          <Link
+            to="/"
+            className="font-pretrona text-2xl font-medium tracking-tight"
+          >
+            Maine Food Map
+          </Link>
+          <div className="flex items-center gap-3">
+            <button className={button({ scheme: 'blueberry' })}>Submit a Spot</button>
+            <button className={button({ scheme: 'outline' })}>Log In</button>
           </div>
         </nav>
         {children}

@@ -1,4 +1,4 @@
-import { prisma } from '../utils/prisma'
+import { withDb } from '../utils/prisma'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/sitemap.xml_')({
@@ -8,19 +8,16 @@ export const Route = createFileRoute('/sitemap.xml_')({
                 const baseUrl = 'https://www.mainefoodmap.org' // Update with your actual domain
                 const now = new Date().toISOString()
 
-                const restaurants = await prisma.restaurants.findMany({
-                    select: {
-                        slug: true,
-                        formatted_data_updated: true,
-                    },
-                    orderBy: {
-                        formatted_data_updated: 'desc',
-                    },
-                })
+                const restaurants = await withDb(async (db) =>
+                    await db.orm.public.restaurants
+                        .select('slug', 'formatted_data_updated')
+                        .orderBy((restaurant) => restaurant.formatted_data_updated.desc())
+                        .all(),
+                )
 
                 const restaurantRoutes = restaurants.map((restaurant) => ({
                     url: `${baseUrl}/places/${restaurant.slug}`,
-                    lastmod: restaurant.formatted_data_updated?.toISOString() || now,
+                    lastmod: restaurant.formatted_data_updated?.toString() || now,
                     changefreq: 'weekly',
                     priority: '0.8',
                 }))
