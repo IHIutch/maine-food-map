@@ -5,6 +5,10 @@ yarn.lock
 .DS_Store
 .cache
 .env
+.env.local
+.env.*.local
+.dev.vars
+.dev.vars.*
 .vercel
 .output
 .nitro

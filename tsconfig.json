@@ -7,8 +7,8 @@
     "strict": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "lib": [
       "DOM",
       "DOM.Iterable",
@@ -20,10 +20,12 @@
     "target": "ES2022",
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     // "paths": {
     //   "~/*": ["./src/*"]
     // },
-    "noEmit": true
+    "noEmit": true,
+    "types": [
+      "node"
+    ]
   }
 }
