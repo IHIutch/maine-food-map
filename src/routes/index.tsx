@@ -3,9 +3,27 @@ import { createServerFn } from '@tanstack/react-start'
 import { lazy, Suspense, useState } from 'react'
 import * as z from 'zod'
 
+// PROTOTYPE — search variants (`?variant=`). Remove with the switcher once one wins.
+import type { Place } from '../components/prototype-search/search-core'
+
 import PlaceCard from '../components/place-card'
+import VariantCommandPalette from '../components/prototype-search/variant-command-palette'
+import VariantFacetedSidebar from '../components/prototype-search/variant-faceted-sidebar'
+import VariantHeroTokens from '../components/prototype-search/variant-hero-tokens'
+import VariantMapFirst from '../components/prototype-search/variant-map-first'
+import { PrototypeSwitcher } from '../components/prototype-switcher'
 import { button } from '../components/ui'
 import { prismaGetRestaurants } from '../utils/prisma/restaurants'
+
+const SEARCH_VARIANTS = ['off', 'A', 'B', 'C', 'D'] as const
+type SearchVariant = (typeof SEARCH_VARIANTS)[number]
+const SEARCH_VARIANT_NAMES: Record<SearchVariant, string> = {
+  off: 'Current page (no search)',
+  A: 'Command palette (⌘K)',
+  B: 'Faceted sidebar',
+  C: 'Hero token search',
+  D: 'Map-first search',
+}
 
 const MapboxEmbed = lazy(() => import('../components/mapbox-embed'))
 
@@ -49,9 +67,10 @@ export const getRestaurants = createServerFn({ method: 'GET' }).handler(async ()
 export const Route = createFileRoute('/')({
   validateSearch: z.object({
     view: z.enum(['list', 'map']).default('list'),
+    variant: z.enum(SEARCH_VARIANTS).default('off'),
   }),
   search: {
-    middlewares: [stripSearchParams({ view: 'list' })],
+    middlewares: [stripSearchParams({ view: 'list', variant: 'off' })],
   },
   loader: async () => await getRestaurants(),
   component: PlacesIndex,
@@ -63,7 +82,8 @@ function PlacesIndex() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(null)
   const [town] = useState('all')
   const [openNow] = useState(false)
-  const { view } = Route.useSearch()
+  const { view, variant } = Route.useSearch()
+  const navigate = Route.useNavigate()
   const filtered = restaurants.filter((restaurant) => {
     if (town !== 'all' && restaurant.city !== town)
       return false
@@ -71,6 +91,28 @@ function PlacesIndex() {
       return false
     return true
   })
+
+  const switcher = (
+    <PrototypeSwitcher
+      variants={SEARCH_VARIANTS}
+      current={variant}
+      names={SEARCH_VARIANT_NAMES}
+      onChange={next => navigate({ search: previous => ({ ...previous, variant: next }), replace: true })}
+    />
+  )
+
+  if (variant !== 'off') {
+    const places = filtered as unknown as Place[]
+    return (
+      <>
+        {variant === 'A' && <VariantCommandPalette places={places} />}
+        {variant === 'B' && <VariantFacetedSidebar places={places} />}
+        {variant === 'C' && <VariantHeroTokens places={places} />}
+        {variant === 'D' && <VariantMapFirst places={places} />}
+        {switcher}
+      </>
+    )
+  }
 
   return (
     <div>
@@ -161,6 +203,7 @@ function PlacesIndex() {
           </div>
         </div>
       </div>
+      {switcher}
     </div>
   )
 }
