@@ -1,38 +1,41 @@
 /// <reference types="vite/client" />
 import {
+  createRootRoute,
   HeadContent,
   Link,
   Scripts,
-  createRootRoute,
   useLocation,
 } from '@tanstack/react-router'
-// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { load, trackPageview } from 'fathom-client'
 import * as React from 'react'
-import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
-import { NotFound } from '../components/NotFound'
-import { button, navLink } from '../components/ui'
+
+import { DefaultCatchBoundary } from '../components/default-catch-boundary'
+import Footer from '../components/footer'
+import { NotFound } from '../components/not-found'
+import { button } from '../components/ui'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
-import { load, trackPageview } from 'fathom-client';
 
 function FathomAnalytics() {
-  const { pathname } = useLocation();
+  const { pathname } = useLocation()
 
   React.useEffect(() => {
-    load("KKNJFATJ", {
-      auto: false
-    });
-  }, []);
+    load('KKNJFATJ', {
+      auto: false,
+    })
+  }, [])
 
   React.useEffect(() => {
-    if (!pathname) return;
+    if (!pathname)
+      return
     trackPageview({
       url: pathname,
-      referrer: document.referrer
-    });
-  }, [pathname]);
+      referrer: document.referrer,
+    })
+  }, [pathname])
 
-  return null;
+  return null
 }
 
 export const Route = createRootRoute({
@@ -85,8 +88,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="font-instrument h-full">
-        <nav className="bg-white border-b border-stone-200 h-16 z-10 flex items-center justify-between px-4 sm:px-6 sticky top-0">
+      <body className="h-full font-instrument">
+        <nav className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-stone-200 bg-white px-4 sm:px-6">
           <Link
             to="/"
             className="font-pretrona text-2xl font-medium tracking-tight"
@@ -94,17 +97,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             Maine Food Map
           </Link>
           <div className="flex items-center gap-3">
-            <button className={button({ scheme: 'blueberry' })}>Submit a Spot</button>
-            <button className={button({ scheme: 'outline' })}>Log In</button>
+            <Link to="/submit" className={button({ scheme: 'blueberry' })}>Submit a Spot</Link>
+            <button className={button({ scheme: 'outline', className: 'hidden sm:inline-flex' })}>Log In</button>
           </div>
         </nav>
         {children}
-        {/* <TanStackRouterDevtools position="bottom-right" /> */}
+        <Footer />
         <Scripts />
-        {process.env.NODE_ENV === 'production'
+        {import.meta.env.PROD
           ? <FathomAnalytics />
-          : null
-        }
+          : null}
+        <TanStackRouterDevtools position="bottom-right" />
       </body>
     </html>
   )
