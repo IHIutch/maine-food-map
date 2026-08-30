@@ -24,7 +24,7 @@ export const contract = defineContract({}, ({ field, model }) => {
       photos: field.text().optional(),
       price_level: field.text().optional(),
       business_status: field.text().optional(),
-      formatted_data_updated: field.temporal.timestamp(3).optional(),
+      formatted_data_updated: field.temporal.timestampString(3).optional(),
       longitude: field.float().optional(),
       phone: field.text().optional(),
       opening_hours: field.text().optional(),
@@ -51,7 +51,7 @@ export const contract = defineContract({}, ({ field, model }) => {
       yelp_id: field.text().optional(),
       google_data: field.text().optional(),
       yelp_data: field.text().optional(),
-      last_updated: field.temporal.timestamp(3).optional(),
+      last_updated: field.temporal.timestampString(3).optional(),
     },
   })
 
@@ -97,10 +97,10 @@ export const contract = defineContract({}, ({ field, model }) => {
         })
         .sql(({ cols, constraints }) => ({
           table: 'restaurants',
-             indexes: [
-               constraints.index([cols.slug], { map: 'idx_restaurant_slug' }),
-               constraints.index([cols.slug], { map: 'sqlite_autoindex_restaurants_1', unique: true }),
-             ],
+          indexes: [
+            constraints.index([cols.slug], { map: 'idx_restaurant_slug' }),
+            constraints.index([cols.slug], { map: 'sqlite_autoindex_restaurants_1', unique: true }),
+          ],
         })),
     },
   }

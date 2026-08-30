@@ -1,8 +1,17 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - '@vercel/detect-agent@1.2.4'
+  - '@vercel/detect-agent@1.2.5'
+  - semver@6.3.1
+
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
   '@tailwindcss/oxide': true
   esbuild: true
+  msgpackr-extract: set this to true or false
   prisma: true
   sharp: true
   workerd: true
