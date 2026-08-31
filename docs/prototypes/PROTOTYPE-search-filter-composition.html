@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE — how search and filtering compose</title>
+<style>
+  :root {
+    --ink: #1c2320; --ink-soft: #5c6b60; --paper: #faf7f2; --cream: #f1ece1;
+    --accent: #c86647; --line: rgba(28,35,32,.14); --blue: #2e44b8; --blue-bg: #e7edff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 48px 24px 96px; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 10px; letter-spacing: -.02em; }
+  h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft);
+       margin: 40px 0 12px; font-weight: 600; }
+  p { margin: 0 0 12px; }
+  .lede { color: var(--ink-soft); max-width: 62ch; }
+  .panel { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .field { display: grid; grid-template-columns: 190px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); align-items: baseline; }
+  .field:first-child { border-top: 0; }
+  .label { color: var(--ink-soft); font-size: 13px; }
+  .value { font-size: 15px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+          border-radius: 999px; border: 1px solid var(--line); background: #fff; font-size: 13px; }
+  .chip.on { border-color: var(--blue); background: var(--blue-bg); color: #233590; }
+  .muted { color: var(--ink-soft); }
+  button { font: inherit; cursor: pointer; }
+  .action { height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line);
+            background: #fff; font-size: 14px; }
+  .action:hover { background: var(--cream); }
+  .action.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .action.done { opacity: .45; }
+  .action.next { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 3px rgba(200,102,71,.12); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tab { height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 13px; }
+  .tab.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .changed { color: var(--accent); font-size: 13px; min-height: 20px; }
+  .results { font-size: 14px; color: var(--ink-soft); }
+  .step { display: flex; gap: 10px; align-items: baseline; margin: 8px 0; }
+  .step-n { width: 20px; color: var(--ink-soft); font-size: 13px; }
+  .policy { display: flex; flex-direction: column; gap: 8px; }
+  .policy label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px;
+                  border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; }
+  .policy label.on { border-color: var(--blue); background: var(--blue-bg); }
+  .policy b { display: block; }
+  .policy span { font-size: 13.5px; color: var(--ink-soft); }
+  code { background: var(--cream); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>How should search and filtering compose?</h1>
+  <p class="lede">
+    Maine Food Map now has two ways to narrow the list: a <strong>filter bar</strong> (town, cuisine, price, open now)
+    and a <strong>⌘K search palette</strong>. Today they only half-meet: picking a cuisine in search writes a filter,
+    but anything you <em>typed</em> is thrown away, and search always looks at all 526 places even when you're
+    already filtered down to 18. This demo lets you drive three ways of joining them and see which one behaves
+    the way you'd expect. Pick a policy, then press buttons — or run a walkthrough.
+  </p>
+
+  <h2>Composition policy</h2>
+  <div class="policy" id="policy"></div>
+
+  <h2>Current state</h2>
+  <div class="panel" id="state"></div>
+  <p class="changed" id="changed"></p>
+
+  <h2>Free play</h2>
+  <div class="panel">
+    <p class="muted" style="font-size:13.5px">Everything you can do, in any order.</p>
+    <div class="row" id="actions"></div>
+  </div>
+
+  <h2>Walkthroughs</h2>
+  <div class="tabs" id="tabs"></div>
+  <div class="panel">
+    <p id="scenario-desc"></p>
+    <div id="steps"></div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// The bit worth keeping: a pure model of how search and filtering compose.
+// No DOM in here. The page below is a thin shell that calls into it.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PLACES = [
+  { id: 1,  name: "Eventide Oyster Co.",    town: "Portland",       cuisines: ["Oyster Bar", "Seafood"], price: "$$$", open: true  },
+  { id: 2,  name: "Highroller Lobster Co.", town: "Portland",       cuisines: ["Seafood"],               price: "$$",  open: true  },
+  { id: 3,  name: "Luke's Lobster",         town: "Portland",       cuisines: ["Seafood"],               price: "$$",  open: false },
+  { id: 4,  name: "The Lobster Shack",      town: "Cape Elizabeth", cuisines: ["Seafood"],               price: "$$",  open: false },
+  { id: 5,  name: "SoPo Seafood",           town: "South Portland", cuisines: ["Seafood"],               price: "$$",  open: true  },
+  { id: 6,  name: "Island Creek Oyster",    town: "Portland",       cuisines: ["Oyster Bar"],            price: "$$",  open: true  },
+  { id: 7,  name: "Thai Tree",              town: "Portland",       cuisines: ["Thai"],                  price: "$$",  open: false },
+  { id: 8,  name: "Veranda Thai Cuisine",   town: "Portland",       cuisines: ["Thai"],                  price: "$$",  open: true  },
+  { id: 9,  name: "Mekhong Thai",           town: "Wells",          cuisines: ["Thai"],                  price: "$$",  open: false },
+  { id: 10, name: "Scratch Baking Co.",     town: "South Portland", cuisines: ["Bakeries"],              price: "$$",  open: false },
+  { id: 11, name: "Tandem Coffee Roasters", town: "Portland",       cuisines: ["Coffee Houses"],         price: "$$",  open: true  },
+  { id: 12, name: "Maine Beer Company",     town: "Freeport",       cuisines: ["Breweries"],             price: "$$",  open: true  },
+  { id: 13, name: "Cheese Louise",          town: "Portland",       cuisines: ["Diners"],                price: "$$",  open: false },
+  { id: 14, name: "Bite Into Maine",        town: "Portland",       cuisines: ["Seafood"],               price: "$",   open: true  },
+];
+
+const POLICIES = {
+  separate: {
+    title: "Two separate tools",
+    blurb: "Search finds things and takes you there; the filter bar narrows the list. Picking a facet in search replaces whatever filter was there. Typed words are never kept.",
+    scopeSearchToFilters: false, unionWithinDimension: false, keepTypedQuery: false,
+  },
+  writes: {
+    title: "Search writes filters (today)",
+    blurb: "Picking a town or cuisine in search sets that filter and keeps the others. Search still looks at every place, and the words you typed are dropped once you pick.",
+    scopeSearchToFilters: false, unionWithinDimension: false, keepTypedQuery: false,
+  },
+  unified: {
+    title: "One refinement set",
+    blurb: "The typed words become a filter of their own, search looks only inside what's already filtered, and picking a second cuisine adds to the first instead of replacing it.",
+    scopeSearchToFilters: true, unionWithinDimension: true, keepTypedQuery: true,
+  },
+};
+
+const EMPTY = { town: [], cuisine: [], price: [], openNow: false };
+
+function initialState(policy = "writes") {
+  return {
+    policy,
+    filters: { ...EMPTY },
+    typed: "",          // what's in the search box right now
+    term: "",           // a typed phrase that is actually narrowing the list
+    paletteOpen: false,
+    lastEvent: "Fresh start — nothing filtered, nothing searched.",
+    navigatedTo: null,  // set when search sends you to a place page
+  };
+}
+
+function matches(place, text) {
+  const needle = text.trim().toLowerCase();
+  if (!needle) return true;
+  const hay = [place.name, place.town, ...place.cuisines].join(" ").toLowerCase();
+  return needle.split(/\s+/).every(word => hay.includes(word));
+}
+
+function applyFilters(places, filters, term) {
+  return places.filter(place =>
+    (!filters.openNow || place.open) &&
+    (filters.town.length === 0 || filters.town.includes(place.town)) &&
+    (filters.cuisine.length === 0 || place.cuisines.some(c => filters.cuisine.includes(c))) &&
+    (filters.price.length === 0 || filters.price.includes(place.price)) &&
+    matches(place, term)
+  );
+}
+
+/** What the palette would show for the current typed text under this policy. */
+function suggestions(state) {
+  const rules = POLICIES[state.policy];
+  const pool = rules.scopeSearchToFilters
+    ? applyFilters(PLACES, state.filters, state.term)
+    : PLACES;
+  if (!state.typed.trim()) return { pool: pool.length, places: [], scoped: rules.scopeSearchToFilters };
+  return {
+    pool: pool.length,
+    places: pool.filter(p => matches(p, state.typed)),
+    scoped: rules.scopeSearchToFilters,
+  };
+}
+
+function setDimension(state, dimension, value) {
+  const rules = POLICIES[state.policy];
+  const current = state.filters[dimension];
+  const next = rules.unionWithinDimension
+    ? (current.includes(value) ? current.filter(v => v !== value) : [...current, value])
+    : (current.length === 1 && current[0] === value ? [] : [value]);
+  return { ...state.filters, [dimension]: next };
+}
+
+function reduce(state, action) {
+  const rules = POLICIES[state.policy];
+  switch (action.type) {
+    case "SET_POLICY":
+      return { ...initialState(action.policy), lastEvent: `Switched to “${POLICIES[action.policy].title}”. Everything reset.` };
+
+    case "OPEN_PALETTE":
+      return { ...state, paletteOpen: true, navigatedTo: null, lastEvent: "Opened the search palette (⌘K)." };
+
+    case "CLOSE_PALETTE":
+      return { ...state, paletteOpen: false, typed: "", lastEvent: "Closed the palette. Anything half-typed is gone." };
+
+    case "TYPE":
+      return { ...state, paletteOpen: true, typed: action.text, lastEvent: `Typed “${action.text}” into search.` };
+
+    case "SUBMIT_TEXT": {
+      // Pressing Enter on the words themselves, without picking a suggestion.
+      if (!rules.keepTypedQuery) {
+        return { ...state, paletteOpen: false, typed: "",
+          lastEvent: `Pressed Enter on “${state.typed}” — nothing to select, so the words were dropped.` };
+      }
+      return { ...state, paletteOpen: false, term: state.typed, typed: "",
+        lastEvent: `Kept “${state.typed}” as a search term alongside the filters.` };
+    }
+
+    case "PICK_CUISINE":
+      return { ...state, paletteOpen: false, typed: "",
+        filters: setDimension(state, "cuisine", action.value),
+        term: rules.keepTypedQuery ? state.term : "",
+        lastEvent: `Picked the cuisine “${action.value}” from search results.` };
+
+    case "PICK_TOWN":
+      return { ...state, paletteOpen: false, typed: "",
+        filters: setDimension(state, "town", action.value),
+        term: rules.keepTypedQuery ? state.term : "",
+        lastEvent: `Picked the town “${action.value}” from search results.` };
+
+    case "PICK_PLACE":
+      return { ...state, paletteOpen: false, typed: "", navigatedTo: action.name,
+        lastEvent: `Picked the place “${action.name}” — search takes you straight to its page.` };
+
+    case "TOGGLE_FILTER":
+      return { ...state, filters: setDimension(state, action.dimension, action.value),
+        lastEvent: `Toggled ${action.dimension} “${action.value}” in the filter bar.` };
+
+    case "TOGGLE_OPEN_NOW":
+      return { ...state, filters: { ...state.filters, openNow: !state.filters.openNow },
+        lastEvent: `Turned “open now” ${state.filters.openNow ? "off" : "on"}.` };
+
+    case "CLEAR_ALL":
+      return { ...state, filters: { ...EMPTY }, term: "",
+        lastEvent: rules.keepTypedQuery
+          ? "Cleared everything — filters and the search term."
+          : "Cleared the filters. (There was no search term to clear.)" };
+
+    case "RESET":
+      return { ...initialState(state.policy), lastEvent: "Reset." };
+
+    default:
+      return state;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Throwaway page shell below this line.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SCENARIOS = [
+  {
+    name: "Refine, don't restart",
+    desc: "You're browsing Portland, then remember you want seafood. Watch whether the town survives when search sets the cuisine — restarting your browse is the most common complaint about search-driven filtering.",
+    steps: [
+      ["Filter to Portland", { type: "TOGGLE_FILTER", dimension: "town", value: "Portland" }],
+      ["Open search", { type: "OPEN_PALETTE" }],
+      ["Type “seafood”", { type: "TYPE", text: "seafood" }],
+      ["Pick the Seafood cuisine", { type: "PICK_CUISINE", value: "Seafood" }],
+    ],
+  },
+  {
+    name: "Search inside a filter",
+    desc: "Filtered to South Portland, you search “lobster”. Should the palette offer lobster places in Portland — outside the filter you set — or only what's in front of you? Watch the “searching within” line.",
+    steps: [
+      ["Filter to South Portland", { type: "TOGGLE_FILTER", dimension: "town", value: "South Portland" }],
+      ["Open search", { type: "OPEN_PALETTE" }],
+      ["Type “lobster”", { type: "TYPE", text: "lobster" }],
+    ],
+  },
+  {
+    name: "The words you typed",
+    desc: "Not every search matches a tidy facet. Type a phrase that isn't a town or a cuisine and press Enter without picking anything — and see whether the app remembers what you asked for.",
+    steps: [
+      ["Open search", { type: "OPEN_PALETTE" }],
+      ["Type “lobster roll”", { type: "TYPE", text: "lobster roll" }],
+      ["Press Enter", { type: "SUBMIT_TEXT" }],
+    ],
+  },
+  {
+    name: "Two cuisines",
+    desc: "You want seafood or Thai — a normal thing to want. Pick one cuisine from search, then the other, and watch whether the second replaces the first.",
+    steps: [
+      ["Open search", { type: "OPEN_PALETTE" }],
+      ["Pick Seafood", { type: "PICK_CUISINE", value: "Seafood" }],
+      ["Open search again", { type: "OPEN_PALETTE" }],
+      ["Pick Thai", { type: "PICK_CUISINE", value: "Thai" }],
+    ],
+  },
+  {
+    name: "Filtered into a corner",
+    desc: "Stack filters until nothing is left, then see what the app can offer you. With a search term in play there are two different things to drop — which one should “clear” take?",
+    steps: [
+      ["Open now", { type: "TOGGLE_OPEN_NOW" }],
+      ["Filter to Wells", { type: "TOGGLE_FILTER", dimension: "town", value: "Wells" }],
+      ["Open search", { type: "OPEN_PALETTE" }],
+      ["Type “thai”", { type: "TYPE", text: "thai" }],
+      ["Press Enter", { type: "SUBMIT_TEXT" }],
+      ["Clear all", { type: "CLEAR_ALL" }],
+    ],
+  },
+];
+
+const FREE_PLAY = [
+  ["Open search", { type: "OPEN_PALETTE" }],
+  ["Type “lobster”", { type: "TYPE", text: "lobster" }],
+  ["Type “thai”", { type: "TYPE", text: "thai" }],
+  ["Press Enter on the words", { type: "SUBMIT_TEXT" }],
+  ["Pick place: Eventide", { type: "PICK_PLACE", name: "Eventide Oyster Co." }],
+  ["Pick cuisine: Seafood", { type: "PICK_CUISINE", value: "Seafood" }],
+  ["Pick cuisine: Thai", { type: "PICK_CUISINE", value: "Thai" }],
+  ["Pick town: Portland", { type: "PICK_TOWN", value: "Portland" }],
+  ["Close search", { type: "CLOSE_PALETTE" }],
+  ["Filter bar: Portland", { type: "TOGGLE_FILTER", dimension: "town", value: "Portland" }],
+  ["Filter bar: South Portland", { type: "TOGGLE_FILTER", dimension: "town", value: "South Portland" }],
+  ["Filter bar: $$", { type: "TOGGLE_FILTER", dimension: "price", value: "$$" }],
+  ["Open now", { type: "TOGGLE_OPEN_NOW" }],
+  ["Clear all", { type: "CLEAR_ALL" }],
+  ["Reset", { type: "RESET" }],
+];
+
+let state = initialState();
+let scenarioIndex = 0;
+let stepIndex = 0;
+
+function dispatch(action) {
+  state = reduce(state, action);
+  render();
+}
+
+function chips(values) {
+  if (values.length === 0) return '<span class="muted">none</span>';
+  return values.map(v => `<span class="chip on">${v}</span>`).join(" ");
+}
+
+function render() {
+  document.getElementById("policy").innerHTML = Object.entries(POLICIES).map(([key, p]) => `
+    <label class="${state.policy === key ? "on" : ""}">
+      <input type="radio" name="policy" value="${key}" ${state.policy === key ? "checked" : ""}>
+      <span><b>${p.title}</b><span>${p.blurb}</span></span>
+    </label>`).join("");
+  document.querySelectorAll('input[name=policy]').forEach(input => {
+    input.onchange = () => dispatch({ type: "SET_POLICY", policy: input.value });
+  });
+
+  const results = applyFilters(PLACES, state.filters, state.term);
+  const sugg = suggestions(state);
+
+  document.getElementById("state").innerHTML = `
+    <div class="field"><span class="label">Town</span><span class="value">${chips(state.filters.town)}</span></div>
+    <div class="field"><span class="label">Cuisine</span><span class="value">${chips(state.filters.cuisine)}</span></div>
+    <div class="field"><span class="label">Price</span><span class="value">${chips(state.filters.price)}</span></div>
+    <div class="field"><span class="label">Open now</span><span class="value">${state.filters.openNow ? '<span class="chip on">on</span>' : '<span class="muted">off</span>'}</span></div>
+    <div class="field"><span class="label">Search term kept</span><span class="value">${state.term ? `<span class="chip on">“${state.term}”</span>` : '<span class="muted">none</span>'}</span></div>
+    <div class="field"><span class="label">Search box</span><span class="value">${
+      state.paletteOpen
+        ? (state.typed ? `open — “${state.typed}”` : "open — empty")
+        : '<span class="muted">closed</span>'}</span></div>
+    <div class="field"><span class="label">Places listed</span><span class="value"><strong>${results.length}</strong> of ${PLACES.length}
+      <span class="results">${results.length ? "— " + results.map(r => r.name).join(", ") : "— nothing matches"}</span></span></div>
+    <div class="field"><span class="label">Search would show</span><span class="value">${
+      state.paletteOpen
+        ? `${sugg.places.length} match${sugg.places.length === 1 ? "" : "es"} <span class="results">— searching within ${sugg.scoped ? `the ${sugg.pool} filtered places` : `all ${sugg.pool} places`}</span>`
+        : '<span class="muted">palette closed</span>'}</span></div>
+    ${state.navigatedTo ? `<div class="field"><span class="label">Navigated away to</span><span class="value">${state.navigatedTo}</span></div>` : ""}
+  `;
+  document.getElementById("changed").textContent = state.lastEvent;
+
+  document.getElementById("actions").innerHTML = FREE_PLAY
+    .map(([label], i) => `<button class="action" data-free="${i}">${label}</button>`).join("");
+  document.querySelectorAll("[data-free]").forEach(button => {
+    button.onclick = () => dispatch(FREE_PLAY[+button.dataset.free][1]);
+  });
+
+  document.getElementById("tabs").innerHTML = SCENARIOS
+    .map((s, i) => `<button class="tab ${i === scenarioIndex ? "on" : ""}" data-tab="${i}">${s.name}</button>`).join("");
+  document.querySelectorAll("[data-tab]").forEach(button => {
+    button.onclick = () => {
+      scenarioIndex = +button.dataset.tab;
+      stepIndex = 0;
+      state = initialState(state.policy);
+      state.lastEvent = `Started “${SCENARIOS[scenarioIndex].name}” from a clean slate.`;
+      render();
+    };
+  });
+
+  const scenario = SCENARIOS[scenarioIndex];
+  document.getElementById("scenario-desc").textContent = scenario.desc;
+  document.getElementById("steps").innerHTML = scenario.steps.map(([label], i) => `
+    <div class="step"><span class="step-n">${i + 1}</span>
+      <button class="action ${i < stepIndex ? "done" : ""} ${i === stepIndex ? "next" : ""}" data-step="${i}">${label}</button>
+    </div>`).join("");
+  document.querySelectorAll("[data-step]").forEach(button => {
+    button.onclick = () => {
+      const i = +button.dataset.step;
+      stepIndex = i + 1;
+      dispatch(scenario.steps[i][1]);
+    };
+  });
+}
+
+render();
+</script>
+</body>
+</html>
