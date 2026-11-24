@@ -4,7 +4,7 @@ import {
   Link,
   Scripts,
   createRootRoute,
-  useRouter,
+  useRouterState,
 } from '@tanstack/react-router'
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useEffect, useRef, type ReactNode } from 'react'
@@ -15,34 +15,29 @@ import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client'
 
 function FathomAnalytics() {
-  const router = useRouter()
-  const lastUrlRef = useRef<string | undefined>(undefined)
+  // Follow the settled route, excluding hash-only changes.
+  const pagePath = useRouterState({
+    select: (state) => {
+      const location = state.resolvedLocation
+      return location ? location.pathname + location.searchStr : null
+    },
+  })
+  const lastTrackedPath = useRef<string | null>(null)
 
   useEffect(() => {
-    // This subscription owns all page views, including the initial view.
+    // The tracking effect owns initial and subsequent page views.
     load('KKNJFATJ', { auto: false })
+  }, [])
 
-    function track(location: { pathname: string, searchStr: string }) {
-      // Preserve search parameters and let Fathom apply its own reporting rules.
-      const url = location.pathname + location.searchStr
-      if (lastUrlRef.current === url)
-        return
+  useEffect(() => {
+    // Wait for startup to resolve and suppress calls from effect replay.
+    if (pagePath === null || lastTrackedPath.current === pagePath)
+      return
 
-      // An explicit URL avoids relying on a stale canonical during navigation.
-      trackPageview({ url })
-      lastUrlRef.current = url
-    }
-
-    // Count completed navigation rather than a location that is still loading.
-    const unsubscribe = router.subscribe('onResolved', ({ toLocation }) => track(toLocation))
-
-    // Hydration can finish after the initial navigation has already resolved.
-    const { resolvedLocation } = router.state
-    if (resolvedLocation)
-      track(resolvedLocation)
-
-    return unsubscribe
-  }, [router])
+    // Pass search unchanged so Fathom applies its own reporting rules.
+    trackPageview({ url: pagePath })
+    lastTrackedPath.current = pagePath
+  }, [pagePath])
 
   return null
 }
