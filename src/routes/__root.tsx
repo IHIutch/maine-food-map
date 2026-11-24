@@ -25,7 +25,8 @@ function FathomAnalytics() {
     function track(location: { pathname: string, searchStr: string }) {
       // Preserve search parameters and let Fathom apply its own reporting rules.
       const url = location.pathname + location.searchStr
-      if (lastUrlRef.current === url) return
+      if (lastUrlRef.current === url)
+        return
 
       // An explicit URL avoids relying on a stale canonical during navigation.
       trackPageview({ url })
@@ -35,8 +36,10 @@ function FathomAnalytics() {
     // Count completed navigation rather than a location that is still loading.
     const unsubscribe = router.subscribe('onResolved', ({ toLocation }) => track(toLocation))
 
-    // This older router leaves resolvedLocation empty after SSR hydration.
-    track(router.state.resolvedLocation ?? router.state.location)
+    // Hydration can finish after the initial navigation has already resolved.
+    const { resolvedLocation } = router.state
+    if (resolvedLocation)
+      track(resolvedLocation)
 
     return unsubscribe
   }, [router])
