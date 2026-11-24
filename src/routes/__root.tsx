@@ -4,7 +4,7 @@ import {
   Link,
   Scripts,
   createRootRoute,
-  useLocation,
+  useRouter,
 } from '@tanstack/react-router'
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useEffect, useRef, type ReactNode } from 'react'
@@ -15,19 +15,31 @@ import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client'
 
 function FathomAnalytics() {
-  const url = useLocation({ select: location => location.pathname + location.searchStr })
-  const lastUrl = useRef<string | undefined>(undefined)
+  const router = useRouter()
+  const lastUrlRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
+    // This subscription owns all page views, including the initial view.
     load('KKNJFATJ', { auto: false })
-  }, [])
 
-  useEffect(() => {
-    // Strict Mode can run this effect twice in development, so skip tracking the same URL again.
-    if (lastUrl.current === url) return
-    lastUrl.current = url
-    trackPageview({ url })
-  }, [url])
+    function track(location: { pathname: string, searchStr: string }) {
+      // Preserve search parameters and let Fathom apply its own reporting rules.
+      const url = location.pathname + location.searchStr
+      if (lastUrlRef.current === url) return
+
+      // An explicit URL avoids relying on a stale canonical during navigation.
+      trackPageview({ url })
+      lastUrlRef.current = url
+    }
+
+    // Count completed navigation rather than a location that is still loading.
+    const unsubscribe = router.subscribe('onResolved', ({ toLocation }) => track(toLocation))
+
+    // This older router leaves resolvedLocation empty after SSR hydration.
+    track(router.state.resolvedLocation ?? router.state.location)
+
+    return unsubscribe
+  }, [router])
 
   return null
 }
