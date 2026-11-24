@@ -7,31 +7,28 @@ import {
   useLocation,
 } from '@tanstack/react-router'
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import * as React from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
-import { load, trackPageview } from 'fathom-client';
+import { load, trackPageview } from 'fathom-client'
 
 function FathomAnalytics() {
-  const { pathname } = useLocation();
+  const url = useLocation({ select: location => location.pathname + location.searchStr })
+  const lastUrl = useRef<string | undefined>(undefined)
 
-  React.useEffect(() => {
-    load("KKNJFATJ", {
-      auto: false
-    });
-  }, []);
+  useEffect(() => {
+    load('KKNJFATJ', { auto: false })
+  }, [])
 
-  React.useEffect(() => {
-    if (!pathname) return;
-    trackPageview({
-      url: pathname,
-      referrer: document.referrer
-    });
-  }, [pathname]);
+  useEffect(() => {
+    if (lastUrl.current === url) return
+    lastUrl.current = url
+    trackPageview({ url })
+  }, [url])
 
-  return null;
+  return null
 }
 
 export const Route = createRootRoute({
@@ -78,7 +75,7 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html className="h-full" lang="en">
       <head>
