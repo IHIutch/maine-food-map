@@ -23,7 +23,7 @@ function FathomAnalytics() {
   }, [])
 
   useEffect(() => {
-    // Skip duplicate pageviews when React replays this effect.
+    // Skip the duplicate pageview when React Strict Mode replays this effect.
     if (lastUrl.current === url) return
     lastUrl.current = url
     trackPageview({ url })
