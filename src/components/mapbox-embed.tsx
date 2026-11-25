@@ -2,7 +2,7 @@ import * as React from 'react'
 import Map, { GeolocateControl, MapRef, Marker, NavigationControl, Popup } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Link } from '@tanstack/react-router';
-import { metaLabel, metaRow, statusMark } from './ui';
+import { link, metaLabel, tag } from './ui';
 
 type Restaurant = {
     id: number;
@@ -83,7 +83,7 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                     style={{ zIndex: selectedId === parcel.id ? 20 : 10 }}
                 >
                     <div
-                        className={`shadow-sm border-2 relative border-white rounded-full transition-all cursor-pointer ${selectedId === parcel.id ? 'bg-tomato scale-125 size-4.5' : 'bg-pine hover:scale-110 size-3.5'}`}
+                        className={`shadow-sm border-2 relative border-white rounded-full transition-all cursor-pointer ${selectedId === parcel.id ? 'bg-ink scale-125 size-4.5' : 'bg-accent hover:scale-110 size-3.5'}`}
                         onClick={() => {
                             setPopupInfo(parcel);
                             onMarkerClick?.(parcel.id);
@@ -101,17 +101,17 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                     style={{ zIndex: 25 }}
                 >
                     <div className="flex items-start justify-between gap-3 mb-2">
-                        <h3 className="font-display font-light text-lg leading-tight">
+                        <h3 className="font-display font-medium text-lg leading-tight">
                             <Link
                                 to="/places/$slug"
                                 params={{ slug: popupInfo.slug }}
-                                className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                                className={link({ tone: 'ink' })}
                             >
                                 {popupInfo.title}
                             </Link>
                         </h3>
                         {popupInfo.rating && (
-                            <span className="font-display font-light text-2xl text-ink flex-shrink-0">{popupInfo.rating}</span>
+                            <span className="font-display font-medium text-2xl text-ink flex-shrink-0">{popupInfo.rating}</span>
                         )}
                     </div>
 
@@ -131,12 +131,12 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                         )}
                     </div>
 
-                    <div className={metaRow({ className: 'text-ink-soft' })}>
-                        <span className={statusMark({ open: popupInfo.isOpen })}>
+                    <div className="flex flex-wrap gap-1.5">
+                        <span className={tag({ intent: 'status', open: popupInfo.isOpen })}>
                             {popupInfo.isOpen ? 'Open' : 'Closed'}
                         </span>
-                        {popupInfo.tags.slice(0, 2).map((tag) => (
-                            <span key={tag}>· {tag}</span>
+                        {popupInfo.tags.slice(0, 2).map((t) => (
+                            <span key={t} className={tag()}>{t}</span>
                         ))}
                     </div>
 

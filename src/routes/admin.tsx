@@ -10,11 +10,12 @@ import {
 } from '../server/admin'
 import { seo } from '../utils/seo'
 import {
-  brandCaps,
   button,
   displayHeading,
+  link,
   metaLabel,
   metaRow,
+  sectionTitle,
 } from '../components/ui'
 
 export const Route = createFileRoute('/admin')({
@@ -90,7 +91,7 @@ function AdminPage() {
         </h1>
 
         <section className="pb-10">
-          <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>
+          <h2 className={sectionTitle()}>
             Open Reports
           </h2>
 
@@ -113,7 +114,7 @@ function AdminPage() {
                       <Link
                         to="/places/$slug"
                         params={{ slug: report.restaurant.slug }}
-                        className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                        className={link()}
                       >
                         {report.restaurant.title}
                       </Link>
@@ -167,7 +168,7 @@ function AdminPage() {
         </section>
 
         <section className="pt-10 pb-10 border-t border-ink/15">
-          <h2 className={brandCaps({ className: 'text-sm text-ink-soft mb-6' })}>
+          <h2 className={sectionTitle()}>
             Pending Photos
           </h2>
 
@@ -184,7 +185,7 @@ function AdminPage() {
                     <img
                       src={`/img/${photo.r2_key}`}
                       alt={photo.alt_text ?? `Pending photo #${photo.id}`}
-                      className="w-28 h-28 object-cover bg-cream border border-ink/15"
+                      className="w-28 h-28 object-cover bg-cream rounded-lg border border-ink/15"
                     />
                     <div>
                       <div className={metaRow({ className: 'text-ink-soft mb-2' })}>
@@ -196,7 +197,7 @@ function AdminPage() {
                           <Link
                             to="/places/$slug"
                             params={{ slug: photo.restaurant.slug }}
-                            className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
+                            className={link()}
                           >
                             {photo.restaurant.title}
                           </Link>

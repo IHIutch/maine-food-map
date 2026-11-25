@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { getOAuthClient, getRedirectUri } from '../server/oauth/client'
 import { seo } from '../utils/seo'
 import * as z from 'zod'
-import { button, displayHeading, input, metaLabel } from '../components/ui'
+import { button, displayHeading, input, link, metaLabel } from '../components/ui'
 
 const startLogin = createServerFn({ method: 'POST' })
   .inputValidator(
@@ -67,10 +67,10 @@ function LoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6">
-      <div className="max-w-md w-full rounded-2xl bg-pine-deep text-paper p-8 sm:p-10">
+      <div className="max-w-md w-full rounded-2xl bg-pine-deep text-paper shadow-soft p-8 sm:p-10">
         <p className={metaLabel({ className: 'text-paper/70 mb-3' })}>Maine Food Map</p>
         <h1 className={displayHeading({ className: 'text-4xl text-paper mb-4' })}>
-          Sign in with Bluesky
+          Sign in with <em className="italic">Bluesky</em>
         </h1>
         <p className="text-sm text-paper/70 mb-8">
           Enter your Bluesky handle to sign in. Your likes are stored on your
@@ -114,7 +114,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className={button({ intent: 'paper', className: 'w-full disabled:opacity-50 focus-visible:outline-paper' })}
+            className={button({ intent: 'paper', className: 'w-full disabled:opacity-50' })}
           >
             {submitting ? 'Redirecting…' : 'Continue'}
           </button>
@@ -125,7 +125,7 @@ function LoginPage() {
             href="https://bsky.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-paper underline underline-offset-4 decoration-paper/40 hover:decoration-paper"
+            className={link({ tone: 'paper' })}
           >
             bsky.app
           </a>

@@ -7,7 +7,7 @@ import {
   getAgreementStatus,
 } from '../server/attestation'
 import { downscaleImage } from '../utils/image'
-import { brandCaps, button, input, metaLabel } from './ui'
+import { button, input, metaLabel, sectionTitle } from './ui'
 
 type PhotoUploadProps = {
   restaurantPublicId: string
@@ -149,7 +149,7 @@ export function PhotoUpload({
         }
       }}
     >
-      <h3 className={brandCaps({ className: 'text-sm text-ink-soft mb-4' })}>
+      <h3 className={sectionTitle({ className: 'mb-4' })}>
         Add a photo of {restaurantTitle}
       </h3>
 
@@ -166,7 +166,7 @@ export function PhotoUpload({
         <img
           src={previewUrl}
           alt="Preview of your upload"
-          className="mb-4 max-h-40 border border-ink/25"
+          className="mb-4 max-h-40 rounded-lg border border-ink/20"
         />
       )}
 
@@ -219,7 +219,7 @@ export function PhotoUpload({
       </label>
 
       {needsAgreement && (
-        <div className="mb-4 border border-ink/25 bg-cream p-4">
+        <div className="mb-4 rounded-xl border border-ink/20 bg-cream p-4">
           <p className={metaLabel({ className: 'mb-2 text-ink-soft' })}>
             Contributor agreement
           </p>
@@ -257,7 +257,7 @@ export function PhotoUpload({
         <button
           type="submit"
           disabled={submitting || !blob || needsAgreement}
-          className={button({ intent: 'primary', className: 'disabled:opacity-50' })}
+          className={button({ intent: 'accent', className: 'disabled:opacity-50' })}
         >
           {submitting ? 'Uploading…' : 'Submit photo'}
         </button>

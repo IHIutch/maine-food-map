@@ -1,14 +1,19 @@
 @import "tailwindcss";
-@import "@fontsource-variable/fraunces";
-@import "@fontsource-variable/inter";
-@import "@fontsource/cinzel";
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/fraunces/full-italic.css";
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource/dm-mono/400.css";
+@import "@fontsource/dm-mono/500.css";
 
 @theme {
-  /* type roles: brand = lapidary caps, display = soft editorial serif, sans = utility */
-  --font-brand: "Cinzel", "Fraunces Variable", Georgia, serif;
+  /* type roles: brand = italic Fraunces wordmark, display = soft editorial serif,
+     sans = DM Sans utility, mono = DM Mono micro-labels */
+  --font-brand: "Fraunces Variable", Georgia, serif;
+  --font-brand--font-variation-settings: "SOFT" 100, "WONK" 0;
   --font-display: "Fraunces Variable", Georgia, serif;
   --font-display--font-variation-settings: "SOFT" 100, "WONK" 0;
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
 
   /* paper & ink */
   --color-paper: #FAF5EC;      /* warm cream page background */
@@ -30,8 +35,35 @@
   --color-plum: #6E4260;       /* playful plum */
   --color-plum-tint: #E0C6D8;
 
-  /* the bold color moment — Maine wild blueberry cobalt */
+  /* Maine wild blueberry cobalt — retired from use, kept for reference */
   --color-blueberry: #2B44BE;
   --color-blueberry-deep: #22359A;
   --color-blueberry-tint: #D9DEF6;
+
+  /* the color moment — coral accent */
+  --color-accent: #E98A6E;
+  --color-accent-deep: #C96A50;
+  --color-accent-tint: #F4C0AF;
+
+  --shadow-soft: 0 1px 0 rgb(38 41 30 / 0.04), 0 18px 34px -22px rgb(38 41 30 / 0.28);
+}
+
+@layer base {
+  body {
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Mapbox popup chrome — paper-sample style */
+.mapboxgl-popup-content {
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: var(--font-sans);
+  background: var(--color-paper);
+  box-shadow: 0 1px 0 rgb(38 41 30 / 0.04), 0 18px 34px -22px rgb(38 41 30 / 0.28);
+}
+.mapboxgl-popup-tip {
+  border-top-color: var(--color-paper);
 }

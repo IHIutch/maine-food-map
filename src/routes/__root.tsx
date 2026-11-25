@@ -16,7 +16,7 @@ import { baseUrl } from '../utils/base-url'
 import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client';
 import { getCurrentUser } from '../server/session'
-import { brandCaps, metaLabel } from '../components/ui'
+import { navLink } from '../components/ui'
 
 const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(async () => {
   return await getCurrentUser()
@@ -83,7 +83,7 @@ export const Route = createRootRoute({
         sizes: '16x16',
         href: '/favicon-16x16.png',
       },
-      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
+      { rel: 'manifest', href: '/site.webmanifest' },
       { rel: 'icon', href: '/favicon.ico' },
     ],
   }),
@@ -106,33 +106,26 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <nav className="bg-paper border-b border-ink/15 h-16 z-10 relative flex items-center justify-between px-4 sm:px-6">
           <Link
             to="/"
-            className={brandCaps({
-              className:
-                'text-lg sm:text-xl hover:text-blueberry transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry',
-            })}
+            className="group flex items-center gap-3 font-brand italic text-xl sm:text-[26px] font-medium tracking-[-0.01em] text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
-            Maine&thinsp;·&thinsp;Food&thinsp;·&thinsp;Map
+            <span
+              aria-hidden
+              className="grid size-9 place-items-center rounded-full bg-accent font-brand not-italic text-xl text-paper transition-transform group-hover:scale-105"
+            >
+              m
+            </span>
+            Maine Food Map
           </Link>
           <div className="text-sm">
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <span className="text-ink-soft">@{user.handle}</span>
-                <a
-                  href={logoutHref}
-                  className={metaLabel({
-                    className: 'text-blueberry hover:text-blueberry-deep',
-                  })}
-                >
+                <a href={logoutHref} className={navLink()}>
                   Log out
                 </a>
               </div>
             ) : (
-              <a
-                href={loginHref}
-                className={metaLabel({
-                  className: 'text-blueberry hover:text-blueberry-deep',
-                })}
-              >
+              <a href={loginHref} className={navLink()}>
                 Sign in with Bluesky
               </a>
             )}
