@@ -24,3 +24,8 @@ test('rejects missing and legacy-only connection URLs without exposing credentia
     message: 'A direct postgres:// or postgresql:// connection URL is required',
   })
 })
+
+test('accepts a generic environment map without generated binding declarations', () => {
+  const env: Record<string, string | undefined> = { DIRECT_DATABASE_URL: direct }
+  assert.equal(getDatabaseUrl(env), direct)
+})

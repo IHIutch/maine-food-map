@@ -1,9 +1,4 @@
-interface DatabaseEnvironment {
-  DATABASE_URL?: string
-  DIRECT_DATABASE_URL?: string
-}
-
-export function getDatabaseUrl(env: DatabaseEnvironment) {
+export function getDatabaseUrl(env: Record<string, string | undefined>) {
   const url = env.DIRECT_DATABASE_URL || env.DATABASE_URL
   if (!url)
     throw new Error('Missing database connection URL')
