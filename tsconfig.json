@@ -3,6 +3,13 @@
     "**/*.ts",
     "**/*.tsx"
   ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".wrangler",
+    "src/generated",
+    "misc"
+  ],
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,

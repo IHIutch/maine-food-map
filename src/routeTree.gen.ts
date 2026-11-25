@@ -10,21 +10,46 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml_'
-import { Route as PostsRouteImport } from './routes/posts'
+import { Route as ReportRouteImport } from './routes/report'
+import { Route as LogoutRouteImport } from './routes/logout'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ClientMetadataDotjsonRouteImport } from './routes/client-metadata[.]json_'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PostsIndexRouteImport } from './routes/posts.index'
-import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
+import { Route as RPublicIdRouteImport } from './routes/r.$publicId'
 import { Route as PlacesSlugRouteImport } from './routes/places.$slug'
-import { Route as PostsPostIdDeepRouteImport } from './routes/posts_.$postId.deep'
+import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
+import { Route as ImgSplatRouteImport } from './routes/img.$'
+import { Route as ApiPhotosUploadRouteImport } from './routes/api.photos.upload'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml_',
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsRoute = PostsRouteImport.update({
-  id: '/posts',
-  path: '/posts',
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientMetadataDotjsonRoute = ClientMetadataDotjsonRouteImport.update({
+  id: '/client-metadata.json_',
+  path: '/client-metadata.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -32,89 +57,133 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PostsRoute,
-} as any)
-const PostsPostIdRoute = PostsPostIdRouteImport.update({
-  id: '/$postId',
-  path: '/$postId',
-  getParentRoute: () => PostsRoute,
+const RPublicIdRoute = RPublicIdRouteImport.update({
+  id: '/r/$publicId',
+  path: '/r/$publicId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlacesSlugRoute = PlacesSlugRouteImport.update({
   id: '/places/$slug',
   path: '/places/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsPostIdDeepRoute = PostsPostIdDeepRouteImport.update({
-  id: '/posts_/$postId/deep',
-  path: '/posts/$postId/deep',
+const OauthCallbackRoute = OauthCallbackRouteImport.update({
+  id: '/oauth/callback',
+  path: '/oauth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImgSplatRoute = ImgSplatRouteImport.update({
+  id: '/img/$',
+  path: '/img/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPhotosUploadRoute = ApiPhotosUploadRouteImport.update({
+  id: '/api/photos/upload',
+  path: '/api/photos/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/posts': typeof PostsRouteWithChildren
+  '/admin': typeof AdminRoute
+  '/client-metadata.json': typeof ClientMetadataDotjsonRoute
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
+  '/report': typeof ReportRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/img/$': typeof ImgSplatRoute
+  '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/posts/': typeof PostsIndexRoute
-  '/posts/$postId/deep': typeof PostsPostIdDeepRoute
+  '/r/$publicId': typeof RPublicIdRoute
+  '/api/photos/upload': typeof ApiPhotosUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/client-metadata.json': typeof ClientMetadataDotjsonRoute
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
+  '/report': typeof ReportRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/img/$': typeof ImgSplatRoute
+  '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/posts': typeof PostsIndexRoute
-  '/posts/$postId/deep': typeof PostsPostIdDeepRoute
+  '/r/$publicId': typeof RPublicIdRoute
+  '/api/photos/upload': typeof ApiPhotosUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/posts': typeof PostsRouteWithChildren
+  '/admin': typeof AdminRoute
+  '/client-metadata.json_': typeof ClientMetadataDotjsonRoute
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
+  '/report': typeof ReportRoute
   '/sitemap.xml_': typeof SitemapDotxmlRoute
+  '/img/$': typeof ImgSplatRoute
+  '/oauth/callback': typeof OauthCallbackRoute
   '/places/$slug': typeof PlacesSlugRoute
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/posts/': typeof PostsIndexRoute
-  '/posts_/$postId/deep': typeof PostsPostIdDeepRoute
+  '/r/$publicId': typeof RPublicIdRoute
+  '/api/photos/upload': typeof ApiPhotosUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/posts'
+    | '/admin'
+    | '/client-metadata.json'
+    | '/login'
+    | '/logout'
+    | '/report'
     | '/sitemap.xml'
+    | '/img/$'
+    | '/oauth/callback'
     | '/places/$slug'
-    | '/posts/$postId'
-    | '/posts/'
-    | '/posts/$postId/deep'
+    | '/r/$publicId'
+    | '/api/photos/upload'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
+    | '/client-metadata.json'
+    | '/login'
+    | '/logout'
+    | '/report'
     | '/sitemap.xml'
+    | '/img/$'
+    | '/oauth/callback'
     | '/places/$slug'
-    | '/posts/$postId'
-    | '/posts'
-    | '/posts/$postId/deep'
+    | '/r/$publicId'
+    | '/api/photos/upload'
   id:
     | '__root__'
     | '/'
-    | '/posts'
+    | '/admin'
+    | '/client-metadata.json_'
+    | '/login'
+    | '/logout'
+    | '/report'
     | '/sitemap.xml_'
+    | '/img/$'
+    | '/oauth/callback'
     | '/places/$slug'
-    | '/posts/$postId'
-    | '/posts/'
-    | '/posts_/$postId/deep'
+    | '/r/$publicId'
+    | '/api/photos/upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PostsRoute: typeof PostsRouteWithChildren
+  AdminRoute: typeof AdminRoute
+  ClientMetadataDotjsonRoute: typeof ClientMetadataDotjsonRoute
+  LoginRoute: typeof LoginRoute
+  LogoutRoute: typeof LogoutRoute
+  ReportRoute: typeof ReportRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ImgSplatRoute: typeof ImgSplatRoute
+  OauthCallbackRoute: typeof OauthCallbackRoute
   PlacesSlugRoute: typeof PlacesSlugRoute
-  PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
+  RPublicIdRoute: typeof RPublicIdRoute
+  ApiPhotosUploadRoute: typeof ApiPhotosUploadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -126,11 +195,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts': {
-      id: '/posts'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsRouteImport
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/client-metadata.json_': {
+      id: '/client-metadata.json_'
+      path: '/client-metadata.json'
+      fullPath: '/client-metadata.json'
+      preLoaderRoute: typeof ClientMetadataDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -140,19 +237,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/': {
-      id: '/posts/'
-      path: '/'
-      fullPath: '/posts/'
-      preLoaderRoute: typeof PostsIndexRouteImport
-      parentRoute: typeof PostsRoute
-    }
-    '/posts/$postId': {
-      id: '/posts/$postId'
-      path: '/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdRouteImport
-      parentRoute: typeof PostsRoute
+    '/r/$publicId': {
+      id: '/r/$publicId'
+      path: '/r/$publicId'
+      fullPath: '/r/$publicId'
+      preLoaderRoute: typeof RPublicIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/places/$slug': {
       id: '/places/$slug'
@@ -161,34 +251,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlacesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts_/$postId/deep': {
-      id: '/posts_/$postId/deep'
-      path: '/posts/$postId/deep'
-      fullPath: '/posts/$postId/deep'
-      preLoaderRoute: typeof PostsPostIdDeepRouteImport
+    '/oauth/callback': {
+      id: '/oauth/callback'
+      path: '/oauth/callback'
+      fullPath: '/oauth/callback'
+      preLoaderRoute: typeof OauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/img/$': {
+      id: '/img/$'
+      path: '/img/$'
+      fullPath: '/img/$'
+      preLoaderRoute: typeof ImgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/photos/upload': {
+      id: '/api/photos/upload'
+      path: '/api/photos/upload'
+      fullPath: '/api/photos/upload'
+      preLoaderRoute: typeof ApiPhotosUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface PostsRouteChildren {
-  PostsPostIdRoute: typeof PostsPostIdRoute
-  PostsIndexRoute: typeof PostsIndexRoute
-}
-
-const PostsRouteChildren: PostsRouteChildren = {
-  PostsPostIdRoute: PostsPostIdRoute,
-  PostsIndexRoute: PostsIndexRoute,
-}
-
-const PostsRouteWithChildren = PostsRoute._addFileChildren(PostsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PostsRoute: PostsRouteWithChildren,
+  AdminRoute: AdminRoute,
+  ClientMetadataDotjsonRoute: ClientMetadataDotjsonRoute,
+  LoginRoute: LoginRoute,
+  LogoutRoute: LogoutRoute,
+  ReportRoute: ReportRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ImgSplatRoute: ImgSplatRoute,
+  OauthCallbackRoute: OauthCallbackRoute,
   PlacesSlugRoute: PlacesSlugRoute,
-  PostsPostIdDeepRoute: PostsPostIdDeepRoute,
+  RPublicIdRoute: RPublicIdRoute,
+  ApiPhotosUploadRoute: ApiPhotosUploadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

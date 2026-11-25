@@ -39,9 +39,59 @@ model restaurant_external_data {
   restaurants     restaurants @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model reports {
+  id              Int       @id @default(autoincrement())
+  kind            String // photo | place_error
+  status          String    @default("open") // open | resolved | dismissed
+  photo_id        Int?
+  restaurant_id   Int?
+  reason          String
+  details         String?
+  reporter_email  String?
+  reporter_did    String?
+  created_at      DateTime  @default(now())
+  resolved_at     DateTime?
+  resolution_note String?
+
+  @@index([status, kind])
+}
+
+model contributors {
+  id                  Int      @id @default(autoincrement())
+  did                 String?  @unique
+  email               String?  @unique
+  handle              String?
+  attestation_version String
+  agreed_at           DateTime @default(now())
+}
+
+model photos {
+  id                  Int       @id @default(autoincrement())
+  restaurant_id       Int
+  status              String    @default("pending") // pending | approved | rejected
+  uploader_did        String?
+  uploader_handle     String?
+  uploader_email      String?
+  r2_key              String
+  content_type        String
+  size_bytes          Int
+  alt_text            String?
+  attestation_version String
+  attestation_text    String
+  attested_at         DateTime
+  record_uri          String? // reserved for Phase 5 atproto publishing
+  record_cid          String?
+  created_at          DateTime  @default(now())
+  reviewed_at         DateTime?
+
+  @@index([restaurant_id, status])
+  @@index([status])
+}
+
 model restaurants {
   id                       Int                       @id @default(autoincrement())
   slug                     String                    @unique(map: "sqlite_autoindex_restaurants_1")
+  public_id                String?                   @unique
   title                    String
   website                  String?
   description              String?
@@ -66,4 +116,5 @@ model restaurants {
   restaurant_external_data restaurant_external_data?
 
   @@index([slug], map: "idx_restaurant_slug")
+  @@index([public_id], map: "idx_restaurant_public_id")
 }

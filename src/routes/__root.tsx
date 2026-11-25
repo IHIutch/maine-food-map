@@ -6,13 +6,21 @@ import {
   createRootRoute,
   useLocation,
 } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
 import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
+import { baseUrl } from '../utils/base-url'
 import { seo } from '../utils/seo'
 import { load, trackPageview } from 'fathom-client';
+import { getCurrentUser } from '../server/session'
+import { brandCaps, metaLabel } from '../components/ui'
+
+const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(async () => {
+  return await getCurrentUser()
+})
 
 function FathomAnalytics() {
   const { pathname } = useLocation();
@@ -35,6 +43,10 @@ function FathomAnalytics() {
 }
 
 export const Route = createRootRoute({
+  beforeLoad: async () => {
+    const user = await fetchCurrentUser()
+    return { user }
+  },
   head: () => ({
     meta: [
       {
@@ -47,7 +59,9 @@ export const Route = createRootRoute({
       ...seo({
         title:
           'MaineFoodMap',
-        description: ``,
+        description: 'Discover great restaurants across Maine — hours, photos, and community likes.',
+        image: `${baseUrl}/android-chrome-512x512.png`,
+        url: baseUrl,
       }),
     ],
     links: [
@@ -79,17 +93,49 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { user } = Route.useRouteContext()
+  const { pathname } = useLocation()
+  const logoutHref = `/logout?next=${encodeURIComponent(pathname)}`
+  const loginHref = `/login?next=${encodeURIComponent(pathname)}`
   return (
     <html className="h-full" lang="en">
       <head>
         <HeadContent />
       </head>
-      <body className="h-full">
-        <nav className="bg-white shadow-sm h-16 z-10 relative flex items-center px-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="text-xl font-semibold">
-              Maine Food Map
-            </Link>
+      <body className="h-full bg-paper text-ink font-sans antialiased">
+        <nav className="bg-paper border-b border-ink/15 h-16 z-10 relative flex items-center justify-between px-4 sm:px-6">
+          <Link
+            to="/"
+            className={brandCaps({
+              className:
+                'text-lg sm:text-xl hover:text-blueberry transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry',
+            })}
+          >
+            Maine&thinsp;·&thinsp;Food&thinsp;·&thinsp;Map
+          </Link>
+          <div className="text-sm">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-ink-soft">@{user.handle}</span>
+                <a
+                  href={logoutHref}
+                  className={metaLabel({
+                    className: 'text-blueberry hover:text-blueberry-deep',
+                  })}
+                >
+                  Log out
+                </a>
+              </div>
+            ) : (
+              <a
+                href={loginHref}
+                className={metaLabel({
+                  className: 'text-blueberry hover:text-blueberry-deep',
+                })}
+              >
+                Sign in with Bluesky
+              </a>
+            )}
           </div>
         </nav>
         {children}

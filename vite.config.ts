@@ -14,6 +14,10 @@ const __dirname = path.dirname(__filename)
 export default defineConfig({
     server: {
         port: Number.parseInt(process.env.VITE_PORT || '3000', 10),
+        // Bind IPv4 explicitly; the atproto OAuth loopback client requires
+        // the literal host `127.0.0.1`, and vite's default `localhost` binds
+        // IPv6 only on macOS, which breaks the /oauth/callback redirect.
+        host: '127.0.0.1',
     },
     plugins: [
         // This seems to break prisma for some reason https://github.com/prisma/prisma/issues/26880#issuecomment-3049293050
@@ -21,7 +25,7 @@ export default defineConfig({
         //   projects: ['./tsconfig.json'],
         // }),
         cloudflare({ viteEnvironment: { name: 'ssr' } }),
-        tanstackStart(),
+        tanstackStart({ server: { entry: 'server.ts' } }),
         viteReact(),
         tailwindcss(),
     ],
@@ -47,4 +51,3 @@ export default defineConfig({
         }
     }
 })
-

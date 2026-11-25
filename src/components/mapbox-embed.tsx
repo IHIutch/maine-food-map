@@ -2,6 +2,7 @@ import * as React from 'react'
 import Map, { GeolocateControl, MapRef, Marker, NavigationControl, Popup } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Link } from '@tanstack/react-router';
+import { metaLabel, metaRow, statusMark } from './ui';
 
 type Restaurant = {
     id: number;
@@ -72,7 +73,7 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                 zoom: 14
             }}
             style={{ width: '100%', height: '100%' }}
-            mapStyle="mapbox://styles/mapbox/streets-v11"
+            mapStyle="mapbox://styles/mapbox/light-v11"
         >
             {places.length ? places.map((parcel) => (
                 <Marker
@@ -82,7 +83,7 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                     style={{ zIndex: selectedId === parcel.id ? 20 : 10 }}
                 >
                     <div
-                        className={`shadow-sm border-2 relative border-white rounded-full transition-all cursor-pointer ${selectedId === parcel.id ? 'bg-green-500 scale-125 size-4.5' : 'bg-blue-500 hover:scale-110 size-3.5'}`}
+                        className={`shadow-sm border-2 relative border-white rounded-full transition-all cursor-pointer ${selectedId === parcel.id ? 'bg-tomato scale-125 size-4.5' : 'bg-pine hover:scale-110 size-3.5'}`}
                         onClick={() => {
                             setPopupInfo(parcel);
                             onMarkerClick?.(parcel.id);
@@ -99,52 +100,44 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
                     closeOnClick={false}
                     style={{ zIndex: 25 }}
                 >
-                    <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-lg">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                        <h3 className="font-display font-light text-lg leading-tight">
                             <Link
                                 to="/places/$slug"
                                 params={{ slug: popupInfo.slug }}
-                                className="underline"
+                                className="text-blueberry underline underline-offset-4 decoration-blueberry/40 hover:decoration-blueberry"
                             >
                                 {popupInfo.title}
                             </Link>
                         </h3>
                         {popupInfo.rating && (
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                                <span className="font-medium">{popupInfo.rating}</span>
-                                <span className="text-yellow-500">⭐</span>
-                            </div>
+                            <span className="font-display font-light text-2xl text-ink flex-shrink-0">{popupInfo.rating}</span>
                         )}
                     </div>
 
                     {popupInfo.description && (
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        <p className="text-ink-soft text-sm mb-3 line-clamp-2">
                             {popupInfo.description}
                         </p>
                     )}
 
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                    <div className={metaLabel({ className: 'flex items-center gap-2 text-ink-soft mb-3' })}>
                         {popupInfo.city && <span>{popupInfo.city}</span>}
                         {popupInfo.review_count && (
                             <>
-                                <span>•</span>
+                                <span>·</span>
                                 <span>{popupInfo.review_count} reviews</span>
                             </>
                         )}
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-wrap gap-1">
-                            {popupInfo.tags.slice(0, 2).map((tag) => (
-                                <span key={tag} className="px-2 py-1 bg-gray-100 rounded text-xs">
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-                        <span className={`text-xs font-medium ${popupInfo.isOpen ? 'text-green-600' : 'text-red-600'
-                            }`}>
+                    <div className={metaRow({ className: 'text-ink-soft' })}>
+                        <span className={statusMark({ open: popupInfo.isOpen })}>
                             {popupInfo.isOpen ? 'Open' : 'Closed'}
                         </span>
+                        {popupInfo.tags.slice(0, 2).map((tag) => (
+                            <span key={tag}>· {tag}</span>
+                        ))}
                     </div>
 
                 </Popup>

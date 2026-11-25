@@ -1,10 +1,16 @@
 import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { prisma } from '../utils/prisma'
+import { computeIsOpen } from '../utils/opening-hours'
+import { baseUrl } from '../utils/base-url'
 import { useState, lazy, Suspense } from 'react'
 import * as z from 'zod'
+import { brandCaps, displayHeading, metaLabel, metaRow, statusMark, toggleSegment } from '../components/ui'
 
 const MapboxEmbed = lazy(() => import('../components/mapbox-embed'))
+
+// Rotating pastel blocks, inspo-style (periwinkle/sage/butter/plum stat cards)
+const CARD_TINTS = ['bg-sage-tint', 'bg-sky-tint', 'bg-butter-tint', 'bg-plum-tint']
 
 // Server function to fetch restaurants
 const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
@@ -38,29 +44,14 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
     },
   })
 
-  // Parse JSON fields and check if open
-  const now = new Date()
-  const currentDay = now.getDay()
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-
   return {
-    restaurants: restaurants.map(restaurant => {
-      const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
-
-      // Check if currently open
-      let isOpen = false
-      if (opening_hours) {
-        const todaySchedule = opening_hours[currentDay]
-        if (todaySchedule && !(todaySchedule.open === "00:00" && todaySchedule.close === "00:00")) {
-          isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
-        }
-      }
+    restaurants: restaurants.map(({ opening_hours: rawHours, tags, ...rest }) => {
+      const opening_hours = rawHours ? JSON.parse(rawHours) : null
 
       return {
-        ...restaurant,
-        tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
-        opening_hours,
-        isOpen
+        ...rest,
+        tags: tags ? JSON.parse(tags) : [],
+        isOpen: computeIsOpen(opening_hours)
       }
     })
   }
@@ -69,6 +60,9 @@ const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
 export const Route = createFileRoute('/')({
   validateSearch: z.object({
     view: z.enum(['list', 'map']).default('list'),
+  }),
+  head: () => ({
+    links: [{ rel: 'canonical', href: baseUrl + '/' }],
   }),
   search: {
     middlewares: [
@@ -89,12 +83,14 @@ function PlacesIndex() {
   const navigate = useNavigate({ from: '/' })
 
   return (
-    <div className="fixed pt-16 inset-0 bg-gray-50 flex flex-col z-0">
+    <div className="fixed pt-16 inset-0 bg-paper flex flex-col z-0">
       {/* Mobile Toggle */}
-      <div className="lg:hidden sticky top-0 z-10 bg-white border-b border-gray-300 px-4 py-2">
+      <div className="lg:hidden sticky top-0 z-10 bg-paper/95 backdrop-blur border-b border-ink/10 px-4 py-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm">Discover {restaurants.length} restaurants</span>
-          <div className="flex gap-1">
+          <span className={metaLabel({ className: 'text-ink-soft' })}>
+            {restaurants.length} places
+          </span>
+          <div className="flex">
             <button
               onClick={() => {
                 navigate({
@@ -103,12 +99,9 @@ function PlacesIndex() {
                   replace: false,
                 });
               }}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === 'list'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+              className={toggleSegment({ active: view === 'list' })}
             >
-              List View
+              List
             </button>
             <button
               onClick={() => {
@@ -117,12 +110,9 @@ function PlacesIndex() {
                   search: (old) => ({ ...old, view: 'map' }),
                 });
               }}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === 'map'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+              className={toggleSegment({ active: view === 'map' })}
             >
-              Map View
+              Map
             </button>
           </div>
         </div>
@@ -131,64 +121,66 @@ function PlacesIndex() {
       <div className="flex flex-1 h-full">
         {/* List View - Hidden on mobile when map is showing */}
         <div className={`${view === 'map' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full overflow-y-auto h-full`}>
-          <div className='hidden lg:block sticky top-0 bg-gray-50 py-2 px-4 border-b border-gray-300'>
-            <span>Discover {restaurants.length} amazing restaurants in Maine</span>
+          <div className="hidden lg:block p-5 pb-0">
+            <div className="rounded-2xl bg-blueberry px-8 py-12">
+              <h1 className={brandCaps({ className: 'text-paper text-4xl xl:text-5xl leading-[1.1]' })}>
+                Maine
+                <br />
+                Food Map
+              </h1>
+              <p className={metaLabel({ className: 'text-paper/80 mt-5' })}>
+                {restaurants.length} places · hand-picked across Maine
+              </p>
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-            {restaurants.map((restaurant) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-5">
+            {restaurants.map((restaurant, index) => {
               const isSelected = selectedRestaurant === restaurant.id
+              const tint = CARD_TINTS[index % CARD_TINTS.length]
               return (
                 <Link
                   key={restaurant.id}
                   to="/places/$slug"
                   params={{ slug: restaurant.slug }}
-                  className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 block ${isSelected ? 'ring-2 ring-blue-500' : ''
-                    }`}
+                  className={`${tint} rounded-2xl p-6 flex flex-col transition-[filter] hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry ${
+                    isSelected ? 'outline-2 outline-offset-2 outline-blueberry' : ''
+                  }`}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <h2 className="text-xl font-semibold">{restaurant.title}</h2>
+                  {restaurant.city && (
+                    <p className={metaLabel({ className: 'text-ink-soft mb-3' })}>
+                      {restaurant.city}
+                    </p>
+                  )}
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h2 className={displayHeading({ className: 'text-2xl leading-[1.05]' })}>
+                      {restaurant.title}
+                    </h2>
                     {restaurant.rating && (
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className="font-medium">{restaurant.rating}</span>
-                        <span className="text-yellow-500">⭐</span>
-                      </div>
+                      <span className={displayHeading({ className: 'text-4xl flex-shrink-0' })}>
+                        {restaurant.rating}
+                      </span>
                     )}
                   </div>
 
                   {restaurant.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    <p className="text-ink-soft text-sm mb-4 line-clamp-2">
                       {restaurant.description}
                     </p>
                   )}
 
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                    {restaurant.city && <span>{restaurant.city}</span>}
-                    {restaurant.review_count && (
-                      <>
-                        <span>•</span>
-                        <span>{restaurant.review_count} reviews</span>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-wrap gap-1">
-                      {restaurant.tags.slice(0, 2).map((tag: string) => (
-                        <span key={tag} className="px-2 py-1 bg-gray-100 rounded text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                      {restaurant.tags.length > 2 && (
-                        <span className="px-2 py-1 text-gray-500 text-xs">
-                          +{restaurant.tags.length - 2}
-                        </span>
-                      )}
-                    </div>
-
-                    <span className={`text-xs font-medium ${restaurant.isOpen ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                  <div className={metaRow({ className: 'text-ink-soft mt-auto pt-3 border-t border-ink/15' })}>
+                    <span className={statusMark({ open: restaurant.isOpen })}>
                       {restaurant.isOpen ? 'Open' : 'Closed'}
                     </span>
+                    {restaurant.tags
+                      .filter((tag: string) => !/^open now$/i.test(tag))
+                      .slice(0, 2)
+                      .map((tag: string) => (
+                        <span key={tag}>· {tag}</span>
+                      ))}
+                    {restaurant.review_count && (
+                      <span className="ml-auto">{restaurant.review_count} reviews</span>
+                    )}
                   </div>
                 </Link>
               )
@@ -199,10 +191,10 @@ function PlacesIndex() {
         {/* Map View - Hidden on mobile when list is showing */}
         <div className={`${view === 'list' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full h-full sticky top-0`}>
           <Suspense fallback={
-            <div className="flex items-center justify-center h-full bg-gray-100">
+            <div className="flex items-center justify-center h-full bg-cream">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading map...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pine mx-auto mb-4"></div>
+                <p className="text-ink-soft">Loading map...</p>
               </div>
             </div>
           }>
