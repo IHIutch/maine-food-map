@@ -1,5 +1,3 @@
-import type { Prisma } from '../../generated/prisma/browser'
-
 import { withDb } from '../prisma'
 
 export function prismaGetRestaurants() {
@@ -52,9 +50,9 @@ function haversineDistanceMiles(lat1: number, lon1: number, lat2: number, lon2: 
 }
 
 export async function findNearest({ id, latitude, longitude, limit = 3 }: {
-  id: Prisma.restaurantsFieldRefs['id']
-  latitude: Prisma.restaurantsFieldRefs['latitude']
-  longitude: Prisma.restaurantsFieldRefs['longitude']
+  id: number
+  latitude: number
+  longitude: number
   limit?: number
 }) {
   const restaurants = await withDb(async db =>
