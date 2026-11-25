@@ -1,13 +1,10 @@
 import process from 'node:process'
 import { z } from 'zod'
 
+import { clientEnvSchema } from './client-env'
+
 const serverEnvSchema = z.object({
   DATABASE_URL: z.url(),
-})
-
-const clientEnvSchema = z.object({
-  VITE_PORT: z.string(),
-  VITE_MAPBOX_API_KEY: z.string(),
 })
 
 // Cloudflare Workers (via nodejs_compat) populate `process.env` per-request,
