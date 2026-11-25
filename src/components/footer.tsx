@@ -9,18 +9,18 @@ const year = new Date().getFullYear()
 
 export default function Footer() {
   return (
-    <footer className="mt-20 bg-ink text-paper">
+    <footer className="mt-20 bg-ink text-white">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="flex flex-wrap justify-between gap-x-12 gap-y-10">
           <div className="max-w-xs">
-            <p className={displayHeading({ className: 'text-3xl text-paper' })}>Maine Finds</p>
-            <p className="mt-4 leading-relaxed text-paper/55">
+            <p className={displayHeading({ className: 'text-3xl text-white' })}>Maine Finds</p>
+            <p className="mt-4 leading-relaxed text-white/55">
               A hand-kept guide to eating well in Maine. Independent, unsponsored, occasionally opinionated.
             </p>
           </div>
 
           <nav aria-label="Site">
-            <p className={metaLabel({ className: 'text-paper/40' })}>Site</p>
+            <p className={metaLabel({ className: 'text-white/40' })}>Site</p>
             <ul className="mt-4 space-y-3">
               <li><Link to="/" className={footerLink()}>All places</Link></li>
               <li><Link to="/" search={{ view: 'map' }} className={footerLink()}>The map</Link></li>
@@ -29,7 +29,7 @@ export default function Footer() {
           </nav>
 
           <nav aria-label="Regions">
-            <p className={metaLabel({ className: 'text-paper/40' })}>Regions</p>
+            <p className={metaLabel({ className: 'text-white/40' })}>Regions</p>
             <ul className="mt-4 space-y-3">
               {regionLabels.map(label => (
                 <li key={label}><span className={footerLink()}>{label}</span></li>
@@ -38,7 +38,7 @@ export default function Footer() {
           </nav>
 
           <nav aria-label="Kitchens">
-            <p className={metaLabel({ className: 'text-paper/40' })}>Kitchens</p>
+            <p className={metaLabel({ className: 'text-white/40' })}>Kitchens</p>
             <ul className="mt-4 space-y-3">
               {kitchenLabels.map(label => (
                 <li key={label}><span className={footerLink()}>{label}</span></li>
@@ -47,7 +47,7 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-paper/10 pt-6 text-sm text-paper/45">
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm text-white/45">
           <p>
             ©
             {' '}
@@ -56,9 +56,9 @@ export default function Footer() {
             Maine Finds. Hours are best-guess — call ahead in shoulder season.
           </p>
           <p className="flex items-center gap-1.5">
-            <span className={footerLink({ className: 'text-sm text-paper/45' })}>Privacy</span>
+            <span className={footerLink({ className: 'text-sm text-white/45' })}>Privacy</span>
             <span aria-hidden>·</span>
-            <span className={footerLink({ className: 'text-sm text-paper/45' })}>Contact</span>
+            <span className={footerLink({ className: 'text-sm text-white/45' })}>Contact</span>
           </p>
         </div>
       </div>

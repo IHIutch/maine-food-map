@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 import { NotFound } from '../components/not-found'
 import PlaceCard from '../components/place-card'
-import { button } from '../components/ui'
+import { button, tag } from '../components/ui'
 import { findFirstBySlug, findNearest } from '../db/queries/restaurants'
 import { baseUrl } from '../utils/env'
 import { getIsOpen, getMaineClock } from '../utils/is-open'
@@ -183,7 +183,7 @@ function RestaurantPage() {
 
   return (
     <div className="py-20">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Header */}
         <div className="">
           <div className="flex items-end justify-between gap-4">
@@ -191,32 +191,22 @@ function RestaurantPage() {
               <h1 className="font-pretrona text-5xl font-semibold tracking-tight">{restaurant?.title}</h1>
               <div className="mt-5 flex items-center gap-3">
                 {/* Status */}
-                {restaurant.isOpen
-                  ? (
-                      <div className="flex h-7 items-center gap-1.5 rounded-full bg-green-800/10 px-2.5">
-                        <span className="size-2 rounded-full bg-green-800" />
-                        <span className="text-xs font-medium text-green-800">Open</span>
-                      </div>
-                    )
-                  : (
-                      <div className="flex h-7 items-center gap-1.5 rounded-full bg-red-800/10 px-2.5">
-                        <span className="size-2 rounded-full bg-red-800" />
-                        <span className="text-xs font-medium text-red-800">Closed</span>
-                      </div>
-                    )}
+                <span className={tag({ tone: 'status' })}>
+                  {restaurant.isOpen ? 'Open' : 'Closed'}
+                </span>
                 <div className="flex items-center gap-2">
                   {/* Tags */}
                   {(restaurant.tags && restaurant?.tags.length > 0)
-                    ? restaurant.tags.map(tag => (
-                        <div key={tag} className="flex h-7 items-center rounded-full border border-stone-300 px-2.5 text-xs font-medium">
-                          {tag}
-                        </div>
+                    ? restaurant.tags.map(label => (
+                        <span key={label} className={tag()}>
+                          {label}
+                        </span>
                       ))
                     : null}
                   {/* Price */}
                   {restaurant.price_level
                     ? (
-                        <div className="flex h-7 items-center rounded-full border border-stone-300 px-2.5 text-xs font-medium">
+                        <span className={tag({ tone: 'price' })}>
                           {restaurant.price_level === 'PRICE_LEVEL_VERY_EXPENSIVE'
                             ? '$$$$'
                             : restaurant.price_level === 'PRICE_LEVEL_EXPENSIVE'
@@ -226,7 +216,7 @@ function RestaurantPage() {
                                 : restaurant.price_level === 'PRICE_LEVEL_INEXPENSIVE'
                                   ? '$'
                                   : null}
-                        </div>
+                        </span>
                       )
                     : null}
                 </div>
