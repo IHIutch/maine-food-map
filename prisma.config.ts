@@ -1,5 +1,6 @@
-import 'dotenv/config'
 import { defineConfig } from '@prisma/orm-postgres/config'
+import 'dotenv/config'
+import process from 'node:process'
 import { definePrismaConfig } from 'prisma/config'
 
 // prisma 8 config

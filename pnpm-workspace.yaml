@@ -11,7 +11,7 @@ allowBuilds:
   '@prisma/engines': true
   '@tailwindcss/oxide': true
   esbuild: true
-  msgpackr-extract: set this to true or false
+  msgpackr-extract: true
   prisma: true
   sharp: true
   workerd: true

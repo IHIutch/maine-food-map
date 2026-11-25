@@ -1,4 +1,5 @@
 import postgres from '@prisma/orm-postgres/runtime'
+import process from 'node:process'
 
 import type { Contract } from './contract.d'
 

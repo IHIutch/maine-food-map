@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import { builtinModules } from 'node:module'
+import process from 'node:process'
 import { defineConfig, esmExternalRequirePlugin } from 'vite'
 
 export default defineConfig({

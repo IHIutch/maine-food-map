@@ -94,5 +94,11 @@
     "pcss",
     "postcss"
   ],
-  "js/ts.experimental.useTsgo": false
+  "js/ts.experimental.useTsgo": false,
+  // Tailwind IntelliSense inside tv()/cn() calls — completions, hover previews and
+  // the "unknown class" warning work there as they do in className.
+  "tailwindCSS.classFunctions": [
+    "tv",
+    "cn"
+  ]
 }

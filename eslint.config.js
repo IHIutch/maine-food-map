@@ -18,19 +18,12 @@ export default antfu({
     'perfectionist/sort-imports': ['error', {
       type: 'natural',
     }],
-    'node/prefer-global/process': 'off',
   },
 }, {
   files: ['src/routes/**/*.{ts,tsx}'],
   rules: {
     // TanStack route modules export route definitions alongside components.
     'react-refresh/only-export-components': 'off',
-  },
-}, {
-  files: ['src/utils/loggingMiddleware.tsx', 'src/utils/posts.tsx'],
-  rules: {
-    // These logs are part of the server/client middleware diagnostics.
-    'no-console': 'off',
   },
 }, {
   plugins: {
@@ -44,5 +37,9 @@ export default antfu({
   },
   rules: {
     'tailwindcss/classnames-order': 'error',
+    // A class Tailwind doesn't know generates no CSS and fails silently — which is
+    // how `text-paper` and `bg-accent/30` went on rendering as nothing after those
+    // tokens left @theme. Warn, so a typo surfaces without blocking a build.
+    'tailwindcss/no-custom-classname': 'warn',
   },
 })

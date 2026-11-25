@@ -67,11 +67,19 @@ export async function findNearest({ id, latitude, longitude, limit = 3 }: {
       .all(),
   )
 
+  // The query already excludes null coordinates, but the generated types don't
+  // know that. Bailing inside flatMap narrows them by plain control flow — a
+  // filter() predicate can't, since narrowing a property doesn't narrow the row.
   return restaurants
-    .map(restaurant => ({
-      ...restaurant,
-      distanceMiles: haversineDistanceMiles(latitude, longitude, restaurant.latitude, restaurant.longitude),
-    }))
+    .flatMap((restaurant) => {
+      const { latitude: lat, longitude: lng } = restaurant
+      if (lat == null || lng == null)
+        return []
+      return [{
+        ...restaurant,
+        distanceMiles: haversineDistanceMiles(latitude, longitude, lat, lng),
+      }]
+    })
     .sort((a, b) => a.distanceMiles - b.distanceMiles)
     .slice(0, limit)
 }

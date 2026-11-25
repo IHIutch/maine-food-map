@@ -153,7 +153,7 @@ function AddressAutocomplete({
       </label>
       <input
         id="location-query"
-        className={input({ className: 'aria-[invalid=true]:border-red-700' })}
+        className={input({ className: 'aria-invalid:border-red-700' })}
         value={query}
         placeholder="Start typing a street, town, or ZIP"
         role="combobox"
@@ -208,7 +208,7 @@ function AddressAutocomplete({
             <li
               id={`${listboxId}-${index}`}
               key={suggestion.label}
-              className="cursor-pointer rounded-lg px-3 py-3 text-sm text-stone-800 hover:bg-stone-100 data-[active=true]:bg-blueberry-50 data-[active=true]:text-blueberry-900"
+              className="cursor-pointer rounded-lg p-3 text-sm text-stone-800 hover:bg-stone-100 data-[active=true]:bg-blueberry-50 data-[active=true]:text-blueberry-900"
               data-active={index === activeIndex}
               role="option"
               aria-selected={index === activeIndex}
@@ -330,7 +330,7 @@ function Confirmation({
           <summary className="cursor-pointer px-5 py-4 font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry-400">
             View normalized payload
           </summary>
-          <pre className="max-h-[32rem] overflow-auto border-t border-stone-700 p-5 text-xs leading-6">
+          <pre className="max-h-128 overflow-auto border-t border-stone-700 p-5 text-xs leading-6">
             {JSON.stringify(payload, null, 2)}
           </pre>
         </details>
@@ -431,7 +431,7 @@ export function PlaceSubmissionForm() {
                   <input
                     id={field.name}
                     name={field.name}
-                    className={input({ className: 'aria-[invalid=true]:border-red-700' })}
+                    className={input({ className: 'aria-invalid:border-red-700' })}
                     value={field.state.value}
                     aria-describedby={`${field.name}-hint ${field.name}-errors`}
                     aria-invalid={(field.state.meta.isTouched || showErrorSummary) && !field.state.meta.isValid}
@@ -457,7 +457,7 @@ export function PlaceSubmissionForm() {
                   <textarea
                     id={field.name}
                     name={field.name}
-                    className={input({ className: 'min-h-36 resize-y aria-[invalid=true]:border-red-700' })}
+                    className={input({ className: 'min-h-36 resize-y aria-invalid:border-red-700' })}
                     value={field.state.value}
                     aria-describedby={`${field.name}-hint ${field.name}-errors`}
                     aria-invalid={(field.state.meta.isTouched || showErrorSummary) && !field.state.meta.isValid}
@@ -648,7 +648,7 @@ export function PlaceSubmissionForm() {
                                     opening time
                                   </span>
                                   <input
-                                    className={input({ className: 'min-h-11 aria-[invalid=true]:border-red-700' })}
+                                    className={input({ className: 'min-h-11 aria-invalid:border-red-700' })}
                                     type="time"
                                     required
                                     value={hour.open}
@@ -665,7 +665,7 @@ export function PlaceSubmissionForm() {
                                     closing time
                                   </span>
                                   <input
-                                    className={input({ className: 'min-h-11 aria-[invalid=true]:border-red-700' })}
+                                    className={input({ className: 'min-h-11 aria-invalid:border-red-700' })}
                                     type="time"
                                     required
                                     value={hour.close}
@@ -721,7 +721,7 @@ export function PlaceSubmissionForm() {
                   onFileReject={details => setUploadErrors(getUploadErrors(details))}
                 >
                   <FileUpload.HiddenInput />
-                  <FileUpload.Dropzone className="group flex min-h-44 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 px-5 py-8 text-center transition data-[dragging]:border-blueberry-500 data-[dragging]:bg-blueberry-50">
+                  <FileUpload.Dropzone className="group flex min-h-44 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 px-5 py-8 text-center transition data-dragging:border-blueberry-500 data-dragging:bg-blueberry-50">
                     <span aria-hidden="true" className="icon-[material-symbols--add-photo-alternate-outline-rounded] size-8 text-blueberry-600" />
                     <p className="mt-3 font-semibold text-stone-900">Drop photos here</p>
                     <p className="mt-1 text-sm text-stone-500">JPEG, PNG, or WebP · 10 MB each · six maximum</p>
@@ -798,7 +798,7 @@ export function PlaceSubmissionForm() {
                           </p>
                           <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-labelledby="photo-credit-type-label">
                             {photoCreditOptions.map(option => (
-                              <label key={option.value} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-stone-200 px-4 py-3 has-[:checked]:border-blueberry-500 has-[:checked]:bg-blueberry-50">
+                              <label key={option.value} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-stone-200 px-4 py-3 has-checked:border-blueberry-500 has-checked:bg-blueberry-50">
                                 <input
                                   type="radio"
                                   name={field.name}
@@ -832,7 +832,7 @@ export function PlaceSubmissionForm() {
                                   <input
                                     id={field.name}
                                     name={field.name}
-                                    className={input({ className: 'aria-[invalid=true]:border-red-700' })}
+                                    className={input({ className: 'aria-invalid:border-red-700' })}
                                     value={field.state.value}
                                     placeholder={creditType === 'social' ? '@handle' : creditType === 'organization' ? 'Business or organization' : 'Name'}
                                     aria-describedby={`${field.name}-errors`}
@@ -852,7 +852,7 @@ export function PlaceSubmissionForm() {
                     <form.Field name="grantsUsageRights">
                       {field => (
                         <div>
-                          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-200 p-4 has-[:checked]:border-blueberry-500 has-[:checked]:bg-blueberry-50">
+                          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-200 p-4 has-checked:border-blueberry-500 has-checked:bg-blueberry-50">
                             <input
                               className="mt-1 size-5 shrink-0 accent-blueberry-600"
                               type="checkbox"
@@ -891,7 +891,7 @@ export function PlaceSubmissionForm() {
                 <input
                   id={field.name}
                   name={field.name}
-                  className={input({ className: 'aria-[invalid=true]:border-red-700' })}
+                  className={input({ className: 'aria-invalid:border-red-700' })}
                   type="email"
                   value={field.state.value}
                   autoComplete="email"
