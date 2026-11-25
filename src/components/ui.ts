@@ -299,3 +299,47 @@ export const segmentedItem = tv({
     active: false,
   },
 })
+
+/* Photo tile in a place's picture grid — a hero leads, thumbs fill the column beside it */
+export const photoTile = tv({
+  base: 'h-full overflow-hidden rounded-xl bg-stone-100 md:rounded-b-none',
+  variants: {
+    role: {
+      solo: 'col-span-3 row-span-2',
+      hero: 'col-span-2 row-span-2',
+      column: 'col-span-1 row-span-2',
+      thumb: 'col-span-1 row-span-1',
+    },
+  },
+  defaultVariants: {
+    role: 'thumb',
+  },
+})
+
+/* Place summary shared by the map popover and the mobile drawer — same content,
+   two densities. */
+export const placeSummary = tv({
+  slots: {
+    root: '',
+    header: '',
+    title: 'font-display leading-tight font-medium tracking-[-0.02em] text-ink',
+    blurb: 'mt-4 font-sans text-stone-500',
+  },
+  variants: {
+    density: {
+      compact: {
+        root: 'gap-2',
+        title: 'text-[17px]',
+        blurb: 'line-clamp-2 text-[13px] leading-snug',
+      },
+      roomy: {
+        root: 'gap-4 pt-2 pb-[max(1.25rem,env(safe-area-inset-bottom))]',
+        title: 'text-2xl',
+        blurb: 'text-[15px] leading-relaxed',
+      },
+    },
+  },
+  defaultVariants: {
+    density: 'roomy',
+  },
+})

@@ -17,6 +17,7 @@ export function getRestaurantList() {
     latitude: restaurants.latitude,
     longitude: restaurants.longitude,
     price_level: restaurants.price_level,
+    photos: restaurants.photos,
   }).from(restaurants).where(and(
     isNotNull(restaurants.rating),
     eq(restaurants.state, 'ME'),

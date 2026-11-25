@@ -33,16 +33,44 @@
   --color-blueberry-900: #02081b;
 }
 
-/* Mapbox popup chrome — paper-sample style */
-.mapboxgl-popup-content {
-  border-radius: 10px;
-  padding: 14px 16px;
-  font-family: var(--font-sans);
-  background: var(--color-paper);
-  box-shadow:
-    0 1px 0 rgb(38 41 30 / 0.04),
-    0 18px 34px -22px rgb(38 41 30 / 0.28);
+/* Markers set their own z-index (10, or 20 when selected), so the popover has to
+   sit above them or the pins draw over the card. */
+.mapboxgl-popup {
+  z-index: 30;
 }
-.mapboxgl-popup-tip {
-  border-top-color: var(--color-paper);
+
+/* Mapbox's own popup chrome is stripped so the card inside owns the look.
+   Targeted rather than `all: unset`, which also wipes max-width and margins.
+   Scoped one level deeper because mapbox-gl.css loads after this file. */
+.mapboxgl-popup .mapboxgl-popup-content {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+/* Close affordance — paper chip so it stays legible over a photo */
+.mapboxgl-popup .mapboxgl-popup-content .mapboxgl-popup-close-button {
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 9999px;
+  background: var(--color-white);
+  color: #57534e;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgb(38 41 30 / 0.25);
+}
+.mapboxgl-popup .mapboxgl-popup-content .mapboxgl-popup-close-button:hover {
+  background: var(--color-stone-100, #f5f5f4);
+  color: var(--color-ink);
+}
+.mapboxgl-popup .mapboxgl-popup-content .mapboxgl-popup-close-button:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
 }

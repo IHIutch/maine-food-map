@@ -31,7 +31,7 @@ export default function MapboxCloseup({
         longitude={lng}
         latitude={lat}
       >
-        <div className="relative size-3.5 cursor-pointer rounded-full border-2 border-white bg-blue-500 shadow-sm transition-all hover:scale-110" />
+        <div className="size-4 cursor-pointer rounded-full border-2 border-white bg-blueberry-500 shadow-sm transition-transform hover:scale-110" />
       </Marker>
     </Map>
   )
