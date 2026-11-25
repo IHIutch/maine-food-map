@@ -4,13 +4,10 @@ import process from 'node:process'
 import type { Contract } from './contract.d'
 
 import contractJson from './contract.json' with { type: 'json' }
+import { getDatabaseUrl } from './database-url'
 
 async function createDb() {
-  const url = process.env.DATABASE_URL
-
-  if (!url) {
-    throw new Error('Missing DATABASE_URL')
-  }
+  const url = getDatabaseUrl(process.env)
 
   const db = postgres<Contract>({
     contractJson,

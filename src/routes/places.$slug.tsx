@@ -89,13 +89,14 @@ export const Route = createFileRoute('/places/$slug')({
   },
   component: RestaurantPage,
   errorComponent: ({ error }) => {
-    if (error?.message === 'Restaurant not found') {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    if (message === 'Restaurant not found') {
       return <NotFound />
     }
     return (
       <div>
         Error loading restaurant:
-        {error?.message}
+        {message}
       </div>
     )
   },
