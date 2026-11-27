@@ -36,6 +36,7 @@ export const getRestaurants = createServerFn({ method: 'GET' }).handler(async ()
 
       return {
         ...restaurant,
+        photos: restaurant.photos ? (JSON.parse(restaurant.photos) as { url?: string }[]) : [],
         tags,
         opening_hours,
         isOpen: getIsOpen(opening_hours),

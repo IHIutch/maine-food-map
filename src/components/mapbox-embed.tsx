@@ -1,11 +1,18 @@
 import type { MapRef } from 'react-map-gl/mapbox'
 
-import { Link } from '@tanstack/react-router'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import * as React from 'react'
 import Map, { GeolocateControl, Marker, NavigationControl, Popup } from 'react-map-gl/mapbox'
 
+import type { Photo } from './place-photos'
+
+import { cuisineIconFor } from '../utils/cuisine-icons'
 import { clientEnv } from '../utils/env'
+import { useMediaQuery } from '../utils/use-media-query'
+import PlaceSummary from './place-summary'
+
+/** Same drawer the search uses; loaded on the first marker tap, not with the map. */
+const BottomSheet = React.lazy(() => import('./bottom-sheet'))
 
 interface Restaurant {
   id: number
@@ -16,6 +23,9 @@ interface Restaurant {
   review_count?: number | null
   city?: string | null
   tags: string[]
+  cuisineSlugs?: string[]
+  price_level?: string | null
+  photos?: Photo[]
   isOpen: boolean
   longitude: number | null
   latitude: number | null
@@ -29,6 +39,21 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
 }) {
   const mapRef = React.useRef<MapRef>(null)
   const [popupInfo, setPopupInfo] = React.useState<Restaurant | null>(null)
+  // On phones a marker opens the same drawer the search uses, not a map popup.
+  const isMobile = !useMediaQuery('(min-width: 640px)')
+  const [sheetPlace, setSheetPlace] = React.useState<Restaurant | null>(null)
+  const [isSheetOpen, setSheetOpen] = React.useState(false)
+
+  function onSelectPlace(place: Restaurant) {
+    onMarkerClick?.(place.id)
+    if (isMobile) {
+      setSheetPlace(place)
+      setSheetOpen(true)
+    }
+    else {
+      setPopupInfo(place)
+    }
+  }
 
   const getBounds = React.useCallback(() => {
     if (places.length === 0) {
@@ -61,108 +86,80 @@ export default function MapboxEmbed({ places, selectedId, onMarkerClick, isShowi
   }, [isShowing])
 
   return (
-    <Map
-      ref={mapRef}
-      mapboxAccessToken={clientEnv.VITE_MAPBOX_API_KEY}
-      initialViewState={{
-        bounds: getBounds(),
-        fitBoundsOptions: {
-          padding: 60,
-          maxZoom: 14,
-        },
-        // Fallback for when there are no places
-        longitude: -70.259,
-        latitude: 43.657,
-        zoom: 14,
-      }}
-      style={{ width: '100%', height: '100%' }}
-      mapStyle="mapbox://styles/mapbox/streets-v11"
-    >
-      {places.length
-        ? places.map(parcel => (
-            <Marker
-              key={`marker-${parcel.id}`}
-              longitude={parcel.longitude || 0}
-              latitude={parcel.latitude || 0}
-              style={{ zIndex: selectedId === parcel.id ? 20 : 10 }}
-            >
-              <div
-                className={`relative cursor-pointer rounded-full border-2 border-white shadow-sm transition-all ${selectedId === parcel.id ? 'size-4.5 scale-125 bg-green-500' : 'size-3.5 bg-blue-500 hover:scale-110'}`}
-                onClick={() => {
-                  setPopupInfo(parcel)
-                  onMarkerClick?.(parcel.id)
-                }}
-              />
-            </Marker>
-          ))
-        : null}
-      {popupInfo && (
-        <Popup
-          longitude={Number(popupInfo.longitude)}
-          latitude={Number(popupInfo.latitude)}
-          onClose={() => setPopupInfo(null)}
-          closeButton={true}
-          closeOnClick={false}
-          style={{ zIndex: 25 }}
-        >
-          <div className="mb-2 flex items-start justify-between">
-            <h3 className="text-lg font-semibold">
-              <Link
-                to="/places/$slug"
-                params={{ slug: popupInfo.slug }}
-                preload={false}
-                className="underline"
+    <>
+      <Map
+        ref={mapRef}
+        mapboxAccessToken={clientEnv.VITE_MAPBOX_API_KEY}
+        initialViewState={{
+          bounds: getBounds(),
+          fitBoundsOptions: {
+            padding: 60,
+            maxZoom: 14,
+          },
+          // Fallback for when there are no places
+          longitude: -70.259,
+          latitude: 43.657,
+          zoom: 14,
+        }}
+        style={{ width: '100%', height: '100%' }}
+        mapStyle="mapbox://styles/mapbox/streets-v11"
+      >
+        {places.length
+          ? places.map(parcel => (
+              <Marker
+                key={`marker-${parcel.id}`}
+                longitude={parcel.longitude || 0}
+                latitude={parcel.latitude || 0}
+                style={{ zIndex: selectedId === parcel.id ? 20 : 10 }}
               >
-                {popupInfo.title}
-              </Link>
-            </h3>
-            {popupInfo.rating && (
-              <div className="flex flex-shrink-0 items-center gap-1">
-                <span className="font-medium">{popupInfo.rating}</span>
-                <span className="text-yellow-500">⭐</span>
-              </div>
-            )}
-          </div>
+                <div
+                  className={`grid cursor-pointer place-items-center rounded-full border-2 border-white shadow-md transition-transform ${
+                    selectedId === parcel.id
+                      ? 'size-8 scale-110 bg-stone-900'
+                      : 'size-7 bg-blueberry-500 hover:scale-110'
+                  }`}
+                  onClick={() => onSelectPlace(parcel)}
+                >
+                  <span className={`size-4 text-white ${cuisineIconFor(parcel.cuisineSlugs)}`} aria-hidden />
+                </div>
+              </Marker>
+            ))
+          : null}
+        {popupInfo && !isMobile && (
+          <Popup
+            longitude={Number(popupInfo.longitude)}
+            latitude={Number(popupInfo.latitude)}
+            onClose={() => setPopupInfo(null)}
+            closeButton={true}
+            closeOnClick={false}
+            // The pin is centred on its coordinate, so the popover clears its 16px
+            // radius. A numeric offset is applied diagonally at corner anchors
+            // (24 / √2 ≈ 17), which is why it isn't simply the radius.
+            offset={24}
+            // maxWidth="264px"
+            // style={{ zIndex: 25 }}
+            // className="rounded"
+          >
+            <PlaceSummary place={popupInfo} density="compact" />
 
-          {popupInfo.description && (
-            <p className="mb-3 line-clamp-2 text-sm text-gray-600">
-              {popupInfo.description}
-            </p>
-          )}
+          </Popup>
+        )}
+        <GeolocateControl />
+        <NavigationControl />
+      </Map>
 
-          <div className="mb-3 flex items-center gap-2 text-sm text-gray-500">
-            {popupInfo.city && <span>{popupInfo.city}</span>}
-            {popupInfo.review_count && (
-              <>
-                <span>•</span>
-                <span>
-                  {popupInfo.review_count}
-                  {' '}
-                  reviews
-                </span>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex flex-wrap gap-1">
-              {popupInfo.tags.slice(0, 2).map(tag => (
-                <span key={tag} className="rounded bg-gray-100 px-2 py-1 text-xs">
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <span className={`text-xs font-medium ${popupInfo.isOpen ? 'text-green-600' : 'text-red-600'
-            }`}
-            >
-              {popupInfo.isOpen ? 'Open' : 'Closed'}
-            </span>
-          </div>
-
-        </Popup>
+      {sheetPlace && (
+        <React.Suspense fallback={null}>
+          <BottomSheet
+            isOpen={isSheetOpen}
+            onOpenChange={setSheetOpen}
+            label={sheetPlace.title}
+            size="auto"
+          >
+            <PlaceSummary place={sheetPlace} onClose={() => setSheetOpen(false)} />
+          </BottomSheet>
+        </React.Suspense>
       )}
-      <GeolocateControl />
-      <NavigationControl />
-    </Map>
+    </>
   )
 }
