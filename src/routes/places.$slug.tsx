@@ -8,7 +8,7 @@ import { baseUrl } from '../utils/base-url'
 
 // Server function to fetch restaurant by slug
 const getRestaurantBySlug = createServerFn({ method: 'GET' })
-  .inputValidator((d: { slug: string }) => d)
+  .validator((d: { slug: string }) => d)
   .handler(async ({ data }) => {
     const { slug } = data
     const restaurant = await prisma.restaurants.findUnique({
@@ -70,10 +70,11 @@ export const Route = createFileRoute('/places/$slug')({
   },
   component: RestaurantPage,
   errorComponent: ({ error }) => {
-    if (error?.message === 'Restaurant not found') {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    if (message === 'Restaurant not found') {
       return <NotFound />
     }
-    return <div>Error loading restaurant: {error?.message}</div>
+    return <div>Error loading restaurant: {message}</div>
   },
   head: ({ loaderData }) => {
     // Create structured data for the restaurant
