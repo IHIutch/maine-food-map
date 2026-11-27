@@ -61,7 +61,7 @@ interface PanelProps {
 
 /** The input + result list, shared by the sheet and the desktop dialog. */
 function SearchPanel({ session, onSelect, onClose, showHints }: PanelProps) {
-  const { query, setQuery, rows, cursor, setCursor, recents, status, index } = session
+  const { query, setQuery, rows, cursor, setCursor, recents, status, index, retry } = session
   const listRef = useRef<HTMLDivElement>(null)
 
   function onKeyDown(event: React.KeyboardEvent) {
@@ -116,7 +116,9 @@ function SearchPanel({ session, onSelect, onClose, showHints }: PanelProps) {
 
         {status === 'error' && (
           <p className="px-3 py-10 text-center font-sans text-sm text-stone-500">
-            Search is unavailable right now. Try again in a moment.
+            Search is unavailable right now.
+            {' '}
+            <button type="button" onClick={retry} className="cursor-pointer underline">Try again</button>
           </p>
         )}
 

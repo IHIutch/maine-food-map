@@ -38,7 +38,7 @@ export function useSearchSession(isOpen: boolean) {
     if (!isOpen)
       return
     setRecents(readRecents())
-    if (index || status === 'loading')
+    if (index || status !== 'idle')
       return
     setStatus('loading')
     getSearchIndex()
@@ -104,6 +104,7 @@ export function useSearchSession(isOpen: boolean) {
   return {
     index,
     status,
+    retry: () => setStatus('idle'),
     query,
     setQuery,
     rows,
