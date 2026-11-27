@@ -13,18 +13,13 @@
   --font-brand--font-variation-settings: 'SOFT' 100, 'WONK' 0;
   --font-instrument: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-  /* Cookbook/Coral design language — Fraunces display, DM Sans body, DM Mono labels */
+  /* Fraunces display, DM Sans body, DM Mono labels; blueberry carries interaction */
   --font-display: 'Fraunces Variable', Georgia, serif;
   --font-display--font-variation-settings: 'SOFT' 100, 'opsz' 72;
   --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, monospace;
 
   --color-ink: #1c2320;
-  --color-ink-soft: #5c6b60;
-  --color-paper: #faf7f2;
-  --color-cream: #f1ece1;
-  --color-accent: #e98a6e;
-  --color-accent-deep: #c86647;
 
   --color-blueberry-50: #e7edff;
   --color-blueberry-100: #c0c9f4;

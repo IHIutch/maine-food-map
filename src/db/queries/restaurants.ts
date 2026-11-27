@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, isNotNull, ne } from 'drizzle-orm'
 
 import { withDb } from '../client'
-import { restaurants } from '../schema'
+import { categories, restaurants } from '../schema'
 
 export function getRestaurantList() {
   return withDb(db => db.select({
@@ -91,4 +91,13 @@ export async function findNearest({ id, latitude, longitude, limit = 3 }: {
     })
     .sort((a, b) => a.distanceMiles - b.distanceMiles)
     .slice(0, limit)
+}
+
+export function getCategories() {
+  return withDb(db => db.select({ slug: categories.slug, display_name: categories.display_name }).from(categories))
+}
+
+export async function getSearchIndexData() {
+  const [restaurants, categories] = await Promise.all([getRestaurantList(), getCategories()])
+  return { restaurants, categories }
 }

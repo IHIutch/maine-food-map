@@ -13,6 +13,7 @@ import * as React from 'react'
 import { DefaultCatchBoundary } from '../components/default-catch-boundary'
 import Footer from '../components/footer'
 import { NotFound } from '../components/not-found'
+import SiteSearch from '../components/site-search'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
 
@@ -94,18 +95,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="h-full font-instrument">
-        <nav className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-stone-200 bg-white px-4 sm:px-6">
-          <Link
-            to="/"
-            className="font-pretrona text-2xl font-medium tracking-tight"
-          >
-            Maine Food Map
-          </Link>
-
-        </nav>
-        {children}
-        <Footer />
+      <body className="h-full bg-ink font-instrument">
+        {/* Wrapper so the mobile search sheet has something to scale back. */}
+        <div id="app-shell" className="min-h-full bg-white">
+          <nav className="sticky top-0 z-10 flex h-16 items-center justify-between gap-3 border-b border-stone-200 bg-white px-4 sm:px-6">
+            <Link
+              to="/"
+              className="shrink-0 font-pretrona text-xl font-medium tracking-tight sm:text-2xl"
+            >
+              Maine Food Map
+            </Link>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <SiteSearch />
+            </div>
+          </nav>
+          {children}
+          <Footer />
+        </div>
         <Scripts />
         {import.meta.env.PROD
           ? <FathomAnalytics />
