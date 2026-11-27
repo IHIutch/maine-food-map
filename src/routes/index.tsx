@@ -5,13 +5,13 @@ import * as z from 'zod'
 
 import PlaceCard from '../components/place-card'
 import { button } from '../components/ui'
-import { prismaGetRestaurants } from '../utils/prisma/restaurants'
+import { getRestaurantList } from '../db/queries/restaurants'
 
 const MapboxEmbed = lazy(() => import('../components/mapbox-embed'))
 
 // Server function to fetch restaurants
 export const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
-  const restaurants = await prismaGetRestaurants()
+  const restaurants = await getRestaurantList()
   // Parse JSON fields and check if open
   const now = new Date()
   const currentDay = now.getDay()
