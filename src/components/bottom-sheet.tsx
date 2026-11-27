@@ -1,12 +1,9 @@
 /**
- * iOS-style bottom sheet: drags to dismiss, and (at full size) scales the page
- * behind it. Client-only — React Aria's modal and Motion both assume a DOM, and
- * the worker SSR runtime can't load them, so import this lazily.
+ * A bottom sheet that supports drag dismissal and scales the page at full size.
+ * Import it lazily because React Aria's modal and Motion require a DOM.
  *
- * The sheet animates itself in and out imperatively rather than through Motion's
- * `animate` prop, because that prop doesn't drive a motion value which is also
- * passed in `style` — and owning the exit animation is what lets the sheet finish
- * sliding out before it unmounts.
+ * Imperative animations update the motion value passed in `style`. The sheet
+ * stays mounted until its exit animation finishes.
  */
 import type { PanInfo } from 'motion/react'
 import type { ReactNode } from 'react'

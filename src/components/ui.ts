@@ -26,7 +26,7 @@ export const metaLabel = tv({
   base: 'font-mono text-[11px] font-medium tracking-[0.12em] uppercase',
 })
 
-/* Eyebrow — mono caps, optionally led by a short accent bar */
+/* Uppercase label with an optional accent bar */
 export const eyebrow = tv({
   base: 'font-mono text-[11px] font-medium tracking-[0.14em] text-stone-500 uppercase',
   variants: {
@@ -36,19 +36,9 @@ export const eyebrow = tv({
   },
 })
 
-/* Mono section title with hairline rule */
-export const sectionTitle = tv({
-  base: 'mb-5 border-b border-ink/15 pb-2.5 font-mono text-[11px] font-medium tracking-[0.14em] text-stone-500 uppercase',
-})
-
-/* Editorial serif — soft terminals, tight leading */
+/* Serif display heading with tight line spacing */
 export const displayHeading = tv({
   base: 'font-display leading-[0.95] font-medium tracking-[-0.02em] text-ink',
-})
-
-/* Italic display lede/blurb */
-export const lede = tv({
-  base: 'font-display leading-[1.4] font-normal text-ink italic',
 })
 
 /* Pill tags: plain / price(mono, hairline) / status(dot: pine=open, tomato=closed) */
@@ -78,83 +68,12 @@ export const tag = tv({
   },
 })
 
-/* Filter pill / segmented control */
-export const pillFilter = tv({
-  base: 'rounded-full border px-3.5 py-[7px] font-sans text-[13px] leading-none font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
-  variants: {
-    active: {
-      true: 'border-ink bg-ink text-white',
-      false: 'border-ink/20 bg-white text-ink hover:bg-stone-100',
-    },
-  },
-  defaultVariants: {
-    active: false,
-  },
-})
-
-/* Rounded input */
-export const input = tv({
-  base: 'w-full rounded-lg border border-ink/20 bg-white px-3.5 py-2.5 font-sans text-sm text-ink placeholder:text-stone-400 focus:border-ink focus:outline-none',
-  variants: {
-    onDark: {
-      true: 'border-white/30 bg-transparent text-white placeholder:text-white/50 focus:border-white',
-    },
-  },
-})
-
-/* Form scaffolding */
-export const formSection = tv({
-  base: 'rounded-2xl border border-stone-200 bg-white p-5 shadow-sm shadow-stone-950/5 sm:p-7',
-})
-
-export const fieldLabel = tv({
-  base: 'mb-2 block font-instrument text-sm font-semibold text-stone-900',
-})
-
-export const fieldHint = tv({
-  base: 'mt-1.5 text-sm leading-5 text-stone-500',
-})
-
-export const fieldError = tv({
-  base: 'mt-1.5 text-sm font-medium text-red-800',
-})
-
-/* Underline link */
-export const link = tv({
-  base: 'rounded-sm underline underline-offset-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
-  variants: {
-    tone: {
-      ink: 'text-ink decoration-ink/30 hover:decoration-ink',
-      accent: 'text-blueberry-600 decoration-blueberry-300 hover:decoration-blueberry-600',
-      paper: 'text-white decoration-white/40 hover:decoration-white',
-    },
-  },
-  defaultVariants: {
-    tone: 'accent',
-  },
-})
-
-/* Top-nav link with animated underline */
-export const navLink = tv({
-  base: 'relative py-1.5 font-sans text-[13.5px] text-ink no-underline after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-blueberry-500 after:transition-transform after:duration-200 after:content-[""] hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
-  variants: {
-    active: {
-      true: 'after:scale-x-100',
-    },
-  },
-})
-
-/* Footer nav item — plain, paper-on-ink */
+/* Footer navigation text */
 export const footerLink = tv({
   base: 'text-[15px] text-white/80 transition-colors hover:text-white',
 })
 
-/* Mono caps meta line joined with middots */
-export const metaRow = tv({
-  base: 'flex flex-wrap items-baseline gap-x-2 gap-y-1 font-mono text-[11px] font-medium tracking-widest uppercase',
-})
-
-/* Modal surface — paper, hairline ring, soft lift (sheet = bottom drawer, dialog = centred) */
+/* Modal panel with sheet and dialog layouts */
 export const overlaySurface = tv({
   base: 'bg-white shadow-2xl ring-1 ring-ink/10',
   variants: {
@@ -183,7 +102,7 @@ export const sheetHandle = tv({
   base: 'mx-auto mt-2 mb-1 h-1.5 w-12 shrink-0 rounded-full bg-ink/20',
 })
 
-/* Search field inside a palette — chromeless, the surface provides the frame */
+/* Search input without a border inside the palette */
 export const searchField = tv({
   base: 'min-w-0 flex-1 bg-transparent py-4 font-sans text-[17px] text-ink placeholder:text-stone-400 focus:outline-none [&::-webkit-search-cancel-button]:hidden',
 })
@@ -202,7 +121,7 @@ export const paletteRow = tv({
   },
 })
 
-/* Supporting line inside a palette row — dims against an active (ink) row */
+/* Secondary text color for active and inactive palette rows */
 export const paletteRowMeta = tv({
   base: 'text-[13px]',
   variants: {
@@ -253,7 +172,7 @@ export const searchMark = tv({
   base: 'rounded-[3px] bg-blueberry-100 px-px text-ink',
 })
 
-/* Filter chip — the toggle used in the filter bar and inside the filter sheet */
+/* Filter toggle shared by the filter bar and sheet */
 export const filterChip = tv({
   base: 'inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 font-sans text-[13px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blueberry-600',
   variants: {
@@ -267,12 +186,12 @@ export const filterChip = tv({
   },
 })
 
-/* The count that rides along inside a filter chip */
+/* Count inside a filter chip */
 export const filterChipCount = tv({
   base: 'font-mono text-[10px] tabular-nums opacity-55',
 })
 
-/* Dropdown panel hung off a filter chip */
+/* Dropdown panel for a filter chip */
 export const filterMenu = tv({
   base: 'z-40 max-h-80 w-64 overflow-y-auto rounded-xl border border-stone-200 bg-white p-2 shadow-xl',
 })
@@ -282,7 +201,7 @@ export const filterMenuOption = tv({
   base: 'flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 data-highlighted:bg-stone-100',
 })
 
-/* Segmented control — currently the map ⇄ list switch in the filter row */
+/* Segmented control for switching between map and list views */
 export const segmented = tv({
   base: 'inline-flex h-9 shrink-0 items-center gap-0.5 rounded-full border border-stone-300 bg-white p-0.5',
 })

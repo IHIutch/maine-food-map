@@ -1,16 +1,11 @@
 /**
- * What people type when they don't type the category name.
+ * Query aliases keyed by `categories.slug`, including abbreviations, slang,
+ * and dish names. For example, "bbq" matches Barbeque and "pho" matches Vietnamese.
  *
- * Three kinds of entry, all keyed by `categories.slug`:
- *   1. acronyms and initialisms   — bbq, kbbq, ipa, ayce
- *   2. shorthand and slang        — mex, viet, za, sammies, caff
- *   3. dish names that stand in for a cuisine — pho, gyro, birria, omakase
- *
- * These are query-side only: a person typing "bbq" means it, whereas "bbq"
- * appearing in a blurb is weaker evidence — so cuisine *derivation* keeps its own,
- * more conservative synonym list in `cuisine.ts`.
+ * These aliases apply only to queries. Cuisine derivation uses the narrower
+ * synonym list in `cuisine.ts` to avoid incidental matches in descriptions.
  */
-export const CUISINE_ALIASES: Record<string, string[]> = {
+const CUISINE_ALIASES: Record<string, string[]> = {
   'barbeque': ['bbq', 'b-b-q', 'barbecue', 'smokehouse', 'brisket', 'pulled pork'],
   'korean': ['kbbq', 'k-bbq', 'korean bbq', 'bibimbap', 'kimchi', 'bulgogi'],
   'breweries-distillers': ['ipa', 'neipa', 'apa', 'dipa', 'abv', 'brewpub', 'taproom', 'craft beer', 'sour', 'stout'],
@@ -70,13 +65,6 @@ export const CUISINE_ALIASES: Record<string, string[]> = {
   'cider': ['hard cider', 'orchard'],
   'gelato-shops': ['sorbetto', 'stracciatella'],
   'delivery-services': ['takeout', 'to go', 'curbside'],
-}
-
-/** Generic shorthand that isn't a cuisine but tells us how someone wants to eat. */
-export const INTENT_ALIASES: Record<string, string[]> = {
-  'take-home': ['ayce', 'to go', 'takeout', 'take out', 'takeaway'],
-  'grab-a-bite': ['quick bite', 'counter serve', 'grab and go'],
-  'eat-out': ['sit down', 'date night', 'dine in'],
 }
 
 const LOOKUP = (() => {

@@ -27,7 +27,7 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
           }}
           className="rounded bg-gray-600 px-2 py-1 font-extrabold text-white uppercase"
         >
-          Try Again
+          Try again
         </button>
         {isRoot
           ? (
@@ -47,7 +47,7 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
                   window.history.back()
                 }}
               >
-                Go Back
+                Go back
               </Link>
             )}
       </div>

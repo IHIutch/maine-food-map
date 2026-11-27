@@ -1,5 +1,4 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
-// import tsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -24,10 +23,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    // This seems to break prisma for some reason https://github.com/prisma/prisma/issues/26880#issuecomment-3049293050
-    // tsConfigPaths({
-    //   projects: ['./tsconfig.json'],
-    // }),
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tanstackStart(),
     viteReact(),

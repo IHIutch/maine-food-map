@@ -1,7 +1,6 @@
 /**
- * Filter maths for the places index. Filters live in the URL, so this module is
- * pure: it turns a set of places plus the active filters into results and facet
- * counts, and nothing else.
+ * Filters the places index and computes facet counts from URL filter values.
+ * This module does not read or update the URL.
  */
 
 export interface FilterablePlace {
@@ -22,8 +21,7 @@ export interface PlaceFilters {
 export const NO_FILTERS: PlaceFilters = { city: [], cuisine: [], price: [], openNow: false }
 
 /**
- * Filters travel in the URL as comma-separated slugs — `?cuisine=seafood,thai`
- * rather than a JSON blob — so a filtered view is legible when it's shared.
+ * Filters use comma-separated URL values, such as `?cuisine=seafood,thai`.
  */
 export function parseFilterList(value: string | undefined) {
   return value ? value.split(',').map(item => item.trim()).filter(Boolean) : []
@@ -40,7 +38,7 @@ const PRICE_LABELS: Record<string, string> = {
   PRICE_LEVEL_VERY_EXPENSIVE: '$$$$',
 }
 
-export function priceOf(place: FilterablePlace) {
+function priceOf(place: FilterablePlace) {
   return place.price_level ? (PRICE_LABELS[place.price_level] ?? null) : null
 }
 
@@ -54,7 +52,7 @@ export function activeFilterCount(filters: PlaceFilters) {
 
 type Dimension = keyof PlaceFilters
 
-/** Every dimension except one — how a facet counts what picking it would leave. */
+/** Apply all filters except the facet being counted. */
 function applyExcept<T extends FilterablePlace>(places: T[], filters: PlaceFilters, except?: Dimension) {
   return places.filter((place) => {
     if (except !== 'openNow' && filters.openNow && !place.isOpen)

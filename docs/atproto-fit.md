@@ -4,16 +4,16 @@ _Protocol research reviewed 2026-08-14. Repository references updated 2026-11-27
 
 ## Recommendation
 
-**Yes, conditionally: Maine Food Map is a sensible AT Protocol application if the product is meant to become a public, user-contributed, portable social dataset. It is not a good reason to replace the existing database or map stack.**
+AT Protocol fits Maine Food Map if the goal is a public dataset with portable, user-owned contributions. Keep the existing database and map stack.
 
-The strongest design is hybrid:
+Use Postgres and AT Protocol together:
 
 - Keep Postgres as the curated catalog, moderation workflow, private submission store, geospatial/search index, and fast read model.
 - Add AT identity and public user-owned records for contributions such as place suggestions, reviews, public likes, and lists.
 - Index those records into Postgres with Tap/relay synchronization, then decide what is accepted into the curated catalog.
-- Keep private or contractual fields—especially submitter email and rights attestations—out of AT repositories.
+- Keep private or contractual fields, especially submitter email and rights attestations, out of AT repositories.
 
-If the intended product remains only “a small editorial directory maintained by one operator,” AT Protocol adds more infrastructure than value. In that case, ordinary accounts plus Postgres are simpler. The protocol becomes compelling when portable identity, user ownership, verifiable authorship, public reuse, or interoperability with other Atmosphere apps are product goals.
+If the intended product remains only "a small editorial directory maintained by one operator," AT Protocol adds more infrastructure than value. In that case, ordinary accounts plus Postgres are simpler. Consider the protocol when portable identity, user ownership, verifiable authorship, public reuse, or interoperability with other Atmosphere apps are product goals.
 
 ## What the project is today
 
@@ -24,23 +24,22 @@ The repo implements a centrally curated restaurant directory:
 - The client-only submission prototype is preserved separately in [draft PR #18](https://github.com/IHIutch/maine-food-map/pull/18). It models a structured address, coordinates, categories, cuisines, hours, photos, usage-rights confirmation, and optional email, but does not persist submissions.
 - Authentication and public contributions remain future work. [`wrangler.json`](../wrangler.json) and `package.json` configure a Cloudflare Worker with an external Postgres connection. The release foundation uses Drizzle with the `pg` driver.
 
-
 That product has two different kinds of data which should not be conflated:
 
 1. **Canonical editorial data:** what Maine Food Map currently believes is the authoritative title, location, hours, categories, and display status for a place.
-2. **User-authored assertions:** “I suggest this place,” “I reviewed it,” “I liked it,” or “I added it to a public list.”
+2. **User-authored assertions:** "I suggest this place," "I reviewed it," "I liked it," or "I added it to a public list."
 
-AT Protocol fits the second category very well. A single shared, mutable restaurant catalog is less naturally modeled because AT repositories are owned per account, not as a collaborative database.
+AT Protocol fits user-authored assertions. A single shared, mutable restaurant catalog is less naturally modeled because AT repositories are owned per account, not as a collaborative database.
 
 ## What AT Protocol provides
 
 AT Protocol supplies portable identity (DID plus handle), public per-user repositories, schemas called Lexicons, signed data, media blobs, OAuth, repository synchronization, and composable moderation. Its stack separates PDSes, which host user accounts and repositories, from relays, which aggregate repository changes, and AppViews, which build application-specific search, discovery, metrics, and response shapes ([Understanding atproto](https://atproto.com/guides/understanding-atproto), [The AT Stack](https://atproto.com/guides/the-at-stack)).
 
-Each account repository contains that account's public records. Repository contents are “entirely public and verifiable”; the account's PDS is their authoritative host, and repository exports are available without authentication ([Repository specification](https://atproto.com/specs/repository), [Sync specification](https://atproto.com/specs/sync)). This gives Maine Food Map portable authorship and public data distribution, not a private application database.
+Each account repository contains that account's public records. Repository contents are "entirely public and verifiable"; the account's PDS is their authoritative host, and repository exports are available without authentication ([Repository specification](https://atproto.com/specs/repository), [Sync specification](https://atproto.com/specs/sync)). This gives Maine Food Map portable authorship and public data distribution, not a private application database.
 
 Custom record types are a normal use case. Lexicons define record and API schemas using reverse-DNS names, and the official Statusphere tutorial demonstrates a custom Lexicon, OAuth write permission, a local database, and Tap synchronization ([Lexicons](https://atproto.com/guides/lexicon), [Create a Social App](https://atproto.com/guides/statusphere-tutorial)). Maine Food Map could publish schemas under a domain it controls and expose them through the documented DNS-to-DID publication mechanism ([Publishing Lexicons](https://atproto.com/guides/publishing-lexicons)). Lexicon evolution needs care: published constraints cannot simply be changed incompatibly; breaking changes require a new NSID ([Lexicons: versioning](https://atproto.com/guides/lexicon#versioning)).
 
-## Where it fits—and where it does not
+## Where it fits and where it does not
 
 | Need                                                              | AT Protocol fit                   | Implication for this project                                                                                                                                                                                                  |
 | ----------------------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -48,7 +47,7 @@ Custom record types are a normal use case. Lexicons define record and API schema
 | Public suggestions, reviews, lists, likes                         | Strong                            | Store each contribution in its author's repo using custom Lexicons. Authorship is signed and the record can move with the account.                                                                                            |
 | One canonical restaurant record edited by many users              | Weak by itself                    | Keep editorial truth in the app's read model, or publish accepted canonical records from one or more curator accounts. Treat user records as assertions/suggestions, not direct mutations of shared truth.                    |
 | Private submissions or private favorites                          | Poor                              | Repositories are public. Store these centrally or use another private-data system; do not put email, internal notes, abuse signals, or non-public rights evidence in AT records.                                              |
-| Town, map-bounds, radius, “near me,” category, or ranking queries | Not provided by repositories      | Build these in the AppView/Postgres projection. AT supplies records and sync, not a spatial database or application search API.                                                                                               |
+| Town, map-bounds, radius, "near me," category, or ranking queries | Not provided by repositories      | Build these in the AppView/Postgres projection. AT supplies records and sync, not a spatial database or application search API.                                                                                               |
 | Public photos                                                     | Supported, with caveats           | Blobs are uploaded to the user's PDS and become public once referenced. PDSes may impose their own size/quota policies; strip metadata such as EXIF GPS before upload ([Blob specification](https://atproto.com/specs/blob)). |
 | Moderation and curation                                           | Useful primitives, still app work | Labels, network takedowns, mutes, and blocks are stackable, but Maine Food Map must define its own acceptance, ranking, duplicate, fraud, and display policies ([Labels](https://atproto.com/guides/labels)).                 |
 
@@ -67,7 +66,7 @@ Do not publish the current `submitterEmail` or internal `grantsUsageRights` evid
 
 ## Discovery, indexing, and map queries
 
-Reading a known record from its repository is straightforward; discovering every relevant record across many accounts is an indexing problem. Relays aggregate participating PDS firehoses, but a “full-network” relay is described as one that _attempts_ to aggregate all PDSes, and an intermediary could omit an entire repository without that omission being detectable ([Sync specification](https://atproto.com/specs/sync#repository-event-stream)). Discovery is therefore broad and useful, not an absolute global-completeness guarantee.
+Reading a known record from its repository is straightforward; discovering every relevant record across many accounts is an indexing problem. Relays aggregate participating PDS firehoses, but a "full-network" relay is described as one that _attempts_ to aggregate all PDSes, and an intermediary could omit an entire repository without that omission being detectable ([Sync specification](https://atproto.com/specs/sync#repository-event-stream)). Discovery is therefore broad and useful, not an absolute global-completeness guarantee.
 
 Tap is the official practical layer for a new application: it verifies and backfills repositories, filters by DID or collection, follows relay events, and delivers WebSocket or webhook events backed by SQLite/Postgres ([The AT Stack: Tap](https://atproto.com/guides/the-at-stack#tap)). The sync specification also defines `listReposByCollection` for finding accounts that already contain a given Lexicon collection ([Sync specification](https://atproto.com/specs/sync)).
 
@@ -79,7 +78,7 @@ user + OAuth -> user's PDS -> relay/firehose -> Tap -> Postgres AppView -> websi
                                                                moderation/editorial promotion
 ```
 
-The app should record the author DID and returned AT URI immediately after a successful write, then let Tap reconcile the durable projection. Postgres should index normalized coordinates, place references, moderation status, categories, and text. Bounding boxes, radius searches, deduplication, ratings, “open now,” and rankings remain application queries. Mapbox remains the renderer/geolocation UI; AT Protocol does not replace it.
+The app should record the author DID and returned AT URI immediately after a successful write, then let Tap reconcile the durable projection. Postgres should index normalized coordinates, place references, moderation status, categories, and text. Bounding boxes, radius searches, deduplication, ratings, "open now," and rankings remain application queries. Mapbox remains the renderer/geolocation UI; AT Protocol does not replace it.
 
 ## Authentication and account requirements
 
@@ -97,7 +96,7 @@ Labels can express warnings or hides and can be supplied by a labeler, but edito
 
 ## Hosting and operational impact
 
-The existing Cloudflare-hosted web application can remain the frontend and AppView API. Postgres is already the right place for the query projection. The meaningful new services are:
+The existing Cloudflare-hosted web application can remain the frontend and AppView API. Postgres is already the right place for the query projection. The new services would be:
 
 1. OAuth callback/client metadata and durable sessions in the web backend.
 2. Published Lexicons plus DNS ownership.
@@ -115,4 +114,4 @@ The official docs describe a custom AppView as additional application infrastruc
 4. **Add curation:** promote accepted suggestions into the existing restaurant model; optionally publish the accepted record from a curator account.
 5. **Expand only with product demand:** public lists/likes, own-PDS onboarding, or a labeler can follow independently.
 
-This path tests whether people value portable public participation before committing to PDS hosting or full-network operations. It also preserves the qualities already central to the site—“hand-kept and unsponsored”—by making AT Protocol the provenance and participation layer, while Maine Food Map remains the curator and map/search service.
+This path tests demand for portable contributions before adding PDS hosting or full-network operations. Maine Food Map would continue to curate the catalog and provide map and search queries.

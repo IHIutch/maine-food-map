@@ -128,7 +128,7 @@ function PlacesIndex() {
             : (
                 <div className="mt-16 text-center">
                   <p className="font-display text-2xl font-medium text-ink">No places match those filters</p>
-                  <p className="mt-2 font-sans text-stone-500">Try dropping one — “open now” is the usual culprit outside serving hours.</p>
+                  <p className="mt-2 font-sans text-stone-500">Try removing a filter. Places may be closed when "open now" is selected.</p>
                   <button
                     type="button"
                     onClick={() => setFilters(NO_FILTERS)}
