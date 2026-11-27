@@ -3,7 +3,6 @@ import tailwindcss from 'eslint-plugin-tailwindcss'
 
 export default antfu({
   ignores: [
-    'prisma/contract.d.ts',
     'src/routeTree.gen.ts',
     'worker-configuration.d.ts',
   ],

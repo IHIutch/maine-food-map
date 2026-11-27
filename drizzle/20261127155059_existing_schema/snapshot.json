@@ -1,0 +1,1049 @@
+{
+  "type": "base",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "c4baf701-a82f-4b50-bac3-752d250d5b91",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "categories"
+      ],
+      "writes": [
+        "s|tbl|public.categories",
+        "n|tbl|public.categories",
+        "e|tbl|public.categories",
+        "n|rel|public.categories",
+        "n|type|public.categories",
+        "n|rel|public.categories_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "restaurant_categories"
+      ],
+      "writes": [
+        "s|tbl|public.restaurant_categories",
+        "n|tbl|public.restaurant_categories",
+        "e|tbl|public.restaurant_categories",
+        "n|rel|public.restaurant_categories",
+        "n|type|public.restaurant_categories",
+        "n|rel|public.restaurant_categories_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "restaurant_external_data"
+      ],
+      "writes": [
+        "s|tbl|public.restaurant_external_data",
+        "n|tbl|public.restaurant_external_data",
+        "e|tbl|public.restaurant_external_data",
+        "n|rel|public.restaurant_external_data",
+        "n|type|public.restaurant_external_data",
+        "n|rel|public.restaurant_external_data_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "restaurants"
+      ],
+      "writes": [
+        "s|tbl|public.restaurants",
+        "n|tbl|public.restaurants",
+        "e|tbl|public.restaurants",
+        "n|rel|public.restaurants",
+        "n|type|public.restaurants",
+        "n|rel|public.restaurants_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "categories",
+        "idx_category_slug"
+      ],
+      "writes": [
+        "s|idx|public.idx_category_slug",
+        "n|idx|public.idx_category_slug",
+        "e|idx|public.idx_category_slug",
+        "n|rel|public.idx_category_slug"
+      ],
+      "reads": [
+        "n|tbl|public.categories",
+        "n|sch|public",
+        "n|col|public.categories.slug"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "categories",
+        "sqlite_autoindex_categories_1"
+      ],
+      "writes": [
+        "s|idx|public.sqlite_autoindex_categories_1",
+        "n|idx|public.sqlite_autoindex_categories_1",
+        "e|idx|public.sqlite_autoindex_categories_1",
+        "n|rel|public.sqlite_autoindex_categories_1"
+      ],
+      "reads": [
+        "n|tbl|public.categories",
+        "n|sch|public",
+        "n|col|public.categories.slug"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "restaurant_categories",
+        "idx_restaurant_categories_category"
+      ],
+      "writes": [
+        "s|idx|public.idx_restaurant_categories_category",
+        "n|idx|public.idx_restaurant_categories_category",
+        "e|idx|public.idx_restaurant_categories_category",
+        "n|rel|public.idx_restaurant_categories_category"
+      ],
+      "reads": [
+        "n|tbl|public.restaurant_categories",
+        "n|sch|public",
+        "n|col|public.restaurant_categories.category_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "restaurant_categories",
+        "idx_restaurant_categories_restaurant"
+      ],
+      "writes": [
+        "s|idx|public.idx_restaurant_categories_restaurant",
+        "n|idx|public.idx_restaurant_categories_restaurant",
+        "e|idx|public.idx_restaurant_categories_restaurant",
+        "n|rel|public.idx_restaurant_categories_restaurant"
+      ],
+      "reads": [
+        "n|tbl|public.restaurant_categories",
+        "n|sch|public",
+        "n|col|public.restaurant_categories.restaurant_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "restaurants",
+        "idx_restaurant_public_id"
+      ],
+      "writes": [
+        "s|idx|public.idx_restaurant_public_id",
+        "n|idx|public.idx_restaurant_public_id",
+        "e|idx|public.idx_restaurant_public_id",
+        "n|rel|public.idx_restaurant_public_id"
+      ],
+      "reads": [
+        "n|tbl|public.restaurants",
+        "n|sch|public",
+        "n|col|public.restaurants.public_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "restaurants",
+        "idx_restaurant_slug"
+      ],
+      "writes": [
+        "s|idx|public.idx_restaurant_slug",
+        "n|idx|public.idx_restaurant_slug",
+        "e|idx|public.idx_restaurant_slug",
+        "n|rel|public.idx_restaurant_slug"
+      ],
+      "reads": [
+        "n|tbl|public.restaurants",
+        "n|sch|public",
+        "n|col|public.restaurants.slug"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "restaurants",
+        "restaurants_public_id_key"
+      ],
+      "writes": [
+        "s|idx|public.restaurants_public_id_key",
+        "n|idx|public.restaurants_public_id_key",
+        "e|idx|public.restaurants_public_id_key",
+        "n|rel|public.restaurants_public_id_key"
+      ],
+      "reads": [
+        "n|tbl|public.restaurants",
+        "n|sch|public",
+        "n|col|public.restaurants.public_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "restaurants",
+        "sqlite_autoindex_restaurants_1"
+      ],
+      "writes": [
+        "s|idx|public.sqlite_autoindex_restaurants_1",
+        "n|idx|public.sqlite_autoindex_restaurants_1",
+        "e|idx|public.sqlite_autoindex_restaurants_1",
+        "n|rel|public.sqlite_autoindex_restaurants_1"
+      ],
+      "reads": [
+        "n|tbl|public.restaurants",
+        "n|sch|public",
+        "n|col|public.restaurants.slug"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "restaurant_categories"
+      ],
+      "writes": [
+        "s|fk|public.restaurant_categories.restaurant_categories_category_id_fkey",
+        "n|fk|public.restaurant_categories.restaurant_categories_category_id_fkey",
+        "e|fk|public.restaurant_categories.restaurant_categories_category_id_fkey",
+        "n|con|public.restaurant_categories.restaurant_categories_category_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.restaurant_categories",
+        "n|sch|public",
+        "n|tbl|public.categories",
+        "n|sch|public",
+        "n|col|public.restaurant_categories.category_id",
+        "n|col|public.categories.id",
+        "e|uniqueness|public.categories.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "restaurant_categories"
+      ],
+      "writes": [
+        "s|fk|public.restaurant_categories.restaurant_categories_restaurant_id_fkey",
+        "n|fk|public.restaurant_categories.restaurant_categories_restaurant_id_fkey",
+        "e|fk|public.restaurant_categories.restaurant_categories_restaurant_id_fkey",
+        "n|con|public.restaurant_categories.restaurant_categories_restaurant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.restaurant_categories",
+        "n|sch|public",
+        "n|tbl|public.restaurants",
+        "n|sch|public",
+        "n|col|public.restaurant_categories.restaurant_id",
+        "n|col|public.restaurants.id",
+        "e|uniqueness|public.restaurants.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "restaurant_external_data"
+      ],
+      "writes": [
+        "s|fk|public.restaurant_external_data.restaurant_external_data_restaurant_id_fkey",
+        "n|fk|public.restaurant_external_data.restaurant_external_data_restaurant_id_fkey",
+        "e|fk|public.restaurant_external_data.restaurant_external_data_restaurant_id_fkey",
+        "n|con|public.restaurant_external_data.restaurant_external_data_restaurant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.restaurant_external_data",
+        "n|sch|public",
+        "n|tbl|public.restaurants",
+        "n|sch|public",
+        "n|col|public.restaurant_external_data.restaurant_id",
+        "n|col|public.restaurants.id",
+        "e|uniqueness|public.restaurants.id"
+      ]
+    }
+  ],
+  "ddl": [
+    {
+      "schema": "public",
+      "name": "categories",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "restaurant_categories",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "restaurant_external_data",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "restaurants",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "table": "categories",
+      "name": "id",
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_categories",
+      "name": "restaurant_id",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "restaurant_id",
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "id",
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "categories",
+      "name": "slug",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_categories",
+      "name": "category_id",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "google_place_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "slug",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "categories",
+      "name": "display_name",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "yelp_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "title",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "categories",
+      "name": "restaurant_count",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "google_data",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "website",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "yelp_data",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "description",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "last_updated",
+      "type": "timestamp(3)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "rating",
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "review_count",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "rating_source",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "tags",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "photos",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "price_level",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "business_status",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "formatted_data_updated",
+      "type": "timestamp(3)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "longitude",
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "phone",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "opening_hours",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "address",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "latitude",
+      "type": "double precision",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "street_address",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "state",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "city",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "postal_code",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "public_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "categories",
+      "name": "idx_category_slug",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "slug"
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_categories",
+      "name": "idx_restaurant_categories_category",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "category_id"
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_categories",
+      "name": "idx_restaurant_categories_restaurant",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "restaurant_id"
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "idx_restaurant_public_id",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "public_id"
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "idx_restaurant_slug",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "slug"
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "restaurants_public_id_key",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "public_id"
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "categories",
+      "name": "sqlite_autoindex_categories_1",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "slug"
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "sqlite_autoindex_restaurants_1",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null,
+          "isExpression": false,
+          "value": "slug"
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_categories",
+      "name": "restaurant_categories_category_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "category_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "categories",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_categories",
+      "name": "restaurant_categories_restaurant_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "restaurant_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "restaurants",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "restaurant_external_data_restaurant_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "restaurant_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "restaurants",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "categories",
+      "name": "categories_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": true,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_categories",
+      "name": "restaurant_categories_pkey",
+      "columns": [
+        "restaurant_id",
+        "category_id"
+      ],
+      "nameExplicit": true,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "restaurant_external_data",
+      "name": "restaurant_external_data_pkey",
+      "columns": [
+        "restaurant_id"
+      ],
+      "nameExplicit": true,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "restaurants",
+      "name": "restaurants_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": true,
+      "entityType": "pks"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
+import { getSitemapRestaurants } from '../db/queries/restaurants'
 import { baseUrl } from '../utils/env'
-import { withDb } from '../utils/prisma'
 
 export const Route = createFileRoute('/sitemap.xml_')({
   server: {
@@ -9,12 +9,7 @@ export const Route = createFileRoute('/sitemap.xml_')({
       GET: async () => {
         const now = new Date().toISOString()
 
-        const restaurants = await withDb(async db =>
-          await db.orm.public.restaurants
-            .select('slug', 'formatted_data_updated')
-            .orderBy(restaurant => restaurant.formatted_data_updated.desc())
-            .all(),
-        )
+        const restaurants = await getSitemapRestaurants()
 
         const restaurantRoutes = restaurants.map(restaurant => ({
           url: `${baseUrl}/places/${restaurant.slug}`,
