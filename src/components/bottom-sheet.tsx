@@ -43,14 +43,14 @@ interface BottomSheetProps {
 
 /** Keeps the sheet mounted until its exit animation has finished. */
 export default function BottomSheet({ isOpen, onOpenChange, label, size = 'full', children }: BottomSheetProps) {
-  const [isMounted, setMounted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     if (isOpen)
-      setMounted(true)
+      setIsMounted(true)
   }, [isOpen])
 
-  const onClosed = useCallback(() => setMounted(false), [])
+  const onClosed = useCallback(() => setIsMounted(false), [])
 
   if (!isMounted)
     return null
