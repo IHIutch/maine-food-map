@@ -14,6 +14,7 @@ import { DefaultCatchBoundary } from '../components/default-catch-boundary'
 import Footer from '../components/footer'
 import { NotFound } from '../components/not-found'
 import SiteSearch from '../components/site-search'
+import { button } from '../components/ui'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
 
@@ -107,6 +108,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
               <SiteSearch />
+              <Link to="/submit" className={button({ scheme: 'blueberry', className: 'hidden sm:inline-flex' })}>Submit a Spot</Link>
             </div>
           </nav>
           {children}
