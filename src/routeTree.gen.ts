@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml_'
+import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as PlacesSlugRouteImport } from './routes/places.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubmitRoute = SubmitRouteImport.update({
+  id: '/submit',
+  path: '/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlacesSlugRoute = PlacesSlugRouteImport.update({
   id: '/places/$slug',
   path: '/places/$slug',
@@ -32,30 +38,34 @@ const PlacesSlugRoute = PlacesSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
   '/places/$slug': typeof PlacesSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
   '/places/$slug': typeof PlacesSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/sitemap.xml_': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
   '/places/$slug': typeof PlacesSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sitemap.xml' | '/places/$slug'
+  fullPaths: '/' | '/sitemap.xml' | '/submit' | '/places/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sitemap.xml' | '/places/$slug'
-  id: '__root__' | '/' | '/sitemap.xml_' | '/places/$slug'
+  to: '/' | '/sitemap.xml' | '/submit' | '/places/$slug'
+  id: '__root__' | '/' | '/sitemap.xml_' | '/submit' | '/places/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SubmitRoute: typeof SubmitRoute
   PlacesSlugRoute: typeof PlacesSlugRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/submit': {
+      id: '/submit'
+      path: '/submit'
+      fullPath: '/submit'
+      preLoaderRoute: typeof SubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/places/$slug': {
       id: '/places/$slug'
       path: '/places/$slug'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SubmitRoute: SubmitRoute,
   PlacesSlugRoute: PlacesSlugRoute,
 }
 export const routeTree = rootRouteImport
