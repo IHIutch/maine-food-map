@@ -1,6 +1,6 @@
 # AT Protocol fit for Maine Food Map
 
-_Reviewed 2026-08-14 against the current repository and official AT Protocol documentation/specifications._
+_Protocol research reviewed 2026-08-14. Repository references updated 2026-11-27 for the Drizzle foundation; protocol claims were not reverified in that update._
 
 ## Recommendation
 
@@ -19,10 +19,11 @@ If the intended product remains only “a small editorial directory maintained b
 
 The repo implements a centrally curated restaurant directory:
 
-- [`prisma/contract.ts`](../prisma/contract.ts) defines restaurants, categories, coordinates, hours, photos, ratings, and raw Google/Yelp integration fields in a central relational database.
+- [`src/db/schema.ts`](../src/db/schema.ts) defines restaurants, categories, coordinates, hours, photos, ratings, and raw Google/Yelp integration fields in a central relational database.
 - [`src/routes/index.tsx`](../src/routes/index.tsx) loads a filtered Maine dataset from Postgres and renders list/map views; [`src/components/mapbox-embed.tsx`](../src/components/mapbox-embed.tsx) handles presentation in Mapbox.
-- [`src/utils/place-submission.ts`](../src/utils/place-submission.ts) models a future contribution with a structured address, latitude/longitude, categories, cuisines, hours, up to six photos, photo credit, usage-rights confirmation, and optional email. The current form is explicitly client-only and does not persist submissions.
-- [`src/routes/__root.tsx`](../src/routes/__root.tsx) shows login and likes as future UI, while [`wrangler.json`](../wrangler.json) and `package.json` indicate a Cloudflare Worker deployment with an external Postgres connection.
+- The client-only submission prototype is preserved separately in [draft PR #18](https://github.com/IHIutch/maine-food-map/pull/18). It models a structured address, coordinates, categories, cuisines, hours, photos, usage-rights confirmation, and optional email, but does not persist submissions.
+- Authentication and public contributions remain future work. [`wrangler.json`](../wrangler.json) and `package.json` configure a Cloudflare Worker with an external Postgres connection. The release foundation uses Drizzle with the `pg` driver.
+
 
 That product has two different kinds of data which should not be conflated:
 
