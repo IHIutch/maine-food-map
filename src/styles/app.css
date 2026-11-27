@@ -1,1 +1,53 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@plugin "@iconify/tailwind4";
+@plugin "@tailwindcss/typography";
+@import '@fontsource-variable/petrona/wght.css';
+@import '@fontsource-variable/instrument-sans/wght.css';
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/dm-sans/wght.css';
+@import '@fontsource/dm-mono/400.css';
+@import '@fontsource/dm-mono/500.css';
+
+@theme {
+  --font-pretrona: 'Petrona Variable', Georgia, serif;
+  --font-brand--font-variation-settings: 'SOFT' 100, 'WONK' 0;
+  --font-instrument: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Cookbook/Coral design language — Fraunces display, DM Sans body, DM Mono labels */
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-display--font-variation-settings: 'SOFT' 100, 'opsz' 72;
+  --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+
+  --color-ink: #1c2320;
+  --color-ink-soft: #5c6b60;
+  --color-paper: #faf7f2;
+  --color-cream: #f1ece1;
+  --color-accent: #e98a6e;
+  --color-accent-deep: #c86647;
+
+  --color-blueberry-50: #e7edff;
+  --color-blueberry-100: #c0c9f4;
+  --color-blueberry-200: #97a5e7;
+  --color-blueberry-300: #6f81dc;
+  --color-blueberry-400: #475dd1;
+  --color-blueberry-500: #2e44b8;
+  --color-blueberry-600: #233590;
+  --color-blueberry-700: #182668;
+  --color-blueberry-800: #0c1741;
+  --color-blueberry-900: #02081b;
+}
+
+/* Mapbox popup chrome — paper-sample style */
+.mapboxgl-popup-content {
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: var(--font-sans);
+  background: var(--color-paper);
+  box-shadow:
+    0 1px 0 rgb(38 41 30 / 0.04),
+    0 18px 34px -22px rgb(38 41 30 / 0.28);
+}
+.mapboxgl-popup-tip {
+  border-top-color: var(--color-paper);
+}

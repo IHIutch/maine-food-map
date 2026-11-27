@@ -1,18 +1,20 @@
 /// <reference types="vite/client" />
 import {
+  createRootRoute,
   HeadContent,
   Link,
   Scripts,
-  createRootRoute,
   useRouterState,
 } from '@tanstack/react-router'
-// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { useEffect, useRef, type ReactNode } from 'react'
-import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
-import { NotFound } from '../components/NotFound'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { load, trackPageview } from 'fathom-client'
+import * as React from 'react'
+
+import { DefaultCatchBoundary } from '../components/default-catch-boundary'
+import Footer from '../components/footer'
+import { NotFound } from '../components/not-found'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
-import { load, trackPageview } from 'fathom-client'
 
 function FathomAnalytics() {
   // Follow the settled route, excluding hash-only changes.
@@ -22,14 +24,14 @@ function FathomAnalytics() {
       return location ? location.pathname + location.searchStr : null
     },
   })
-  const lastTrackedPath = useRef<string | null>(null)
+  const lastTrackedPath = React.useRef<string | null>(null)
 
-  useEffect(() => {
+  React.useEffect(() => {
     // The tracking effect owns initial and subsequent page views.
     load('KKNJFATJ', { auto: false })
   }, [])
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Wait for startup to resolve and suppress calls from effect replay.
     if (pagePath === null || lastTrackedPath.current === pagePath)
       return
@@ -86,27 +88,29 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: ReactNode }) {
+function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html className="h-full" lang="en">
       <head>
         <HeadContent />
       </head>
-      <body className="h-full">
-        <nav className="bg-white shadow-sm h-16 z-10 relative flex items-center px-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="text-xl font-semibold">
-              Maine Food Map
-            </Link>
-          </div>
+      <body className="h-full font-instrument">
+        <nav className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-stone-200 bg-white px-4 sm:px-6">
+          <Link
+            to="/"
+            className="font-pretrona text-2xl font-medium tracking-tight"
+          >
+            Maine Food Map
+          </Link>
+
         </nav>
         {children}
-        {/* <TanStackRouterDevtools position="bottom-right" /> */}
+        <Footer />
         <Scripts />
-        {process.env.NODE_ENV === 'production'
+        {import.meta.env.PROD
           ? <FathomAnalytics />
-          : null
-        }
+          : null}
+        <TanStackRouterDevtools position="bottom-right" />
       </body>
     </html>
   )

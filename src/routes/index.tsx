@@ -1,68 +1,32 @@
-import { createFileRoute, Link, stripSearchParams, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { prisma } from '../utils/prisma'
-import { useState, lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import * as z from 'zod'
+
+import PlaceCard from '../components/place-card'
+import { button } from '../components/ui'
+import { getRestaurantList } from '../db/queries/restaurants'
+import { getIsOpen } from '../utils/is-open'
 
 const MapboxEmbed = lazy(() => import('../components/mapbox-embed'))
 
 // Server function to fetch restaurants
-const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
-  const restaurants = await prisma.restaurants.findMany({
-    where: {
-      // Only show restaurants with external data
-      rating: { not: null },
-      state: { equals: 'ME' },
-      longitude: { not: null },
-      latitude: { not: null },
-    },
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      description: true,
-      rating: true,
-      review_count: true,
-      city: true,
-      tags: true,
-      opening_hours: true,
-      latitude: true,
-      longitude: true
-    },
-    orderBy: [
-      { rating: 'desc' },
-      { title: 'asc' }
-    ],
-    cacheStrategy: {
-      ttl: 3600 // one hour
-    },
-  })
-
-  // Parse JSON fields and check if open
-  const now = new Date()
-  const currentDay = now.getDay()
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+export const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
+  const restaurants = await getRestaurantList()
 
   return {
-    restaurants: restaurants.map(restaurant => {
-      const opening_hours = restaurant.opening_hours ? JSON.parse(restaurant.opening_hours) : null
-
-      // Check if currently open
-      let isOpen = false
-      if (opening_hours) {
-        const todaySchedule = opening_hours[currentDay]
-        if (todaySchedule && !(todaySchedule.open === "00:00" && todaySchedule.close === "00:00")) {
-          isOpen = currentTime >= todaySchedule.open && currentTime <= todaySchedule.close
-        }
-      }
+    restaurants: restaurants.map((restaurant) => {
+      const opening_hours = restaurant.opening_hours
+        ? JSON.parse(restaurant.opening_hours)
+        : null
 
       return {
         ...restaurant,
         tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
         opening_hours,
-        isOpen
+        isOpen: getIsOpen(opening_hours),
       }
-    })
+    }),
   }
 })
 
@@ -71,148 +35,114 @@ export const Route = createFileRoute('/')({
     view: z.enum(['list', 'map']).default('list'),
   }),
   search: {
-    middlewares: [
-      stripSearchParams({ view: 'list' })
-    ],
+    middlewares: [stripSearchParams({ view: 'list' })],
   },
-  loader: async () => {
-    return await getRestaurants()
-  },
+  loader: async () => await getRestaurants(),
   component: PlacesIndex,
-  shouldReload: (match) => match.cause !== 'stay'
+  shouldReload: match => match.cause !== 'stay',
 })
 
 function PlacesIndex() {
   const { restaurants } = Route.useLoaderData()
   const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(null)
+  const [town] = useState('all')
+  const [openNow] = useState(false)
   const { view } = Route.useSearch()
-  const navigate = useNavigate({ from: '/' })
+  const filtered = restaurants.filter((restaurant) => {
+    if (town !== 'all' && restaurant.city !== town)
+      return false
+    if (openNow && !restaurant.isOpen)
+      return false
+    return true
+  })
 
   return (
-    <div className="fixed pt-16 inset-0 bg-gray-50 flex flex-col z-0">
-      {/* Mobile Toggle */}
-      <div className="lg:hidden sticky top-0 z-10 bg-white border-b border-gray-300 px-4 py-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm">Discover {restaurants.length} restaurants</span>
-          <div className="flex gap-1">
-            <button
-              onClick={() => {
-                navigate({
-                  to: "/",
-                  search: (old) => ({ ...old, view: 'list' }),
-                  replace: false,
-                });
-              }}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === 'list'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-            >
-              List View
-            </button>
-            <button
-              onClick={() => {
-                navigate({
-                  to: "/",
-                  search: (old) => ({ ...old, view: 'map' }),
-                });
-              }}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === 'map'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-            >
-              Map View
-            </button>
-          </div>
+    <div>
+      <div className="sticky top-16 z-20 flex min-h-14 items-center gap-2 border-b border-stone-200 bg-white px-4 sm:px-6">
+        {/* Filter location */}
+        <div className="flex items-center gap-3 font-instrument">
+          <button className={button({ scheme: 'stone', size: 'sm' })}>
+            <span className="font-medium">All</span>
+            <span className="font-normal text-stone-300">14</span>
+          </button>
+          <button className={button({ scheme: 'outline', size: 'sm' })}>
+            <span className="font-medium text-black">Seafood</span>
+            <span className="font-normal text-stone-500">4</span>
+          </button>
+        </div>
+        {/* Filter type: cafe, pub, restaurant */}
+        <div className="flex items-center gap-3 font-instrument">
+          <button className={button({ scheme: 'stone', size: 'sm' })}>
+            <span className="font-medium">All</span>
+            <span className="font-normal text-stone-300">14</span>
+          </button>
+          <button className={button({ scheme: 'outline', size: 'sm' })}>
+            <span className="font-medium text-black">Seafood</span>
+            <span className="font-normal text-stone-500">4</span>
+          </button>
+        </div>
+        {/* Filter cuisine */}
+        <div className="flex items-center gap-3 font-instrument">
+          <button className={button({ scheme: 'stone', size: 'sm' })}>
+            <span className="font-medium">All</span>
+            <span className="font-normal text-stone-300">14</span>
+          </button>
+          <button className={button({ scheme: 'outline', size: 'sm' })}>
+            <span className="font-medium text-black">Seafood</span>
+            <span className="font-normal text-stone-500">4</span>
+          </button>
+        </div>
+        {/* Filter price */}
+        <div className="flex items-center gap-3 font-instrument">
+          <button className={button({ scheme: 'stone', size: 'sm' })}>
+            <span className="font-medium">All</span>
+            <span className="font-normal text-stone-300">14</span>
+          </button>
+          <button className={button({ scheme: 'outline', size: 'sm' })}>
+            <span className="font-medium text-black">Seafood</span>
+            <span className="font-normal text-stone-500">4</span>
+          </button>
         </div>
       </div>
 
-      <div className="flex flex-1 h-full">
-        {/* List View - Hidden on mobile when map is showing */}
-        <div className={`${view === 'map' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full overflow-y-auto h-full`}>
-          <div className='hidden lg:block sticky top-0 bg-gray-50 py-2 px-4 border-b border-gray-300'>
-            <span>Discover {restaurants.length} amazing restaurants in Maine</span>
+      <div className="flex flex-col-reverse lg:flex-row lg:items-start">
+        <div className="flex flex-col p-6 lg:min-w-0 lg:flex-1">
+
+          <div>
+            <h1 className="mt-2 font-pretrona text-5xl font-semibold tracking-tight">Places to eat in Maine</h1>
+            <p className="mt-1 font-instrument text-lg text-stone-500">Hand-kept and unsponsored. Drive times are from Portland; hours confirmed within the last week.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-            {restaurants.map((restaurant) => {
-              const isSelected = selectedRestaurant === restaurant.id
-              return (
-                <Link
-                  key={restaurant.id}
-                  to="/places/$slug"
-                  params={{ slug: restaurant.slug }}
-                  className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 block ${isSelected ? 'ring-2 ring-blue-500' : ''
-                    }`}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h2 className="text-xl font-semibold">{restaurant.title}</h2>
-                    {restaurant.rating && (
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className="font-medium">{restaurant.rating}</span>
-                        <span className="text-yellow-500">⭐</span>
-                      </div>
-                    )}
-                  </div>
 
-                  {restaurant.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                      {restaurant.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                    {restaurant.city && <span>{restaurant.city}</span>}
-                    {restaurant.review_count && (
-                      <>
-                        <span>•</span>
-                        <span>{restaurant.review_count} reviews</span>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-wrap gap-1">
-                      {restaurant.tags.slice(0, 2).map((tag: string) => (
-                        <span key={tag} className="px-2 py-1 bg-gray-100 rounded text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                      {restaurant.tags.length > 2 && (
-                        <span className="px-2 py-1 text-gray-500 text-xs">
-                          +{restaurant.tags.length - 2}
-                        </span>
-                      )}
-                    </div>
-
-                    <span className={`text-xs font-medium ${restaurant.isOpen ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                      {restaurant.isOpen ? 'Open' : 'Closed'}
-                    </span>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
+          <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8">
+            {filtered.map(restaurant => (
+              <PlaceCard
+                key={restaurant.id}
+                restaurant={restaurant}
+              />
+            ))}
+          </ul>
         </div>
 
-        {/* Map View - Hidden on mobile when list is showing */}
-        <div className={`${view === 'list' ? 'hidden' : 'block'} lg:block lg:w-1/2 w-full h-full sticky top-0`}>
-          <Suspense fallback={
-            <div className="flex items-center justify-center h-full bg-gray-100">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading map...</p>
-              </div>
-            </div>
-          }>
-            <MapboxEmbed
-              places={restaurants}
-              selectedId={selectedRestaurant}
-              onMarkerClick={(id: number) => setSelectedRestaurant(id)}
-              isShowing={view === 'map'}
-            />
-          </Suspense>
+        <div className="h-[calc(100dvh-120px)] min-h-0 lg:sticky lg:top-30 lg:min-w-0 lg:flex-1">
+          <div className="flex h-full flex-col">
+            <Suspense
+              fallback={(
+                <div className="flex h-full items-center justify-center bg-white">
+                  <div className="text-center">
+                    <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-accent" />
+                    <p className="text-ink-soft">Loading map...</p>
+                  </div>
+                </div>
+              )}
+            >
+              <MapboxEmbed
+                places={filtered}
+                selectedId={selectedRestaurant}
+                onMarkerClick={(id: number) => setSelectedRestaurant(id)}
+                isShowing={view === 'map'}
+              />
+            </Suspense>
+          </div>
         </div>
       </div>
     </div>

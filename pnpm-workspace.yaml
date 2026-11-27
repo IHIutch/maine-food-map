@@ -1,13 +1,26 @@
-packages:
-  - '.'
-
-allowBuilds:
-  '@prisma/client': true
-  '@prisma/engines': true
-  esbuild: true
-  prisma: true
-  workerd: true
+minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
   - '@cloudflare/workers-utils@0.57.0'
   - miniflare@5.20261123.0-beta
   - wrangler@4.167.0
+  - '@electric-sql/pglite@0.6.1'
+
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # Already pinned by the Fathom/TanStack base; integrity matches the npm release.
+  - chokidar@4.0.3
+  - '@vercel/detect-agent@1.2.4'
+  - '@vercel/detect-agent@1.2.5'
+  - semver@6.3.1
+
+shellEmulator: true
+
+packages:
+  - .
+
+allowBuilds:
+  '@tailwindcss/oxide': true
+  esbuild: true
+  msgpackr-extract: true
+  sharp: true
+  workerd: true
