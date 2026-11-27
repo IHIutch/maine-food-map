@@ -6,16 +6,13 @@ import * as z from 'zod'
 import PlaceCard from '../components/place-card'
 import { button } from '../components/ui'
 import { getRestaurantList } from '../db/queries/restaurants'
+import { getIsOpen } from '../utils/is-open'
 
 const MapboxEmbed = lazy(() => import('../components/mapbox-embed'))
 
 // Server function to fetch restaurants
 export const getRestaurants = createServerFn({ method: 'GET' }).handler(async () => {
   const restaurants = await getRestaurantList()
-  // Parse JSON fields and check if open
-  const now = new Date()
-  const currentDay = now.getDay()
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
 
   return {
     restaurants: restaurants.map((restaurant) => {
@@ -23,24 +20,11 @@ export const getRestaurants = createServerFn({ method: 'GET' }).handler(async ()
         ? JSON.parse(restaurant.opening_hours)
         : null
 
-      let isOpen = false
-      if (opening_hours) {
-        const todaySchedule = opening_hours[currentDay]
-        if (
-          todaySchedule
-          && !(todaySchedule.open === '00:00' && todaySchedule.close === '00:00')
-        ) {
-          isOpen
-            = currentTime >= todaySchedule.open
-              && currentTime <= todaySchedule.close
-        }
-      }
-
       return {
         ...restaurant,
         tags: restaurant.tags ? JSON.parse(restaurant.tags) : [],
         opening_hours,
-        isOpen,
+        isOpen: getIsOpen(opening_hours),
       }
     }),
   }

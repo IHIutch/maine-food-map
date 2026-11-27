@@ -9,7 +9,7 @@ import PlaceCard from '../components/place-card'
 import { button } from '../components/ui'
 import { findFirstBySlug, findNearest } from '../db/queries/restaurants'
 import { baseUrl } from '../utils/env'
-import { getIsOpen } from '../utils/is-open'
+import { getIsOpen, getMaineClock } from '../utils/is-open'
 import { seo } from '../utils/seo'
 import { restaurantSchema } from '../utils/zod/restaurant-schema'
 
@@ -22,7 +22,7 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
     const { slug } = data
     const restaurant = await findFirstBySlug({ slug })
     if (!restaurant) {
-      throw new Error('Restaurant not found')
+      return null
     }
 
     let nearby: Awaited<ReturnType<typeof findNearest>> = []
@@ -44,24 +44,19 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
       throw new Error(z.prettifyError(parsedNearby.error))
     }
 
-    // Calculate current status
-    const now = new Date()
-    const currentDay = now.getDay()
-
-    let isOpen = false
+    const { day: currentDay } = getMaineClock()
     let todayHours = null
 
     const opening_hours = parsedRestaurant.data.opening_hours
 
     if (opening_hours) {
-      const todaySchedule = opening_hours[currentDay]
+      const todaySchedule = opening_hours.find(schedule => schedule.day === currentDay)
       if (todaySchedule) {
         if (todaySchedule.open === '00:00' && todaySchedule.close === '00:00') {
           todayHours = 'Closed'
         }
         else {
           todayHours = `${todaySchedule.open} - ${todaySchedule.close}`
-          isOpen = getIsOpen(opening_hours)
         }
       }
     }
@@ -69,7 +64,7 @@ const getRestaurantBySlug = createServerFn({ method: 'GET' })
     return {
       restaurant: {
         ...parsedRestaurant.data,
-        isOpen,
+        isOpen: getIsOpen(opening_hours),
         todayHours,
       },
       nearby: parsedNearby.data.map(place => ({
@@ -275,7 +270,7 @@ function RestaurantPage() {
                   ? (
                       <div className="mt-3 divide-y divide-stone-200 text-sm text-stone-500">
                         {restaurant.opening_hours.map((schedule) => {
-                          const isToday = schedule.day === new Date().getDay()
+                          const isToday = schedule.day === getMaineClock().day
                           const isClosed = schedule.open === '00:00' && schedule.close === '00:00'
                           return (
                             <div
@@ -336,7 +331,6 @@ function RestaurantPage() {
 
               </div>
             </div>
-
 
           </div>
         </div>

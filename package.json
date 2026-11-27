@@ -19,7 +19,7 @@
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check",
     "db:verify": "tsx scripts/verify-db.ts",
-    "test": "tsx --test src/utils/client-env.test.ts src/db/*.test.ts"
+    "test": "tsx --test src/utils/*.test.ts src/db/*.test.ts"
   },
   "dependencies": {
     "@ark-ui/react": "^5.39.1",
