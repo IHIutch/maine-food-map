@@ -12,10 +12,9 @@ export default function PlaceCard({
   return (
     <div className="relative">
       <div className="relative aspect-3/2 w-full overflow-hidden rounded-xl bg-stone-100">
-        <img className="h-full w-full object-cover" src="https://picsum.photos/1280/720" />
-        {/* <div className="size-full flex items-center justify-center font-pretrona text-6xl text-stone-300">
+        <div aria-hidden="true" className="flex size-full items-center justify-center font-pretrona text-6xl text-stone-300">
           {restaurant.title[0]}
-        </div> */}
+        </div>
         <div className="absolute top-2 right-2 flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 shadow-sm shadow-black/10">
           {restaurant.isOpen
             ? (

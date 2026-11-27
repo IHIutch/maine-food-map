@@ -25,7 +25,6 @@ export default function Footer() {
               <li><Link to="/" className={footerLink()}>All places</Link></li>
               <li><Link to="/" search={{ view: 'map' }} className={footerLink()}>The map</Link></li>
               <li><span className={footerLink()}>Dispatches</span></li>
-              <li><Link to="/submit" className={footerLink()}>Submit a spot</Link></li>
             </ul>
           </nav>
 

@@ -13,7 +13,6 @@ import * as React from 'react'
 import { DefaultCatchBoundary } from '../components/default-catch-boundary'
 import Footer from '../components/footer'
 import { NotFound } from '../components/not-found'
-import { button } from '../components/ui'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
 
@@ -103,10 +102,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           >
             Maine Food Map
           </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/submit" className={button({ scheme: 'blueberry' })}>Submit a Spot</Link>
-            <button className={button({ scheme: 'outline', className: 'hidden sm:inline-flex' })}>Log In</button>
-          </div>
+
         </nav>
         {children}
         <Footer />

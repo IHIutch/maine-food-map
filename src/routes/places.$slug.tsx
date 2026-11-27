@@ -239,10 +239,6 @@ function RestaurantPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button className={button({ scheme: 'outline' })}>
-                <div aria-hidden="true" className="icon-[material-symbols--heart-plus-outline] size-4" />
-                <span>3 Likes</span>
-              </button>
               {restaurant.phone && (
                 <a className={button({ scheme: 'outline' })} href={`tel:${restaurant.phone}`} target="_blank" rel="noopener noreferrer">
                   <span className="icon-[material-symbols--call] size-4" />
@@ -261,35 +257,6 @@ function RestaurantPage() {
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Left Column - Details */}
           <div className="md:col-span-2">
-            {/* Photos */}
-            <div>
-              {(restaurant.photos && restaurant.photos.length > 0)
-                ? (
-                    <div className="grid w-full grid-cols-3 grid-rows-3 gap-3">
-                      {restaurant.photos.slice(0, 4).map((photo, index) => {
-                        const photoKey = photo.url ?? `photo-${restaurant.id}-${index}`
-
-                        return index === 0
-                          ? (
-                              <div key={photoKey} className="col-span-2 row-span-3 overflow-hidden rounded-xl bg-stone-100">
-                                <img className="size-full object-cover" src="https://picsum.photos/1280/720" />
-                              </div>
-                            )
-                          : (
-                              <div key={photoKey} className="col-span-1 row-span-1 aspect-16/9 overflow-hidden rounded-xl bg-stone-100">
-                                <img className="size-full object-cover" src="https://picsum.photos/1280/720" />
-                              </div>
-                            )
-                      })}
-                    </div>
-                  )
-                : null}
-            </div>
-            {/* Intro */}
-            <div className="mt-12 font-pretrona text-2xl text-stone-700">
-              <p>A twelve-hour broth, noodles cut in house, and a counter that stays open after most of Camden has gone quiet — the off-season lifeline of the harbor.</p>
-            </div>
-
             {/* Long Description */}
             {restaurant.description && (
               <div className="prose-lg mt-8 max-w-none prose-stone">
@@ -352,7 +319,7 @@ function RestaurantPage() {
                         </p>
                       </div>
                     )}
-                    <a className={button({ scheme: 'outline', className: 'ml-auto shrink-0' })}>
+                    <a className={button({ scheme: 'outline', className: 'ml-auto shrink-0' })} href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address ?? [restaurant.street_address, restaurant.city, restaurant.state].filter(Boolean).join(', '))}`} target="_blank" rel="noopener noreferrer">
                       <span className="icon-[material-symbols--directions-car] size-4" />
                       <span>Directions</span>
                     </a>
@@ -370,15 +337,7 @@ function RestaurantPage() {
               </div>
             </div>
 
-            <div className="mt-3 px-4">
-              <div className="flex items-center justify-center gap-2 text-sm">
-                <span className="text-stone-600">Something look wrong?</span>
-                <button className="flex cursor-pointer items-center gap-1 font-semibold text-blueberry-500 underline hover:text-blueberry-600">
-                  <span>Report an error</span>
-                  <div aria-hidden="true" className="icon-[material-symbols--error-rounded] size-4" />
-                </button>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
