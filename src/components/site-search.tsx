@@ -17,8 +17,7 @@ export default function SiteSearch() {
   // keep the overlay mounted after the first open so it can animate itself out
   const [hasOpened, setHasOpened] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 640px)')
-  // On the places index the filter bar carries its own search field, so the nav
-  // trigger would be a second door to the same room. ⌘K still works everywhere.
+  // Hide the nav trigger where the filter bar already has search. ⌘K still works.
   const pathname = useRouterState({ select: state => state.location.pathname })
   const barOwnsSearch = isDesktop && pathname === '/'
   const session = useSearchSession(isOpen)

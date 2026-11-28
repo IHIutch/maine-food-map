@@ -33,7 +33,7 @@
   --color-blueberry-900: #02081b;
 }
 
-/* Mapbox popup chrome — paper-sample style */
+/* Mapbox popup styles */
 .mapboxgl-popup-content {
   border-radius: 10px;
   padding: 14px 16px;

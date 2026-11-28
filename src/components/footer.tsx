@@ -53,7 +53,7 @@ export default function Footer() {
             {' '}
             {year}
             {' '}
-            Maine Finds. Hours are best-guess — call ahead in shoulder season.
+            Maine Finds. Hours may change. Call ahead in shoulder season.
           </p>
           <p className="flex items-center gap-1.5">
             <span className={footerLink({ className: 'text-sm text-white/45' })}>Privacy</span>

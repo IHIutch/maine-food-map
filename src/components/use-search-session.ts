@@ -60,7 +60,7 @@ export function useSearchSession(isOpen: boolean) {
     if (!index || !searchers)
       return []
 
-    // "bbq", "pho", "kbbq" — shorthand pins its cuisine and widens the place search
+    // Pin cuisines matched by query aliases and include them in the place search.
     const aliased = aliasCuisines(query, index.cuisines)
     const aliasTerms = aliased.map(cuisine => ({ name: cuisine.name, exact: cuisine.exact }))
 
@@ -97,7 +97,7 @@ export function useSearchSession(isOpen: boolean) {
       window.localStorage.setItem(RECENTS_KEY, JSON.stringify(next))
     }
     catch {
-      // private mode — recents are a nicety, not a requirement
+      // Storage may be unavailable in private browsing. Search still works.
     }
   }, [query, recents])
 

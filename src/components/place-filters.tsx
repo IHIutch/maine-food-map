@@ -1,13 +1,6 @@
 /**
- * Filtering for the places index, in the two shapes that suit each screen:
- *
- *   desktop — a bar of chips, each opening a menu of options with live counts
- *   mobile  — one `Filters (n)` button opening a sheet where edits are staged
- *             and committed with "Show N places", so the list never moves
- *             under your thumb
- *
- * Filters live in the URL, so a filtered view is shareable and the command
- * palette can drop someone straight into one.
+ * Desktop filters use menus with live counts. Mobile filters stage edits in a
+ * sheet and apply them when the user selects "Show N places".
  */
 import { Menu } from '@ark-ui/react/menu'
 import { lazy, Suspense, useEffect, useState } from 'react'
