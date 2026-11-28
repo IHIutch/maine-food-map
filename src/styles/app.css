@@ -46,3 +46,76 @@
 .mapboxgl-popup-tip {
   border-top-color: var(--color-paper);
 }
+
+/* SheetContent's native scroll chains into the sheet at the content boundary. */
+[data-food-sheet-size] {
+  box-sizing: content-box;
+  width: 100%;
+  max-height: calc(100dvh - 34px);
+  border-radius: 16px 16px 0 0;
+  background: white;
+  box-shadow: 0 -8px 40px rgb(28 35 32 / 0.15);
+  outline: none;
+}
+
+[data-food-sheet-size='full'] {
+  height: calc(100dvh - 34px);
+}
+
+[data-food-sheet-size='auto'] {
+  max-height: 85svh;
+}
+
+[data-food-sheet-content] {
+  display: flex;
+  min-height: 0;
+  max-height: inherit;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: var(--sheet-scroll-padding-y, 0px);
+  border-radius: inherit;
+  outline: none;
+}
+
+[data-food-sheet-backdrop] {
+  background: rgb(28 35 32 / 0.4);
+}
+
+@keyframes food-sheet-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  #app-shell[data-sheet-background] {
+    overflow: clip;
+    animation-name: food-sheet-background;
+    animation-duration: 1ms;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: var(--sheet-background-timeline);
+    animation-range: entry;
+    will-change: transform;
+  }
+}
+
+@keyframes food-sheet-background {
+  from {
+    transform: translateY(0) scale(1);
+    border-radius: 0;
+  }
+  to {
+    transform: translateY(22px) scale(var(--sheet-background-scale, 0.94));
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app-shell[data-sheet-background] {
+    animation: none;
+  }
+}

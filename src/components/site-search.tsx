@@ -58,7 +58,10 @@ export default function SiteSearch() {
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={(event) => {
+          event.currentTarget.focus({ preventScroll: true })
+          setIsOpen(true)
+        }}
         aria-label="Search places"
         className={button({ scheme: 'outline', className: `justify-start text-left sm:min-w-64 ${barOwnsSearch ? 'sm:hidden' : ''}` })}
       >
