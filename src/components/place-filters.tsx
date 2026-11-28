@@ -218,7 +218,7 @@ function FilterSheetTrigger({ places, facets, filters, onChange, resultCount, vi
       <Suspense fallback={null}>
         <BottomSheet isOpen={isOpen} onOpenChange={setIsOpen} label="Filters" size="auto">
           <div className="flex max-h-[75svh] flex-col">
-            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-4">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 pb-4">
               <div className="flex items-center justify-between pt-1">
                 <p className="font-display text-2xl font-medium text-ink">Filters</p>
                 <button

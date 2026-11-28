@@ -11,6 +11,7 @@ import {
   AnimatePresence,
   cubicBezier,
   motion,
+  useDragControls,
   useMotionTemplate,
   useMotionValue,
   useMotionValueEvent,
@@ -59,6 +60,8 @@ function Sheet({ onOpenChange, label, size, children }: Required<Omit<BottomShee
   // that until it has been measured, so it starts at a full screen height.
   const [travel, setTravel] = useState(() => (isFull ? window.innerHeight - SHEET_MARGIN : window.innerHeight))
   const y = useMotionValue(travel)
+  const dragControls = useDragControls()
+  const didDragRef = useRef(false)
 
   const bgOpacity = useTransform(y, [0, travel], [0.4, 0])
   const bg = useMotionTemplate`rgba(28, 35, 32, ${bgOpacity})`
@@ -137,12 +140,31 @@ function Sheet({ onOpenChange, label, size, children }: Required<Omit<BottomShee
         transition={sheetTransition}
         style={{ y, ...(isFull ? { top: SHEET_MARGIN } : {}) }}
         drag="y"
+        dragListener={false}
+        dragControls={dragControls}
         dragConstraints={{ top: 0 }}
         dragElastic={{ top: 0, bottom: 1 }}
+        onDragStart={() => { didDragRef.current = true }}
         onDragEnd={onDragEnd}
       >
-        <div className={sheetHandle()} />
         <Dialog aria-label={label} className="flex min-h-0 flex-1 flex-col outline-hidden">
+          {/* Content swipes scroll. Only the handle starts a dismiss gesture. */}
+          <button
+            type="button"
+            aria-label="Close drawer"
+            className="flex h-11 w-full shrink-0 cursor-grab touch-none items-center justify-center rounded-t-2xl select-none focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-blueberry-600 active:cursor-grabbing"
+            onPointerDown={(event) => {
+              didDragRef.current = false
+              dragControls.start(event)
+            }}
+            onClick={(event) => {
+              // Ignore the click after a drag, but allow keyboard activation.
+              if (!didDragRef.current || event.detail === 0)
+                onOpenChange(false)
+            }}
+          >
+            <span aria-hidden className={sheetHandle({ className: 'm-0' })} />
+          </button>
           {children}
         </Dialog>
       </MotionModal>
