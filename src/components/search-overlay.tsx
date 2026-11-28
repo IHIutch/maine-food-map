@@ -109,7 +109,7 @@ function SearchPanel({ session, onSelect, onClose, showHints }: PanelProps) {
             )}
       </div>
 
-      <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2 pb-[env(safe-area-inset-bottom)] sm:max-h-[52vh] sm:flex-none sm:pb-2">
+      <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-auto p-2 pb-[env(safe-area-inset-bottom)] sm:max-h-[52vh] sm:flex-none sm:overscroll-contain sm:pb-2">
         {status === 'loading' && (
           <p className={metaLabel({ className: 'block px-3 py-10 text-center text-stone-500' })}>Loading places…</p>
         )}
