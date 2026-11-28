@@ -1,18 +1,14 @@
 /**
- * iOS-style bottom sheet: drags to dismiss, and (at full size) scales the page
- * behind it. Client-only — React Aria's modal and Motion both assume a DOM, and
- * the worker SSR runtime can't load them, so import this lazily.
- *
- * The sheet animates itself in and out imperatively rather than through Motion's
- * `animate` prop, because that prop doesn't drive a motion value which is also
- * passed in `style` — and owning the exit animation is what lets the sheet finish
- * sliding out before it unmounts.
+ * A bottom sheet with drag dismissal and optional background scaling.
+ * Import lazily because React Aria's modal and Motion require a DOM.
+ * AnimatePresence keeps the sheet mounted until its exit animation finishes.
  */
 import type { PanInfo } from 'motion/react'
 import type { ReactNode } from 'react'
 
 import {
   animate,
+  AnimatePresence,
   cubicBezier,
   motion,
   useMotionTemplate,
@@ -20,7 +16,7 @@ import {
   useMotionValueEvent,
   useTransform,
 } from 'motion/react'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Dialog, Modal, ModalOverlay } from 'react-aria-components'
 
 import { overlayScrim, overlaySurface, sheetHandle } from './ui'
@@ -44,31 +40,19 @@ interface BottomSheetProps {
   children: ReactNode
 }
 
-/** Keeps the sheet mounted until its exit animation has finished. */
 export default function BottomSheet({ isOpen, onOpenChange, label, size = 'full', children }: BottomSheetProps) {
-  const [isMounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    if (isOpen)
-      setMounted(true)
-  }, [isOpen])
-
-  const onClosed = useCallback(() => setMounted(false), [])
-
-  if (!isMounted)
-    return null
-
   return (
-    <Sheet isOpen={isOpen} onOpenChange={onOpenChange} onClosed={onClosed} label={label} size={size}>
-      {children}
-    </Sheet>
+    <AnimatePresence>
+      {isOpen && (
+        <Sheet key="sheet" onOpenChange={onOpenChange} label={label} size={size}>
+          {children}
+        </Sheet>
+      )}
+    </AnimatePresence>
   )
 }
 
-function Sheet({ isOpen, onOpenChange, onClosed, label, size, children }: Required<Omit<BottomSheetProps, 'children'>> & {
-  onClosed: () => void
-  children: ReactNode
-}) {
+function Sheet({ onOpenChange, label, size, children }: Required<Omit<BottomSheetProps, 'isOpen'>>) {
   const isFull = size === 'full'
   const modalRef = useRef<HTMLDivElement>(null)
   // How far the sheet travels to get off-screen. An `auto` sheet doesn't know
@@ -129,16 +113,6 @@ function Sheet({ isOpen, onOpenChange, onClosed, label, size, children }: Requir
       shell.style.borderRadius = `${value}px`
   })
 
-  useEffect(() => {
-    if (isOpen) {
-      animate(y, 0, sheetTransition)
-      return
-    }
-    const animation = animate(y, travel, sheetTransition)
-    animation.then(onClosed)
-    return () => animation.stop()
-  }, [isOpen, y, travel, onClosed])
-
   function onDragEnd(_event: unknown, { offset, velocity }: PanInfo) {
     if (offset.y > travel * 0.4 || velocity.y > 10)
       onOpenChange(false)
@@ -157,6 +131,10 @@ function Sheet({ isOpen, onOpenChange, onClosed, label, size, children }: Requir
       <MotionModal
         ref={modalRef}
         className={overlaySurface({ shape: 'sheet', className: isFull ? 'absolute bottom-0' : 'absolute bottom-0 max-h-[85svh]' })}
+        initial={{ y: travel }}
+        animate={{ y: 0 }}
+        exit={{ y: travel }}
+        transition={sheetTransition}
         style={{ y, ...(isFull ? { top: SHEET_MARGIN } : {}) }}
         drag="y"
         dragConstraints={{ top: 0 }}
