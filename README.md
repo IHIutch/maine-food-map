@@ -1,72 +1,35 @@
-# Welcome to TanStack.com!
+# Maine Food Map
 
-This site is built with TanStack Router!
+A curated directory of places to eat in Maine, with map and list views, place details, and filters for town, cuisine, price, and opening hours.
 
-- [TanStack Router Docs](https://tanstack.com/router)
+The app uses TanStack Start, React, Tailwind CSS, and Mapbox. A Cloudflare Worker reads restaurant data from Postgres through Drizzle ORM.
 
-It's deployed automagically with Netlify!
+## Local development
 
-- [Netlify](https://netlify.com/)
-
-## Development
-
-From your terminal:
+Use Node.js 22.12 or later and the pnpm version declared in `package.json`.
 
 ```sh
 pnpm install
 pnpm dev
 ```
 
-This starts your app in development mode, rebuilding assets on file changes.
+The development server defaults to port 3000. Set `VITE_MAPBOX_API_KEY` for maps and a direct Postgres connection in `DIRECT_DATABASE_URL` or `DATABASE_URL` for data. Local Vite development reads `.env` and `.env.local`; keep credentials out of version control. `VITE_PORT` overrides the default port.
 
-## Editing and previewing the docs of TanStack projects locally
+Installation generates Cloudflare Worker types. It does not run database migrations. See [the database guide](drizzle/README.md) for connection rules and schema commands.
 
-The documentations for all TanStack projects except for `React Charts` are hosted on [https://tanstack.com](https://tanstack.com), powered by this TanStack Router app.
-In production, the markdown doc pages are fetched from the GitHub repos of the projects, but in development they are read from the local file system.
-
-Follow these steps if you want to edit the doc pages of a project (in these steps we'll assume it's [`TanStack/form`](https://github.com/tanstack/form)) and preview them locally :
-
-1. Create a new directory called `tanstack`.
+## Checks
 
 ```sh
-mkdir tanstack
+pnpm knip
+pnpm lint
+pnpm test
+pnpm build
 ```
 
-2. Enter the directory and clone this repo and the repo of the project there.
+Tests use a disposable in-memory PostgreSQL fixture and do not connect to the configured database.
 
-```sh
-cd tanstack
-git clone git@github.com:TanStack/tanstack.com.git
-git clone git@github.com:TanStack/form.git
-```
+Knip discovers TanStack entry points and Drizzle configuration through its plugins. `knip.json` also includes route modules and scripts. The Material Symbols dependency is kept explicitly because Iconify resolves it from `icon-[material-symbols--search-rounded]` classes through the Tailwind CSS plugin.
 
-> [!NOTE]
-> Your `tanstack` directory should look like this:
->
-> ```
-> tanstack/
->    |
->    +-- form/
->    |
->    +-- tanstack.com/
-> ```
+## Deployment
 
-> [!WARNING]
-> Make sure the name of the directory in your local file system matches the name of the project's repo. For example, `tanstack/form` must be cloned into `form` (this is the default) instead of `some-other-name`, because that way, the doc pages won't be found.
-
-3. Enter the `tanstack/tanstack.com` directory, install the dependencies and run the app in dev mode:
-
-```sh
-cd tanstack.com
-pnpm i
-# The app will run on https://localhost:3000 by default
-pnpm dev
-```
-
-4. Now you can visit http://localhost:3000/form/latest/docs/overview in the browser and see the changes you make in `tanstack/form/docs`.
-
-> [!NOTE]
-> The updated pages need to be manually reloaded in the browser.
-
-> [!WARNING]
-> You will need to update the `docs/config.json` file (in the project's repo) if you add a new doc page!
+`pnpm deploy` deploys the Worker with the existing Wrangler configuration. Build the app first with `pnpm build`. Configure the map key at build time and the direct Postgres URL in the deployment environment.

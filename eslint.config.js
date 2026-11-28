@@ -36,9 +36,7 @@ export default antfu({
   },
   rules: {
     'tailwindcss/classnames-order': 'error',
-    // A class Tailwind doesn't know generates no CSS and fails silently — which is
-    // how `text-paper` and `bg-accent/30` went on rendering as nothing after those
-    // tokens left @theme. Warn, so a typo surfaces without blocking a build.
+    // Warn about unknown classes, such as references to removed theme tokens.
     'tailwindcss/no-custom-classname': 'warn',
   },
 })

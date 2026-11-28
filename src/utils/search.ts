@@ -1,11 +1,7 @@
 /**
- * Search for the command palette. The index is small enough (a few hundred
- * places) to ship once and search locally on every keystroke, which is what makes
- * the palette feel instant; the server shapes the data, Fuse does the matching.
- *
- * Two things sit on top of plain fuzzy matching:
- *   - alias expansion, so "bbq" finds Barbeque and "pho" finds Vietnamese
- *   - match ranges from Fuse, so results highlight what actually matched
+ * The command palette fetches the search index once and uses Fuse to rank it
+ * locally. Query aliases expand terms such as "bbq" to Barbeque. Fuse match
+ * ranges identify the text to highlight in results.
  */
 import type { FuseResultMatch } from 'fuse.js'
 
@@ -95,7 +91,7 @@ function rangesFor(matches: readonly FuseResultMatch[] | undefined, key: string)
   return matches?.filter(match => match.key === key).flatMap(match => match.indices as unknown as Range[]) ?? []
 }
 
-/** Cuisine names implied by shorthand in the query — "kbbq" → Korean. */
+/** Expand query shorthand to cuisine names, such as "kbbq" to Korean. */
 export function aliasCuisines(query: string, cuisines: Facet[]) {
   const matches = aliasSlugsFor(query)
   if (matches.length === 0)

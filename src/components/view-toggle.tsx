@@ -39,7 +39,7 @@ export default function ViewToggle({ view, onChange }: {
           className={segmentedItem({ active: view === option.value })}
         >
           <span className={`size-4 ${option.icon}`} />
-          {/* the label rides along on whichever view you're on; the other stays an icon */}
+          {/* Show the label only for the selected view. */}
           {view === option.value ? option.label : <span className="sr-only">{option.label}</span>}
         </ToggleGroup.Item>
       ))}

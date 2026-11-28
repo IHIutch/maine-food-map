@@ -1,11 +1,7 @@
 /**
- * The `restaurant_categories` join table is empty, so cuisine is derived from a
- * place's own words: its title, blurb and (where they exist) its tags are
- * matched against the `categories` vocabulary plus a small synonym list.
- *
- * Deriving here keeps the vocabulary in one place — the same matcher can later
- * backfill `restaurant_categories` for real, at which point `deriveCuisineSlugs`
- * becomes the seed script rather than a query-time step.
+ * The `restaurant_categories` join table is empty. Match restaurant titles,
+ * descriptions, and tags against category names and synonyms to derive cuisines.
+ * The same matcher could later backfill the join table.
  */
 
 export interface Category {
@@ -13,7 +9,7 @@ export interface Category {
   display_name: string
 }
 
-/** Categories that describe how you eat, not what you eat — never offered as a cuisine. */
+/** Exclude non-cuisine categories from cuisine filters. */
 const META_SLUGS = new Set([
   'grab-a-bite',
   'eat-out',

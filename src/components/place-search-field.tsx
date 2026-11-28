@@ -1,14 +1,9 @@
 /**
- * The search field that lives in the filter bar, beside the filter menus.
+ * Searches all places from the filter bar. Selecting a town or cuisine changes
+ * that filter and preserves the others. Typing alone does not change the page.
+ * The command palette provides search on small screens.
  *
- * It searches every place — not just the filtered ones — so it can always get
- * you somewhere; picking a town or cuisine sets that dimension and leaves the
- * rest of the filters alone. Typing is transient: only a selection changes the
- * page. The ⌘K palette remains the equivalent on small screens.
- *
- * Built on Ark's Combobox, which supplies the WAI-ARIA combobox pattern —
- * roles, `aria-activedescendant`, keyboard navigation and collision-aware
- * positioning — that a bare input and a div of buttons can't offer.
+ * Ark's Combobox handles roles, keyboard navigation, and popup positioning.
  */
 import { createListCollection } from '@ark-ui/react/collection'
 import { Combobox } from '@ark-ui/react/combobox'
@@ -31,7 +26,7 @@ interface SearchablePlace {
 }
 
 interface Suggestion {
-  /** `place:slug`, `town:value` or `cuisine:value` — the combobox's item value. */
+  /** Combobox item value, `place:slug`, `town:value` or `cuisine:value`. */
   value: string
   kind: 'place' | 'town' | 'cuisine'
   label: string
@@ -121,7 +116,7 @@ export default function PlaceSearchField({ places, filters, onChange, cuisineNam
       inputValue={query}
       onInputValueChange={details => setQuery(details.inputValue)}
       onValueChange={details => details.value[0] && choose(details.value[0])}
-      // the field is a jumping-off point, not a form control: it always clears
+      // Clear the query after a selection.
       selectionBehavior="clear"
       openOnClick={false}
       className="relative w-full max-w-72"

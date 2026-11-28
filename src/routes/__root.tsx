@@ -25,7 +25,7 @@ function FathomAnalytics() {
       return location ? location.pathname + location.searchStr : null
     },
   })
-  const lastTrackedPath = React.useRef<string | null>(null)
+  const lastTrackedPathRef = React.useRef<string | null>(null)
 
   React.useEffect(() => {
     // The tracking effect owns initial and subsequent page views.
@@ -34,12 +34,12 @@ function FathomAnalytics() {
 
   React.useEffect(() => {
     // Wait for startup to resolve and suppress calls from effect replay.
-    if (pagePath === null || lastTrackedPath.current === pagePath)
+    if (pagePath === null || lastTrackedPathRef.current === pagePath)
       return
 
     // Pass search unchanged so Fathom applies its own reporting rules.
     trackPageview({ url: pagePath })
-    lastTrackedPath.current = pagePath
+    lastTrackedPathRef.current = pagePath
   }, [pagePath])
 
   return null
